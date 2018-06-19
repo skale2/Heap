@@ -1,6 +1,11 @@
 
 import java.util.*;
 
+/**
+ * A class that takes in a stream of tokens from the Lexer and parses them
+ * into an Abstract Syntax Tree (AST), which is easier to run through
+ * when interpreting.
+ */
 public class Parser {
 
     public Parser(Lexer lexer) {
@@ -44,32 +49,54 @@ public class Parser {
 
         while(!current().equals(endToken)) {
 
+            /* Check if is a pointer */
             boolean isPointer = false;
             if (current().type() == Token.TokenType.MULTIPLY) {
                 eat(values.get("MULTIPLY"));
                 isPointer = true;
             }
 
-            if (current().type() == Token.TokenType.ARR_OPEN) {
-                eat(values.get("ARR_OPEN"));
-                List<Type> containerTypes =  parseType(values.get("ARR_CLOSE"));
-                types.add(new ContainerType(isPointer, ContainerType.Container.LIST, containerTypes);
-                eat(values.get("ARR_CLOSE"));
-            } else if (current().type() == Token.TokenType.SCOPE_OPEN) {
-                    eat(values.get("SCOPE_OPEN"));
-                    List<Type> containerTypes =  parseType(values.get("SCOPE_CLOSE"));
-                    types.add(new ContainerType(isPointer, ContainerType.Container.MAP, containerTypes);
-                    eat(values.get("SCOPE_CLOSE"));
-            } else if (current().type() == Token.TokenType.SET_OPEN) {
-                eat(values.get("SET_OPEN"));
-                List<Type> containerTypes =  parseType(values.get("SET_CLOSE"));
-                types.add(new ContainerType(isPointer, ContainerType.Container.SET, containerTypes);
-                eat(values.get("SET_CLOSE"));
+            /* Check if is a container */
+            List<String> containerTypes = new ArrayList<String>() {{
+                add("ARR_OPEN"); add("SCOPE_OPEN"); add("SET_OPEN");
+                add("UNDIR_OPEN"); add("DIR_OPEN");
+            }};
+
+            if (containerTypes.contains(current().type().toString())) {
+                types.add(parseContainerType(current().type().toString(), isPointer));
+                continue;
             }
+
+            /* Check if is a shorthand for graph */
+            if (current().type() == Token.TokenType.DIR_TYPE) {
+                eat(values.get("DIR_GRAPH_TYPE"));
+                List<Type> containedType = new ArrayList<>();
+                types.add(new ContainerType(isPointer, ContainerType.Container.DIR, containedType));
+                continue;
+            } else if (current().type() == Token.TokenType.UNDIR_TYPE) {
+                eat(values.get("UNDIR_GRAPH_TYPE"));
+                List<Type> containedType = new ArrayList<>();
+                types.add(new ContainerType(isPointer, ContainerType.Container.UNDIR, containedType));
+                continue;
+            }
+
+            /* Check current is either a built-in type, or a user made type
+            * that isn't reserved */
+            assert current().isType() || !current().isReserved();
+            types.add(new Type(current(), isPointer));
+            eat(current());
+
             eat(values.get("COMMA"));
         }
 
         return types;
+    }
+
+    private ContainerType parseContainerType(String containerType, boolean isPointer) {
+        eat(values.get(containerType + "_OPEN"));
+        List<Type> containerTypes =  parseType(values.get(containerType + "_CLOSE"));
+        eat(values.get(containerType + "_CLOSE"));
+        return new ContainerType(isPointer, ContainerType.Container.valueOf(containerType), containerTypes);
     }
 
     private Params parseParams(Token endBlock) {
@@ -110,7 +137,7 @@ public class Parser {
 
         List<Expression> breakClauses = new ArrayList<>();
         while(!currentIs("COLON")) {
-            breakClauses.add(parseExpression());
+            breakClauses.add(parseExpression(values.get("COMMA"), values.get("COLON")));
             if (currentIs("COMMA")) {
                 eat(values.get("COMMA"));
             }
@@ -119,7 +146,7 @@ public class Parser {
 
         List<Expression> loopClauses = new ArrayList<>();
         while(!currentIs("PAR_CLOSE")) {
-            loopClauses.add(parseExpression());
+            loopClauses.add(parseExpression(values.get("COMMA"), values.get("PAR_CLOSE")));
             if (currentIs("COMMA")) {
                 eat(values.get("COMMA"));
             }
@@ -147,7 +174,7 @@ public class Parser {
         eat(values.get("IF"));
 
         eat(values.get("PAR_OPEN"));
-        Expression expression = parseExpression();
+        Expression expression = parseExpression(values.get("PAR_CLOSE"));
         eat(values.get("PAR_CLOSE"));
 
         eat(values.get("DIRECT"));
@@ -197,7 +224,7 @@ public class Parser {
         eat(startToken);
 
         eat(values.get("PAR_OPEN"));
-        Expression switchExpression = parseExpression();
+        Expression switchExpression = parseExpression(values.get("PAR_CLOSE"));
         eat(values.get("PAR_CLOSE"));
 
         eat(values.get("DIRECT"));
@@ -211,7 +238,7 @@ public class Parser {
         while (!currentIs("SCOPE_CLOSE")) {
             if (currentIs("CASE")) {
                 eat(values.get("CASE"));
-                Expression caseExpression = parseExpression();
+                Expression caseExpression = parseExpression(values.get("COLON"));
                 eat(values.get("COLON"));
                 Block caseBlock = parseBlock(values.get("CASE"), values.get("DEFAULT"));
 
@@ -290,7 +317,7 @@ public class Parser {
         return new Func(params, block);
     }
 
-    private Expression parseExpression() {}
+    private Expression parseExpression(Token... endTokens) {}
 
     private Declare parseDeclare() {
         List<Modifier> modifiers = new ArrayList<>();
@@ -308,6 +335,112 @@ public class Parser {
 
         return new Declare(modifiers, var, types);
     }
+
+    private HArrayList parseArrayList() {
+        eat(values.get("ARR_OPEN"));
+        List<Expression> items = new ArrayList<>();
+        while (!currentIs("ARR_CLOSE")) {
+            items.add(parseExpression(values.get("COMMA")));
+            eat(values.get("COMMA"));
+        }
+        eat(values.get("ARR_CLOSE"));
+        return new HArrayList(items);
+    }
+
+    private HLinkedList parseLinkedList() {
+        eat(values.get("L_ARR_OPEN"));
+        List<Expression> items = new ArrayList<>();
+        while (!currentIs("ARR_CLOSE")) {
+            items.add(parseExpression(values.get("COMMA")));
+            eat(values.get("COMMA"));
+        }
+        eat(values.get("ARR_CLOSE"));
+        return new HLinkedList(items);
+    }
+
+    private HDoubleLinkedList parseDoubleLinkedList() {
+        eat(values.get("DL_ARR_OPEN"));
+        List<Expression> items = new ArrayList<>();
+        while (!currentIs("ARR_CLOSE")) {
+            items.add(parseExpression(values.get("COMMA")));
+            eat(values.get("COMMA"));
+        }
+        eat(values.get("ARR_CLOSE"));
+        return new HDoubleLinkedList(items);
+    }
+
+    private HMap parseMap() {
+        eat(values.get("SCOPE_OPEN"));
+
+        Map<Expression, Expression> items = new HashMap<>();
+        while (!currentIs("SCOPE_CLOSE")) {
+            Expression key = parseExpression(values.get("COLON"));
+            Expression value = parseExpression(values.get("COMMA"));
+            items.put(key, value);
+        }
+
+        eat(values.get("SCOPE_CLOSE"));
+        return new HMap(items);
+    }
+
+    private HDirectedGraph parseDirectedGraph() {
+        eat(values.get("DIR_OPEN"));
+
+        List<Expression> nodes = new ArrayList<>();
+        while (!currentIs("EOL")) {
+            nodes.add(parseExpression(values.get("COMMA")));
+            eat(values.get("COMMA"));
+        }
+        eat(values.get("EOL"));
+
+        List<HDirectedGraph.HDirectedEdge> edges = new ArrayList<>();
+        while (!currentIs("DIR_CLOSE")) {
+            Expression first = parseExpression(values.get("DIR_EDGE"),
+                    values.get("DIR_2_EDGE"));
+
+            assert currentIs("DIR_EDGE") || currentIs("DIR_2_EDGE");
+            boolean doubleEdge = currentIs("DIR_EDGE");
+            eat(current());
+
+            Expression second = parseExpression(values.get("COMMA"));
+
+            edges.add(new HDirectedGraph.HDirectedEdge(first, second, doubleEdge));
+            eat(values.get("COMMA"));
+        }
+
+        eat(values.get("DIR_CLOSE"));
+        return new HDirectedGraph(nodes, edges);
+    }
+
+    private HUndirectedGraph parseUndirectedGraph() {
+        eat(values.get("UNDIR_OPEN"));
+
+        List<Expression> nodes = new ArrayList<>();
+        while (!currentIs("EOL")) {
+            nodes.add(parseExpression(values.get("COMMA")));
+            eat(values.get("COMMA"));
+        }
+        eat(values.get("EOL"));
+
+        List<HGraph.HEdge> edges = new ArrayList<>();
+        while (!currentIs("DIR_CLOSE")) {
+            Expression first = parseExpression(values.get("DIR_EDGE"),
+                    values.get("DIR_2_EDGE"));
+
+            eat(values.get("MINUS"));
+
+            Expression second = parseExpression(values.get("COMMA"));
+
+            edges.add(new HGraph.HEdge(first, second));
+            eat(values.get("COMMA"));
+        }
+
+        eat(values.get("UNDIR_CLOSE"));
+        return new HUndirectedGraph(nodes, edges);
+    }
+
+
+
 
     private Token current() {
         return _current;
@@ -338,6 +471,7 @@ public class Parser {
             }
         }
     }};
+
 
 
 
@@ -379,7 +513,7 @@ public class Parser {
         Var var;
         List<Type> type;
 
-        public Declare(List<Modifier> modifier, Var var, List<Type> type) {
+        Declare(List<Modifier> modifier, Var var, List<Type> type) {
             this.modifier = modifier;
             this.var = var;
             this.type = type;
@@ -424,7 +558,7 @@ public class Parser {
             this.types = types;
         }
 
-        enum Container { SET, LIST, MAP, OTHER }
+        enum Container { NONE, SET, LIST, MAP, DIR, UNDIR, OTHER }
     }
 
     /** A @modifier that can be applied to a method, class, or variable */
@@ -576,36 +710,104 @@ public class Parser {
     static abstract class Container extends ASTNode {}
 
     /** A dynamic array of objects */
-    static final class HList extends Container {
-        List<ASTNode> items;
+    static class HList extends Container {
+        List<Expression> items;
+    }
 
-        public HList(List<ASTNode> items, Token token) {
+    /** A dynamic array of objects with a dynamic array implementation */
+    static final class HArrayList extends HList {
+        List<Expression> items;
+
+        HArrayList(List<Expression> items) {
             this.items = items;
-            this.token = token;
+            this.token = values.get("ARR_OPEN");
+        }
+    }
+
+    /** A dynamic array of objects with a linked list implementation */
+    static final class HLinkedList extends HList {
+        List<Expression> items;
+
+        HLinkedList(List<Expression> items) {
+            this.items = items;
+            this.token = values.get("L_ARR_OPEN");
+        }
+    }
+
+    /** A dynamic array of objects with a doubly linked list implementation */
+    static final class HDoubleLinkedList extends HList {
+        List<Expression> items;
+
+        HDoubleLinkedList(List<Expression> items) {
+            this.items = items;
+            this.token = values.get("DL_ARR_OPEN");
         }
     }
 
     /** A bijective mapping between objects */
     static final class HMap extends Container {
-        List<ASTNode> keys;
-        List<ASTNode> values;
+        Map<Expression, Expression> items;
 
-        public HMap(List<ASTNode> keys, List<ASTNode> values, Token token) {
-            this.keys = keys;
-            this.values = values;
-            this.token = token;
+        HMap(Map<Expression, Expression> items) {
+            this.items = items;
+            this.token = Parser.values.get("SCOPE_OPEN");
         }
     }
 
     /** A unique set of objects */
     static final class HSet extends Container {
-        List<ASTNode> items;
+        List<Expression> items;
 
-        public HSet(List<ASTNode> items, Token token) {
+        HSet(List<Expression> items, Token token) {
             this.items = items;
             this.token = token;
         }
     }
+
+    /** A base class for collection of objects and edges connecting them */
+    static abstract class HGraph extends Container {
+        List<Expression> nodes;
+        List<? extends HEdge> edges;
+
+        HGraph(List<Expression> nodes, List<? extends HEdge> edges, Token token) {
+            this.nodes = nodes;
+            this.edges = edges;
+            this.token = token;
+        }
+
+        static class HEdge extends ASTNode {
+            ASTNode first, second;
+
+            HEdge(Expression first, Expression second) {
+                this.first = first;
+                this.second = second;
+            }
+        }
+    }
+
+    /** A graph where each edge is directed from one node to another */
+    static final class HDirectedGraph extends HGraph {
+        HDirectedGraph(List<Expression> nodes, List<HDirectedEdge> edges) {
+            super(nodes, edges, values.get("DIR_TYPE"));
+        }
+
+        static final class HDirectedEdge extends HEdge {
+            boolean doubleEdge;
+            HDirectedEdge(Expression first, Expression second, boolean doubleEdge) {
+                super(first, second);
+                this.doubleEdge = doubleEdge;
+            }
+        }
+    }
+
+    /** A graph where nodes are parity-constant */
+    static final class HUndirectedGraph extends HGraph {
+        HUndirectedGraph(List<Expression> nodes, List<HEdge> edges) {
+            super(nodes, edges, values.get("UNDIR_TYPE"));
+        }
+    }
+
+
 
 
     /** Operations */

@@ -33,7 +33,8 @@ class Token {
             MDF = "MODIFIER",
             TYP = "TYPE",
             CNS = "CONSTRUCT",
-            DIR = "DIRECT";
+            DIR = "DIRECT",
+            CNT = "CONTAINER";
 
     public enum TokenType {
 
@@ -50,22 +51,29 @@ class Token {
 
         ADD("+", OPR), SUBTRACT("-", OPR), MULTIPLY("*", OPR), DIVIDE("/", OPR),
         MOD("%", OPR), FLOOR("-/", OPR), EXP("**", OPR), ROUND("`", OPR),
+        INCREMENT("++", OPR), DECREMENT("--", OPR),
 
         L_AND("&&", OPR), L_OR("||", OPR), L_NOT("!", OPR), L_XOR("^^", OPR),
         B_AND("&", OPR), B_OR("|", OPR), B_NOT("~", OPR), B_XOR("^", OPR),
 
         LESS_THAN("<", OPR), GREATER_THAN(">", OPR),
 
-        ARR_OPEN("["), L_ARR_OPEN("-["), DL_ARR_OPEN("--["), ARR_CLOSE("]"),
-        SCOPE_OPEN("{"), SCOPE_CLOSE("}"), PAR_OPEN("("), PAR_CLOSE(")"),
-        SET_OPEN("{<"), SET_CLOSE("<}"),
+        TRUE("true", RSD), FALSE("false", RSD),
+
+        ARR_OPEN("[", RSD, CNT), L_ARR_OPEN("-[", RSD, CNT),
+        DL_ARR_OPEN("--[", RSD, CNT), ARR_CLOSE("]", RSD, CNT),
+        SCOPE_OPEN("{", RSD, CNT), SCOPE_CLOSE("}", RSD, CNT),
+        PAR_OPEN("(", RSD, CNT), PAR_CLOSE(")", RSD, CNT),
+        SET_OPEN("{<", RSD, CNT), SET_CLOSE("<}", RSD, CNT),
+        UNDIR_OPEN("*-", RSD, CNT), UNDIR_CLOSE("-*", RSD, CNT), UNDIR_TYPE("*-*", RSD, CNT),
+        DIR_OPEN("*->", RSD, CNT), DIR_CLOSE("<-*", RSD, CNT), DIR_TYPE("*->*", RSD, CNT),
+        DIR_EDGE("->", RSD, CNT), DIR_2_EDGE("<->", RSD, CNT),
 
         STR_BOUND("\"|\'"),
 
         INT("int", RSD, TYP), LONG("long", RSD, TYP), DOUBLE("double", RSD, TYP),
         FLOAT("float", RSD, TYP), CHAR("char", RSD, TYP), BOOL("bool", RSD, TYP),
-        TRUE("true", RSD, TYP), FALSE("false", RSD, TYP), STR("str", RSD, TYP),
-        NULL("null", RSD, TYP), ANY("any", RSD, TYP),
+        STR("str", RSD, TYP), NULL("null", RSD, TYP), ANY("any", RSD, TYP),
 
         IF("if", RSD, DIR), ELSE("else", RSD, DIR), SWITCH("switch", RSD, DIR),
         CASE("case", RSD, DIR), DEFAULT("default", RSD, DIR), SELECT("select", RSD, DIR),

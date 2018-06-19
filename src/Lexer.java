@@ -162,9 +162,6 @@ public class Lexer {
             }
             advance();
             return new Token(Token.TokenType.SCOPE_OPEN);
-        } else if (_current == '-' && peek() == '-' && peek(2) == '[') {
-            advance(2);
-            return new Token(Token.TokenType.DL_ARR_OPEN);
         } else if (_current == '/') {
             if (peek() == '*') {
                 skipComment('*');
@@ -226,9 +223,55 @@ public class Lexer {
             if (peek() == '}') {
                 advance(2);
                 return new Token(Token.TokenType.SET_CLOSE);
+            } else if (peek() == '-') {
+                if (peek(2) == '*') {
+                    advance(3);
+                    return new Token(Token.TokenType.DIR_CLOSE);
+                } else if (peek() == '>') {
+                    advance(3);
+                    return new Token(Token.TokenType.DIR_2_EDGE);
+                }
             }
             advance();
             return new Token(Token.TokenType.LESS_THAN);
+        } else if (_current == '*') {
+            if (peek() == '-') {
+                if (peek(2) == '>') {
+                    if (peek(3) == '*') {
+                        advance(4);
+                        return new Token(Token.TokenType.DIR_TYPE);
+                    }
+                    advance(3);
+                    return new Token(Token.TokenType.DIR_OPEN);
+                } else if (peek(2) == '*') {
+                    advance(3);
+                    return new Token(Token.TokenType.UNDIR_TYPE);
+                }
+                advance(2);
+                return new Token(Token.TokenType.UNDIR_OPEN);
+            }
+            advance();
+            return new Token(Token.TokenType.MULTIPLY);
+        } else if (_current == '-') {
+            if (peek() == '*') {
+                advance(2);
+                return new Token(Token.TokenType.UNDIR_CLOSE);
+            } else if (peek() == '-') {
+                if (peek(2) == '[') {
+                    advance(3);
+                    return new Token(Token.TokenType.DL_ARR_OPEN);
+                }
+                advance(2);
+                return new Token(Token.TokenType.DECREMENT);
+            } else if (peek() == '[') {
+                advance(2);
+                return new Token(Token.TokenType.L_ARR_OPEN);
+            } else if (peek() == '>') {
+                advance(2);
+                return new Token(Token.TokenType.DIR_EDGE);
+            }
+            advance();
+            return new Token(Token.TokenType.SUBTRACT);
         }
 
 
@@ -236,8 +279,6 @@ public class Lexer {
             case ',': return new Token(Token.TokenType.COMMA);
             case ';': return new Token(Token.TokenType.EOL);
             case '+': return new Token(Token.TokenType.ADD);
-            case '-': return new Token(Token.TokenType.SUBTRACT);
-            case '*': return new Token(Token.TokenType.MULTIPLY);
             case '%': return new Token(Token.TokenType.MOD);
             case '`': return new Token(Token.TokenType.ROUND);
             case '>': return new Token(Token.TokenType.GREATER_THAN);
