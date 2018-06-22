@@ -12,6 +12,20 @@ class Token {
         _type = type;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Token)) return false;
+        Token token = (Token) o;
+        return _type == token._type &&
+                Objects.equals(_value, token._value);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(_type, _value);
+    }
+
     public String value() { return _value; }
 
     public TokenType type() { return _type; }
@@ -60,14 +74,15 @@ class Token {
 
         TRUE("true", RSD), FALSE("false", RSD),
 
-        ARR_OPEN("[", RSD, CNT), L_ARR_OPEN("-[", RSD, CNT),
-        DL_ARR_OPEN("--[", RSD, CNT), ARR_CLOSE("]", RSD, CNT),
-        SCOPE_OPEN("{", RSD, CNT), SCOPE_CLOSE("}", RSD, CNT),
-        PAR_OPEN("(", RSD, CNT), PAR_CLOSE(")", RSD, CNT),
-        SET_OPEN("{<", RSD, CNT), SET_CLOSE("<}", RSD, CNT),
-        UNDIR_OPEN("*-", RSD, CNT), UNDIR_CLOSE("-*", RSD, CNT), UNDIR_TYPE("*-*", RSD, CNT),
-        DIR_OPEN("*->", RSD, CNT), DIR_CLOSE("<-*", RSD, CNT), DIR_TYPE("*->*", RSD, CNT),
-        DIR_EDGE("->", RSD, CNT), DIR_2_EDGE("<->", RSD, CNT),
+        PAR_OPEN("("), PAR_CLOSE(")"),
+
+        ARR_OPEN("[", CNT), L_ARR_OPEN("-[", CNT),
+        DL_ARR_OPEN("--[", CNT), ARR_CLOSE("]", CNT),
+        SCOPE_OPEN("{", CNT), SCOPE_CLOSE("}", CNT),
+        SET_OPEN("{<", CNT), SET_CLOSE("<}", CNT),
+        UNDIR_OPEN("*-", CNT), UNDIR_CLOSE("-*", CNT), UNDIR_TYPE("*-*", CNT),
+        DIR_OPEN("*->", CNT), DIR_CLOSE("<-*", CNT), DIR_TYPE("*->*", CNT),
+        DIR_EDGE("->", CNT), DIR_2_EDGE("<->", CNT),
 
         STR_BOUND("\"|\'"),
 
@@ -83,11 +98,14 @@ class Token {
 
         FUNC("func", RSD, CNS), CLASS("class", RSD, CNS), ENUM("enum", RSD, CNS),
         INTERFACE("interface", RSD, CNS), STRUCT("struct", RSD, CNS),
+        EXTEND("extend", RSD, CNS),
 
         STATIC("static", RSD, MDF), PUBLIC("public", RSD, MDF),
         PRIVATE("private", RSD, MDF), PROPERTY("property", RSD, MDF),
         ABSTRACT("abstract", RSD, MDF), SUPER("super", RSD, MDF),
-        FINAL("final", RSD, MDF), MODULE("module", RSD, MDF);
+        FINAL("final", RSD, MDF), MODULE("module", RSD, MDF),
+
+        RETURN("return", RSD);
 
 
         TokenType(String value) {

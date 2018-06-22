@@ -8,9 +8,18 @@ import java.util.*;
  */
 public class Parser {
 
-    public Parser(Lexer lexer) {
+    /** *************************************************************************************************
+     *  FORMALITIES
+     *  Basic formalities for the parser
+     */
+
+    Parser(Lexer lexer) {
         this._lexer = lexer;
         this._current = null;
+    }
+
+    ASTNode parse() {
+        return parseBlock();
     }
 
     /**
@@ -27,6 +36,39 @@ public class Parser {
         }
     }
 
+    private Token current() {
+        return _current;
+    }
+
+    private void current(Token current) {
+        this._current = current;
+    }
+
+    private boolean currentIs(String name) {
+        return current().equals(values.get(name));
+    }
+
+    private boolean currentIs(Token token) {
+        return current().equals(token);
+    }
+
+    private Lexer _lexer;
+    private Token _current;
+
+    /* A map of usable tokens that aren't dependent on user code, for comparisons. Avoids the
+     * creation of unnecessary tokens. */
+    private static final Map<String, Token> values = new HashMap<String, Token>() {{
+        for (Token.TokenType type : Token.TokenType.values()) {
+            if (type != Token.TokenType.VAR && type != Token.TokenType.INT_VAL &&
+                    type != Token.TokenType.STR_VAL &&  type != Token.TokenType.REAL_VAL) {
+                put(type.value(), new Token(type));
+            }
+        }
+    }};
+
+
+
+
     private Block parseBlock(Token... endTokens) {
         List<Statement> statements = new ArrayList<>();
         List tokens = Arrays.asList(endTokens);
@@ -39,15 +81,40 @@ public class Parser {
     private Statement parseStatement() {
         if (current().isDirect()) {
             return parseDirect();
+        } else if (currentIs("RETURN")) {
+            return parseReturn();
+        } else if (
+                currentIs("ANNOTATION") || // Is a modifier
+                currentIs("MULTIPLY") ||  // References a pointer variable
+                current().type() == Token.TokenType.VAR
+                ) {
+            return parseAssignment(values.get("EOL"));
+            eat(values.get("EOL"));
         }
     }
 
-    private Assignment parseAssignment() {}
+    private Return parseReturn() {
+        eat(values.get("RETURN"));
+        Expression expression = parseExpression(values.get("EOL"));
+        eat(values.get("EOL"));
+        return new Return(expression);
+    }
+
+    private Assignment parseAssignment(Token endToken) {
+        Declare declaration = parseDeclare();
+        eat(values.get("ASSIGN"));`
+
+        if (current().isConstruct()) {
+            return new Assignment(declaration, parseConstruct());
+        }
+
+        Expression expression = parseExpression();
+    }
 
     private List<Type> parseType(Token endToken) {
         List<Type> types = new ArrayList<>();
 
-        while(!current().equals(endToken)) {
+        while(!currentIs(endToken)) {
 
             /* Check if is a pointer */
             boolean isPointer = false;
@@ -86,7 +153,9 @@ public class Parser {
             types.add(new Type(current(), isPointer));
             eat(current());
 
-            eat(values.get("COMMA"));
+            if(!currentIs(endToken)) {
+                eat(values.get("COMMA"));
+            }
         }
 
         return types;
@@ -107,6 +176,35 @@ public class Parser {
         }
         return new Params(params);
     }
+
+    private Expression parseExpression(Token... endTokens) {}
+
+    private Declare parseDeclare() {
+        List<Modifier> modifiers = new ArrayList<>();
+        while (current().isModifier()) {
+            modifiers.add(new Modifier(current()));
+            eat(current());
+        }
+
+        Var var = new Var(current());
+        eat(current());
+
+        List<Type> types = new ArrayList<>();
+        if (currentIs("LESS_THAN")) {
+            eat(values.get("LESS_THAN"));
+            types = parseType(values.get("GREATER_THAN"));
+            eat(values.get("GREATER_THAN"));
+        }
+
+        return new Declare(modifiers, var, types);
+    }
+
+
+    /** *************************************************************************************************
+     *  DIRECTS
+     *  Blocks that direct control flow. Only scheme that isn't set to a variable.
+     */
+
 
     private Direct parseDirect() {
         if (current().type() == Token.TokenType.IF) {
@@ -301,7 +399,19 @@ public class Parser {
         return new Try(tryBlock, catches, elseBlock);
     }
 
-    private Func parseFunc() {
+
+    /** *************************************************************************************************
+     *  CONSTRUCTS
+     *  Reusable constructions that create objects
+     */
+
+    private Construct parseConstruct() {
+        if (currentIs("FUNC")) {
+            return parseFuncDeclare();
+        }
+    }
+
+    private Func parseFuncDeclare() {
         eat(values.get("FUNC"));
 
         eat(values.get("PAR_OPEN"));
@@ -310,30 +420,42 @@ public class Parser {
 
         eat(values.get("DIRECT"));
 
-        eat(values.get("SCOPE_OPEN"));
-        Block block = parseBlock(values.get("SCOPE_CLOSE"));
-        eat(values.get("SCOPE_CLOSE"));
-
-        return new Func(params, block);
-    }
-
-    private Expression parseExpression(Token... endTokens) {}
-
-    private Declare parseDeclare() {
-        List<Modifier> modifiers = new ArrayList<>();
-        while (current().isModifier()) {
-            modifiers.add(new Modifier(current()));
-            eat(current());
+        ASTNode operations;
+        if (currentIs("SCOPE_OPEN")) {
+            eat(values.get("SCOPE_OPEN"));
+            operations = parseBlock(values.get("SCOPE_CLOSE"));
+            eat(values.get("SCOPE_CLOSE"));
+        } else {
+            operations = parseExpression(values.get("EOL"));
         }
 
-        Var var = new Var(current());
-        eat(current());
+        return new Func(params, operations);
+    }
 
-        eat(values.get("LESS_THAN"));
-        List<Type> types = parseType(values.get("GREATER_THAN"));
-        eat(values.get("GREATER_THAN"));
 
-        return new Declare(modifiers, var, types);
+    /** *************************************************************************************************
+     *  CONTAINERS
+     *  Containers hold objects and add relations between them
+     */
+
+    private Container parseContainer() {
+        if (currentIs("ARR_OPEN")) {
+            return parseArrayList();
+        } else if (currentIs("L_ARR_OPEN")) {
+            return parseLinkedList();
+        } else if (currentIs("DL_ARR_OPEN")) {
+            return parseDoubleLinkedList();
+        } else if (currentIs("SCOPE_OPEN")) {
+            return parseMap();
+        } else if (currentIs("SET_OPEN")) {
+            return parseSet();
+        } else if (currentIs("UNDIR_OPEN")) {
+            return parseUndirectedGraph();
+        } else if (currentIs("DIR_OPEN")) {
+            return parseDirectedGraph();
+        } else { // TODO: Replace with an error?
+            return null;
+        }
     }
 
     private HArrayList parseArrayList() {
@@ -367,6 +489,17 @@ public class Parser {
         }
         eat(values.get("ARR_CLOSE"));
         return new HDoubleLinkedList(items);
+    }
+
+    private HSet parseSet() {
+        eat(values.get("SET_OPEN"));
+        List<Expression> items = new ArrayList<>();
+        while (!currentIs("SET_CLOSE")) {
+            items.add(parseExpression(values.get("COMMA")));
+            eat(values.get("COMMA"));
+        }
+        eat(values.get("SET_CLOSE"));
+        return new HSet(items);
     }
 
     private HMap parseMap() {
@@ -440,42 +573,11 @@ public class Parser {
     }
 
 
+    /** *************************************************************************************************
+     *  NODES
+     *  Abstract Syntax Tree node classes
+     */
 
-
-    private Token current() {
-        return _current;
-    }
-
-    private void current(Token current) {
-        this._current = current;
-    }
-
-    private boolean currentIs(String name) {
-        return current().equals(values.get(name));
-    }
-
-    private boolean currentIs(Token token) {
-        return current().type() == token.type();
-    }
-
-    private Lexer _lexer;
-    private Token _current;
-
-    /* A map of usable tokens that aren't dependent on user code, for comparisons. Avoids the
-     * creation of unnecessary tokens. */
-    private static final Map<String, Token> values = new HashMap<String, Token>() {{
-        for (Token.TokenType type : Token.TokenType.values()) {
-            if (type == Token.TokenType.VAR || type == Token.TokenType.INT_VAL ||
-                    type == Token.TokenType.STR_VAL ||  type == Token.TokenType.REAL_VAL) {
-                put(type.value(), new Token(type));
-            }
-        }
-    }};
-
-
-
-
-    /** The base AST node class */
     static abstract class ASTNode {
         Token token;
     }
@@ -496,7 +598,7 @@ public class Parser {
     static final class Assignment extends Statement {
         ASTNode var, value;
 
-        public Assignment(ASTNode var, ASTNode value) {
+        Assignment(ASTNode var, ASTNode value) {
             assert var instanceof Declare || var instanceof Var;
             this.var = var;
 
@@ -524,6 +626,16 @@ public class Parser {
     static abstract class Expression extends ASTNode {
 
     } // TODO
+
+    /** A statement on what to return from a function */
+    static final class Return extends Statement {
+        Expression expression;
+
+        Return(Expression expression) {
+            this.expression = expression;
+            this.token = values.get("RETURN");
+        }
+    }
 
 
     /** A variable identifier */
@@ -585,12 +697,14 @@ public class Parser {
     /** A defined operation taking a Param node */
     static final class Func extends Construct {
         Params params;
-        Block block;
+        ASTNode operations;
 
-        Func(Params params, Block block) {
+        Func(Params params, ASTNode operations) {
+            assert operations instanceof Block || operations instanceof Expression;
+
             this.token = new Token(Token.TokenType.FUNC);
             this.params = params;
-            this.block = block;
+            this.operations = operations;
         }
     }
 
@@ -707,7 +821,7 @@ public class Parser {
 
 
     /** Container nodes */
-    static abstract class Container extends ASTNode {}
+    static abstract class Container extends Expression {}
 
     /** A dynamic array of objects */
     static class HList extends Container {
@@ -758,9 +872,9 @@ public class Parser {
     static final class HSet extends Container {
         List<Expression> items;
 
-        HSet(List<Expression> items, Token token) {
+        HSet(List<Expression> items) {
             this.items = items;
-            this.token = token;
+            this.token = values.get("SET_OPEN");
         }
     }
 
@@ -808,8 +922,6 @@ public class Parser {
     }
 
 
-
-
     /** Operations */
     static final class UnaryOp extends ASTNode {
         ASTNode child;
@@ -841,4 +953,23 @@ public class Parser {
         }
     }
 
+    static abstract class Literal extends ASTNode {}
+
+    static final class IntLiteral extends Literal {
+        public IntLiteral(Token token) {
+            this.token = token;
+        }
+    }
+
+    static final class RealLiteral extends Literal {
+        public RealLiteral(Token token) {
+            this.token = token;
+        }
+    }
+
+    static final class StringLiteral extends Literal {
+        public StringLiteral(Token token) {
+            this.token = token;
+        }
+    }
 }
