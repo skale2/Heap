@@ -140,7 +140,7 @@ public class Lexer {
     }
 
 
-    public Token next() {
+    Token next() {
         if (_current == ' ') {
             skipWhitespace();
             return next();
@@ -155,8 +155,15 @@ public class Lexer {
             return new Token(Token.TokenType.L_ARR_OPEN);
         } else if (_current == '{') {
             if (peek() == '>') {
+                if (peek(2) == '<' && peek(3) == '}'){
+                    advance(4);
+                    return new Token(Token.TokenType.SET_TYPE);
+                }
                 advance(2);
                 return new Token(Token.TokenType.SET_OPEN);
+            } else if (peek() == '}') {
+                advance(2);
+                return new Token(Token.TokenType.MAP_TYPE);
             }
             advance();
             return new Token(Token.TokenType.SCOPE_OPEN);
@@ -270,6 +277,13 @@ public class Lexer {
             }
             advance();
             return new Token(Token.TokenType.SUBTRACT);
+        } else if (_current == '[') {
+            if (peek() == ']') {
+                advance(2);
+                return new Token(Token.TokenType.ARR_TYPE);
+            }
+            advance();
+            return new Token(Token.TokenType.ARR_OPEN);
         }
 
 
@@ -280,7 +294,6 @@ public class Lexer {
             case '%': return new Token(Token.TokenType.MOD);
             case '`': return new Token(Token.TokenType.ROUND);
             case '>': return new Token(Token.TokenType.GREATER_THAN);
-            case '[': return new Token(Token.TokenType.ARR_OPEN);
             case ']': return new Token(Token.TokenType.ARR_CLOSE);
             case '}': return new Token(Token.TokenType.SCOPE_CLOSE);
             case '(': return new Token(Token.TokenType.PAR_OPEN);

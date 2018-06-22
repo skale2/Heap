@@ -7,8 +7,7 @@ import java.io.BufferedReader;
  */
 class Interpreter {
     Interpreter(BufferedReader text) {
-        _lexer = new Lexer(text);
-        _parser = new Parser(_lexer);
+        _parser = new Parser(new Lexer(text));
     }
 
     void run() {
@@ -16,6 +15,5 @@ class Interpreter {
     }
 
     private Parser.ASTNode AST;
-    private Lexer _lexer;
     private Parser _parser;
 }

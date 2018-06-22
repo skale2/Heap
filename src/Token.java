@@ -30,6 +30,7 @@ class Token {
 
     public TokenType type() { return _type; }
 
+    public Boolean isLiteral()      { return _type._groups.contains(LIT); }
     public Boolean isReserved()     { return _type._groups.contains(RSD); }
     public Boolean isOperator()     { return _type._groups.contains(OPR); }
     public Boolean isModifier()     { return _type._groups.contains(MDF); }
@@ -41,7 +42,8 @@ class Token {
     private String _value;
 
     /** The usage type of a token for the AST */
-    static final String
+    private static final String
+            LIT = "LITERAL",
             RSD = "RESERVED",
             OPR = "OPERATOR",
             MDF = "MODIFIER",
@@ -59,9 +61,9 @@ class Token {
 
         VAR("[a-zA-Z\\_]+[a-zA-Z0-9\\_]*"),
 
-        INT_VAL("\\d+"),
-        REAL_VAL("\\d*\\.\\d+"),
-        STR_VAL("\"\\.*\""),
+        REAL_VAL("\\d*\\.\\d+", LIT),
+        INT_VAL("\\d+", LIT),
+        STR_VAL("(\"|\')\\.*(\"|\')", LIT),
 
         ADD("+", OPR), SUBTRACT("-", OPR), MULTIPLY("*", OPR), DIVIDE("/", OPR),
         MOD("%", OPR), FLOOR("-/", OPR), EXP("**", OPR), ROUND("`", OPR),
@@ -80,9 +82,14 @@ class Token {
         DL_ARR_OPEN("--[", CNT), ARR_CLOSE("]", CNT),
         SCOPE_OPEN("{", CNT), SCOPE_CLOSE("}", CNT),
         SET_OPEN("{<", CNT), SET_CLOSE("<}", CNT),
-        UNDIR_OPEN("*-", CNT), UNDIR_CLOSE("-*", CNT), UNDIR_TYPE("*-*", CNT),
-        DIR_OPEN("*->", CNT), DIR_CLOSE("<-*", CNT), DIR_TYPE("*->*", CNT),
+        UNDIR_OPEN("*-", CNT), UNDIR_CLOSE("-*", CNT),
+        DIR_OPEN("*->", CNT), DIR_CLOSE("<-*", CNT),
         DIR_EDGE("->", CNT), DIR_2_EDGE("<->", CNT),
+
+        ARR_TYPE("[]", CNT, TYP), L_ARR_TYPE("-[]", CNT, TYP),
+        DL_ARR_TYPE("--[]", CNT, TYP),
+        UNDIR_TYPE("*-*", CNT, TYP), DIR_TYPE("*->*", CNT, TYP),
+        MAP_TYPE("{}", CNT, TYP), SET_TYPE("{><}", CNT, TYP),
 
         STR_BOUND("\"|\'"),
 

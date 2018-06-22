@@ -44,12 +44,12 @@ public class Parser {
         this._current = current;
     }
 
-    private boolean currentIs(String name) {
-        return current().equals(values.get(name));
+    private boolean currentIs(String... names) {
+        return Arrays.stream(names).anyMatch(name -> current().equals(values.get(name)));
     }
 
-    private boolean currentIs(Token token) {
-        return current().equals(token);
+    private boolean currentIs(Token... tokens) {
+        return Arrays.stream(tokens).anyMatch(token -> current().equals(token));
     }
 
     private Lexer _lexer;
@@ -102,7 +102,7 @@ public class Parser {
 
     private Assignment parseAssignment(Token endToken) {
         Declare declaration = parseDeclare();
-        eat(values.get("ASSIGN"));`
+        eat(values.get("ASSIGN"));
 
         if (current().isConstruct()) {
             return new Assignment(declaration, parseConstruct());
@@ -124,9 +124,17 @@ public class Parser {
             }
 
             /* Check if is a container */
-            List<String> containerTypes = new ArrayList<String>() {{
-                add("ARR_OPEN"); add("SCOPE_OPEN"); add("SET_OPEN");
+            List<String> containerTypes = new ArrayList<>() {{
+                add("ARR_OPEN"); add("ARR_OPEN"); add("ARR_OPEN");
+                add("SCOPE_OPEN"); add("SET_OPEN");
                 add("UNDIR_OPEN"); add("DIR_OPEN");
+            }};
+
+            /* Check if is a short hand container */
+            List<String> shortHandContainerTypes = new ArrayList<>() {{
+                add("ARR_TYPE"); add("L_ARR_TYPE"); add("DL_ARR_TYPE");
+                add("UNDIR_TYPE"); add("DIR_TYPE"); add("MAP_TYPE");
+                add("SET_TYPE");
             }};
 
             if (containerTypes.contains(current().type().toString())) {
@@ -171,13 +179,50 @@ public class Parser {
     private Params parseParams(Token endBlock) {
         List<Assignment> params = new ArrayList<>();
         while (!current().equals(endBlock)) {
-            params.add(parseAssignment());
+            params.add(parseAssignment(values.get("COMMA")));
             eat(values.get("COMMA"));
         }
         return new Params(params);
     }
 
-    private Expression parseExpression(Token... endTokens) {}
+    private Expression parseExpression(Token... endTokens) {
+        while(!currentIs(endTokens)) {
+            if (current().isLiteral()) {
+                parseLiteral();
+            } else if (current().type() == Token.TokenType.VAR) {
+                eat(current());
+                new Var(current());
+            } else if (currentIs(values.get("PAR_OPEN"))) {
+                eat(values.get("PAR_OPEN"));
+                Expression expression = parseExpression(values.get("PAR_CLOSE"));
+                eat(values.get("PAR_CLOSE"));
+
+                return expression;
+            }
+        }
+    }
+
+    private Index parseIndex() {
+        Expression var = parseExpression(values.get("ARR_OPEN"));
+        eat(values.get("ARR_OPEN"));
+        Expression index = parseExpression(values.get("ARR_CLOSE"));
+        eat(values.get("ARR_CLOSE"));
+        return new Index();
+    }
+
+    private Literal parseLiteral() {
+        Token current = current();
+        eat(current);
+
+        if (current.type().equals(Token.TokenType.INT_VAL)) {
+            return new IntLiteral(current);
+        } else if (current.type().equals(Token.TokenType.REAL_VAL)) {
+            return new RealLiteral(current);
+        } else if (current.type().equals(Token.TokenType.STR_VAL)) {
+            return new StringLiteral(current);
+        }
+        return null;
+    }
 
     private Declare parseDeclare() {
         List<Modifier> modifiers = new ArrayList<>();
@@ -453,9 +498,25 @@ public class Parser {
             return parseUndirectedGraph();
         } else if (currentIs("DIR_OPEN")) {
             return parseDirectedGraph();
-        } else { // TODO: Replace with an error?
-            return null;
         }
+
+        if (currentIs("ARR_TYPE")) {
+            return new HArrayList(new ArrayList<>());
+        } else if (currentIs("L_ARR_TYPE")) {
+            return new HLinkedList(new ArrayList<>());
+        } else if (currentIs("DL_ARR_TYPE")) {
+            return new HDoubleLinkedList(new ArrayList<>());
+        } else if (currentIs("MAP_TYPE")) {
+            return new HMap(new HashMap<>());
+        } else if (currentIs("SET_TYPE")) {
+            return new HSet(new ArrayList<>());
+        } else if (currentIs("UNDIR_TYPE")) {
+            return new HUndirectedGraph(new ArrayList<>(), new ArrayList<>());
+        } else if (currentIs("DIR_TYPE")) {
+            return new HDirectedGraph(new ArrayList<>(), new ArrayList<>());
+        }
+
+        return null;
     }
 
     private HArrayList parseArrayList() {
@@ -834,7 +895,7 @@ public class Parser {
 
         HArrayList(List<Expression> items) {
             this.items = items;
-            this.token = values.get("ARR_OPEN");
+            this.token = values.get("ARR_TYPE");
         }
     }
 
@@ -844,7 +905,7 @@ public class Parser {
 
         HLinkedList(List<Expression> items) {
             this.items = items;
-            this.token = values.get("L_ARR_OPEN");
+            this.token = values.get("L_ARR_TYPE");
         }
     }
 
@@ -854,7 +915,7 @@ public class Parser {
 
         HDoubleLinkedList(List<Expression> items) {
             this.items = items;
-            this.token = values.get("DL_ARR_OPEN");
+            this.token = values.get("DL_ARR_TYPE");
         }
     }
 
@@ -864,7 +925,7 @@ public class Parser {
 
         HMap(Map<Expression, Expression> items) {
             this.items = items;
-            this.token = Parser.values.get("SCOPE_OPEN");
+            this.token = Parser.values.get("MAP_TYPE");
         }
     }
 
@@ -874,7 +935,7 @@ public class Parser {
 
         HSet(List<Expression> items) {
             this.items = items;
-            this.token = values.get("SET_OPEN");
+            this.token = values.get("SET_TYPE");
         }
     }
 
@@ -923,34 +984,62 @@ public class Parser {
 
 
     /** Operations */
-    static final class UnaryOp extends ASTNode {
+    static abstract class UnaryOp extends ASTNode {
         ASTNode child;
 
-        public UnaryOp(ASTNode child, Token token) {
+        UnaryOp(ASTNode child, Token token) {
             this.child = child;
             this.token = token;
         }
     }
 
-    static final class BinaryOp extends ASTNode {
+    static abstract class BinaryOp extends ASTNode {
         ASTNode left, right;
 
-        public BinaryOp(ASTNode left, ASTNode right, Token token) {
+        BinaryOp(ASTNode left, ASTNode right, Token token) {
             this.left = left;
             this.right = right;
             this.token = token;
         }
     }
 
-    static final class TernaryOp extends ASTNode {
+    static abstract class TernaryOp extends ASTNode {
         ASTNode left, center, right;
 
-        public TernaryOp(ASTNode left, ASTNode center, ASTNode right, Token token) {
+        TernaryOp(ASTNode left, ASTNode center, ASTNode right, Token token) {
             this.left = left;
             this.center = center;
             this.right = right;
             this.token = token;
         }
+    }
+
+    static final class Index extends BinaryOp {
+        Expression left, right;
+
+        Index(Token token, Expression var, Expression index) {
+            super(var, index, token);
+            this.left = var;
+            this.right = index;
+        }
+
+        Expression var() { return left; }
+
+        Expression index() { return right; }
+    }
+
+    static final class Call extends BinaryOp {
+        Expression left, right;
+
+        Call(Expression var, Expression property) {
+            super(var, property, values.get("ARR_OPEN"));
+            this.left = var;
+            this.right = property;
+        }
+
+        Expression var() { return left; }
+
+        Expression property() { return right; }
     }
 
     static abstract class Literal extends ASTNode {}
