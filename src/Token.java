@@ -37,6 +37,8 @@ class Token {
     public Boolean isType()         { return _type._groups.contains(TYP); }
     public Boolean isConstruct()    { return _type._groups.contains(CNS); }
     public Boolean isDirect()       { return _type._groups.contains(DIR); }
+    public Boolean isContainer()    { return _type._groups.contains(CNT); }
+    public boolean isVar()          { return _type == TokenType.VAR; }
 
     private TokenType _type;
     private String _value;
@@ -55,7 +57,7 @@ class Token {
     public enum TokenType {
 
         EOL(";"), EOF(""), COMMA(","), COLON(":"), DIRECT("=>"),
-        ANNOTATION("@"), TERNARY("?"),
+        ANNOTATION("@"), TERNARY("?"), PERIOD("."),
 
         ASSIGN("="), EQUAL("==", OPR), CAST_EQUALS(":=="), NOT_EQUAL("!="), CAST_NOT_EQUAL(":!="),
 
@@ -65,6 +67,8 @@ class Token {
         INT_VAL("\\d+", LIT),
         STR_VAL("(\"|\')\\.*(\"|\')", LIT),
 
+        TRUE("true", RSD, LIT), FALSE("false", RSD, LIT),
+
         ADD("+", OPR), SUBTRACT("-", OPR), MULTIPLY("*", OPR), DIVIDE("/", OPR),
         MOD("%", OPR), FLOOR("-/", OPR), EXP("**", OPR), ROUND("`", OPR),
         INCREMENT("++", OPR), DECREMENT("--", OPR),
@@ -73,8 +77,6 @@ class Token {
         B_AND("&", OPR), B_OR("|", OPR), B_NOT("~", OPR), B_XOR("^", OPR),
 
         LESS_THAN("<", OPR), GREATER_THAN(">", OPR),
-
-        TRUE("true", RSD), FALSE("false", RSD),
 
         PAR_OPEN("("), PAR_CLOSE(")"),
 
@@ -95,7 +97,7 @@ class Token {
 
         INT("int", RSD, TYP), LONG("long", RSD, TYP), DOUBLE("double", RSD, TYP),
         FLOAT("float", RSD, TYP), CHAR("char", RSD, TYP), BOOL("bool", RSD, TYP),
-        STR("str", RSD, TYP), NULL("null", RSD, TYP), ANY("any", RSD, TYP),
+        STR("str", RSD, TYP), NULL("null", RSD, TYP, LIT), ANY("any", RSD, TYP),
 
         IF("if", RSD, DIR), ELSE("else", RSD, DIR), SWITCH("switch", RSD, DIR),
         CASE("case", RSD, DIR), DEFAULT("default", RSD, DIR), SELECT("select", RSD, DIR),
@@ -107,10 +109,12 @@ class Token {
         INTERFACE("interface", RSD, CNS), STRUCT("struct", RSD, CNS),
         EXTEND("extend", RSD, CNS),
 
+        SUPER("super", RSD), THIS("this", RSD),
+
         STATIC("static", RSD, MDF), PUBLIC("public", RSD, MDF),
         PRIVATE("private", RSD, MDF), PROPERTY("property", RSD, MDF),
-        ABSTRACT("abstract", RSD, MDF), SUPER("super", RSD, MDF),
-        FINAL("final", RSD, MDF), MODULE("module", RSD, MDF),
+        ABSTRACT("abstract", RSD, MDF), MODULE("module", RSD, MDF),
+        FINAL("final", RSD, MDF),
 
         RETURN("return", RSD);
 

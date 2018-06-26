@@ -1,5 +1,6 @@
 
 import java.util.*;
+import java.lang.reflect.Method;
 
 /**
  * A class that takes in a stream of tokens from the Lexer and parses them
@@ -18,6 +19,7 @@ public class Parser {
         this._current = null;
     }
 
+    /** Entry method into Parser - considers program as Block and parses it */
     ASTNode parse() {
         return parseBlock();
     }
@@ -44,18 +46,60 @@ public class Parser {
         this._current = current;
     }
 
+    /**
+     * Checks if _current is a token type by the token name
+     * @param names List of token string names to check
+     * @return If _current is any of the passed in token names
+     */
     private boolean currentIs(String... names) {
         return Arrays.stream(names).anyMatch(name -> current().equals(values.get(name)));
     }
 
+    /**
+     * Check if _current is a token type by passing in the token itself
+     * @param tokens List of tokens to check _current against
+     * @return Whether _current is any of the passed in tokens
+     */
     private boolean currentIs(Token... tokens) {
         return Arrays.stream(tokens).anyMatch(token -> current().equals(token));
     }
 
-    private Lexer _lexer;
-    private Token _current;
+    /**
+     * Check if _current falls into *all* of the passed in usage types
+     * @param types List of usage type methods to call on _current
+     * @return Whether *all* of types returns true
+     */
+    private boolean currentAll(String... types) {
+        try {
+            return Arrays.stream(types)
+                    .allMatch(type -> current()
+                            .getClass().getDeclaredMethod(type)
+                            .invoke(current())
+                    );
+        } catch (NoSuchMethodException nsme) {
+            return false;
+        }
+    }
 
-    /* A map of usable tokens that aren't dependent on user code, for comparisons. Avoids the
+    /**
+     * Check if _current falls into *any* of the passed in usage types
+     * @param types List of usage type methods to call on _current
+     * @return Whether *any* of types returns true
+     */
+    private boolean currentAny(String... types) {
+        try {
+            return Arrays.stream(types)
+                    .anyMatch(type -> current()
+                            .getClass().getDeclaredMethod(type)
+                            .invoke(current())
+                    );
+        } catch (NoSuchMethodException nsme) {
+            return false;
+        }
+    }
+
+
+    /** A map of usable tokens that aren't dependent on user code, for comparisons. Avoids the
      * creation of unnecessary tokens. */
     private static final Map<String, Token> values = new HashMap<String, Token>() {{
         for (Token.TokenType type : Token.TokenType.values()) {
@@ -65,6 +109,9 @@ public class Parser {
             }
         }
     }};
+
+    private Lexer _lexer;
+    private Token _current;
 
 
 
@@ -86,10 +133,12 @@ public class Parser {
         } else if (
                 currentIs("ANNOTATION") || // Is a modifier
                 currentIs("MULTIPLY") ||  // References a pointer variable
-                current().type() == Token.TokenType.VAR
+                current().isVar()
                 ) {
             return parseAssignment(values.get("EOL"));
             eat(values.get("EOL"));
+        } else {
+            parseExpression(values.get("EOL"));
         }
     }
 
@@ -123,22 +172,39 @@ public class Parser {
                 isPointer = true;
             }
 
+            /* The type of the token */
+            String typeString = current().type().toString();
+
             /* Check if is a container */
-            List<String> containerTypes = new ArrayList<>() {{
+            List<String> containerTypes = new ArrayList<String>() {{
                 add("ARR_OPEN"); add("ARR_OPEN"); add("ARR_OPEN");
                 add("SCOPE_OPEN"); add("SET_OPEN");
                 add("UNDIR_OPEN"); add("DIR_OPEN");
             }};
 
+            if (containerTypes.contains(current().type().toString())) {
+                /* Take out the "_OPEN" part of type */
+                typeString = typeString.substring(typeString.length() - 5);
+                /* Convert between scope token and more definite map */
+                if (typeString.equals("SCOPE")) {
+                    typeString = "MAP";
+                }
+
+                types.add(parseContainerType(typeString, isPointer));
+                continue;
+            }
+
             /* Check if is a short hand container */
-            List<String> shortHandContainerTypes = new ArrayList<>() {{
+            List<String> shortHandContainerTypes = new ArrayList<String>() {{
                 add("ARR_TYPE"); add("L_ARR_TYPE"); add("DL_ARR_TYPE");
                 add("UNDIR_TYPE"); add("DIR_TYPE"); add("MAP_TYPE");
                 add("SET_TYPE");
             }};
 
-            if (containerTypes.contains(current().type().toString())) {
-                types.add(parseContainerType(current().type().toString(), isPointer));
+            if (shortHandContainerTypes.contains(current().type().toString())) {
+                typeString = typeString.substring(typeString.length() - 5);
+                /* A new container type with no internal types */
+                types.add(new ContainerType(isPointer, ContainerType.Container.valueOf(typeString), new ArrayList<>()));
                 continue;
             }
 
@@ -176,52 +242,13 @@ public class Parser {
         return new ContainerType(isPointer, ContainerType.Container.valueOf(containerType), containerTypes);
     }
 
-    private Params parseParams(Token endBlock) {
-        List<Assignment> params = new ArrayList<>();
+    private ParamDefs parseParamDefs(Token endBlock) {
+        List<Assignment> paramDefs = new ArrayList<>();
         while (!current().equals(endBlock)) {
-            params.add(parseAssignment(values.get("COMMA")));
+            paramDefs.add(parseAssignment(values.get("COMMA")));
             eat(values.get("COMMA"));
         }
-        return new Params(params);
-    }
-
-    private Expression parseExpression(Token... endTokens) {
-        while(!currentIs(endTokens)) {
-            if (current().isLiteral()) {
-                parseLiteral();
-            } else if (current().type() == Token.TokenType.VAR) {
-                eat(current());
-                new Var(current());
-            } else if (currentIs(values.get("PAR_OPEN"))) {
-                eat(values.get("PAR_OPEN"));
-                Expression expression = parseExpression(values.get("PAR_CLOSE"));
-                eat(values.get("PAR_CLOSE"));
-
-                return expression;
-            }
-        }
-    }
-
-    private Index parseIndex() {
-        Expression var = parseExpression(values.get("ARR_OPEN"));
-        eat(values.get("ARR_OPEN"));
-        Expression index = parseExpression(values.get("ARR_CLOSE"));
-        eat(values.get("ARR_CLOSE"));
-        return new Index();
-    }
-
-    private Literal parseLiteral() {
-        Token current = current();
-        eat(current);
-
-        if (current.type().equals(Token.TokenType.INT_VAL)) {
-            return new IntLiteral(current);
-        } else if (current.type().equals(Token.TokenType.REAL_VAL)) {
-            return new RealLiteral(current);
-        } else if (current.type().equals(Token.TokenType.STR_VAL)) {
-            return new StringLiteral(current);
-        }
-        return null;
+        return new ParamDefs(paramDefs);
     }
 
     private Declare parseDeclare() {
@@ -242,6 +269,131 @@ public class Parser {
         }
 
         return new Declare(modifiers, var, types);
+    }
+
+
+    /** *************************************************************************************************
+     *  EXPRESSIONS
+     *  Strings of chained logic that includes operators, property calls, indexes, and references
+     */
+
+    private Token[] afterTokens = new Token[] {
+            values.get("ARR_OPEN"),
+            values.get("PERIOD"),
+            values.get("PAR_OPEN")
+    };
+
+    private Expression parseExpression(Token... endTokens) {
+
+    }
+
+    private Expression parseTerm(Token... endTokens) {
+        if (currentIs(endTokens)) {
+            return null;
+        }
+
+        Expression expression = null;
+
+        if (current().isLiteral()) {
+            expression = parseLiteral();
+            if (!(expression instanceof StringLiteral)) {
+                return expression;
+            }
+        } else if (current().isVar()) {
+            eat(current());
+            expression = new Var(current());
+        } else if (currentIs(values.get("PAR_OPEN"))) {
+            eat(values.get("PAR_OPEN"));
+            expression = parseExpression(values.get("PAR_CLOSE"));
+            eat(values.get("PAR_CLOSE"));
+        } else if (currentIs(values.get("MULTIPLY"))) {
+            eat(values.get("MULTIPLY"));
+            expression = new UnaryOp(parseExpression(afterTokens), values.get("MULTIPLY"));
+        } else if (current().isContainer()) {
+            expression = parseContainer();
+        } else if (currentIs("SUBTRACT")) {
+            eat(values.get("SUBTRACT"));
+            expression = new UnaryOp(parseTerm(afterTokens), values.get("SUBTRACT"));
+        } else if (currentIs("ADD")) {
+            eat(values.get("ADD"));
+            return parseTerm(endTokens);
+        }
+
+        return parseAfter(expression);
+    }
+
+    private Expression parseAfter(Expression expression) {
+        if (currentIs("ARR_OPEN")) {
+            return parseAfter(parseIndex(expression));
+        } else if (currentIs("PERIOD")) {
+            return parseAfter(parseProperty(expression));
+        } else if (currentIs("PAR_OPEN")) {
+            return parseCall(expression);
+        } else if (currentIs("INCREMENT")) {
+            eat(values.get("INCREMENT"));
+            return parseAfter(new UnaryOp(expression, values.get("INCREMENT")));
+        } else if (currentIs("DECREMENT")) {
+            eat(values.get("DECREMENT"));
+            return parseAfter(new UnaryOp(expression, values.get("DECREMENT")));
+        } else if (currentIs("ROUND")) {
+            eat(values.get("ROUND"));
+            if (current().isLiteral()) {
+                return new BinaryOp(expression, parseLiteral(), values.get("ROUND"));
+            } else if (current().isVar()) {
+                return new BinaryOp(expression, new Var(current()), values.get("ROUND"));
+            }
+            return new UnaryOp(expression, values.get("ROUND"));
+        } else {
+            return expression;
+        }
+    }
+
+    private Index parseIndex(Expression var) {
+        eat(values.get("ARR_OPEN"));
+        Expression index = parseExpression(values.get("ARR_CLOSE"));
+        eat(values.get("ARR_CLOSE"));
+        return new Index(var, index);
+    }
+
+    private Get parseProperty(Expression var) {
+        eat(values.get("PERIOD"));
+        if (current().isVar()) {
+            Var getVar = new Var(current());
+            eat(current());
+            return new Get(var, getVar);
+        }
+        eat(values.get("PAR_OPEN"));
+        Get get = new Get(var, parseExpression(values.get("PAR_CLOSE")));
+        eat(values.get("PAR_CLOSE"));
+        return get;
+    }
+
+    private Call parseCall(Expression var) {
+        eat(values.get("PAR_OPEN"));
+        List<Expression> expressions = new ArrayList<>();
+        while(!currentIs("PAR_CLOSE")) {
+            expressions.add(parseExpression(values.get("COMMA")));
+        }
+        eat(values.get("PAR_CLOSE"));
+        return new Call(new Params(expressions), var);
+    }
+
+    private Literal parseLiteral() {
+        Token current = current();
+        eat(current);
+
+        if (current.type().equals(Token.TokenType.INT_VAL) {
+            return new IntLiteral(current);
+        } else if (current.type() == Token.TokenType.REAL_VAL) {
+            return new RealLiteral(current);
+        } else if (current.type() == Token.TokenType.STR_VAL) {
+            return new StringLiteral(current);
+        } else if (current.type() == Token.TokenType.TRUE || current.type() == Token.TokenType.FALSE) {
+            return new BooleanLiteral((current);
+        } else if (current.type().equals(Token.TokenType.NULL)) {
+            return new NullLiteral(current);
+        }
+        return null;
     }
 
 
@@ -460,7 +612,7 @@ public class Parser {
         eat(values.get("FUNC"));
 
         eat(values.get("PAR_OPEN"));
-        Params params = parseParams(values.get("PAR_CLOSE"));
+        ParamDefs paramDefs = parseParamDefs(values.get("PAR_CLOSE"));
         eat(values.get("PAR_CLOSE"));
 
         eat(values.get("DIRECT"));
@@ -474,7 +626,7 @@ public class Parser {
             operations = parseExpression(values.get("EOL"));
         }
 
-        return new Func(params, operations);
+        return new Func(paramDefs, operations);
     }
 
 
@@ -700,7 +852,7 @@ public class Parser {
 
 
     /** A variable identifier */
-    static final class Var extends ASTNode {
+    static final class Var extends Expression {
         String value;
 
         Var(Token token) {
@@ -714,7 +866,7 @@ public class Parser {
         boolean isPointer;
 
         Type(Token token, boolean isPointer) {
-            assert token.isType() || token.type() == Token.TokenType.VAR;
+            assert token.isType() || token.isVar();
             this.token = token;
             this.isPointer = isPointer;
         }
@@ -742,29 +894,38 @@ public class Parser {
         }
     }
 
-    /** A list of parameters, which are syntatically Declares */
-    static final class Params extends ASTNode {
+    /** A list of definitions for parameters, which are syntactically Declares */
+    static final class ParamDefs extends ASTNode {
         List<Assignment> parameters;
 
-        Params(List<Assignment> parameters) {
+        ParamDefs(List<Assignment> parameters) {
+            this.parameters = parameters;
+        }
+    }
+
+    /** A list of passed in parameters, which are syntactically Expressions */
+    static final class Params extends ASTNode {
+        List<Expression> parameters;
+
+        public Params(List<Expression> parameters) {
             this.parameters = parameters;
         }
     }
 
 
     /** Object-building blocks */
-    static abstract class Construct extends Statement {}
+    static abstract class Construct extends Expression {}
 
     /** A defined operation taking a Param node */
     static final class Func extends Construct {
-        Params params;
+        ParamDefs paramDefs;
         ASTNode operations;
 
-        Func(Params params, ASTNode operations) {
+        Func(ParamDefs paramDefs, ASTNode operations) {
             assert operations instanceof Block || operations instanceof Expression;
 
             this.token = new Token(Token.TokenType.FUNC);
-            this.params = params;
+            this.paramDefs = paramDefs;
             this.operations = operations;
         }
     }
@@ -881,6 +1042,19 @@ public class Parser {
     }
 
 
+    /** Calls to a construct (functions, classes, interfaces, structs, etc. */
+    static final class Call extends Expression {
+        Params params;
+        Expression val;
+
+        Call(Params params, Expression val) {
+            this.token = values.get("PAR_OPEN");
+            this.params = params;
+            this.val = val;
+        }
+    }
+
+
     /** Container nodes */
     static abstract class Container extends Expression {}
 
@@ -983,8 +1157,11 @@ public class Parser {
     }
 
 
-    /** Operations */
-    static abstract class UnaryOp extends ASTNode {
+    /** Built-in operations between language members */
+    static abstract class Op extends Expression {}
+
+    /** An operation that takes in one child */
+    static final class UnaryOp extends Op {
         ASTNode child;
 
         UnaryOp(ASTNode child, Token token) {
@@ -993,7 +1170,8 @@ public class Parser {
         }
     }
 
-    static abstract class BinaryOp extends ASTNode {
+    /** An operation that takes in two children */
+    static class BinaryOp extends Op {
         ASTNode left, right;
 
         BinaryOp(ASTNode left, ASTNode right, Token token) {
@@ -1003,7 +1181,44 @@ public class Parser {
         }
     }
 
-    static abstract class TernaryOp extends ASTNode {
+    /** Applies a binary op then sets left to resulting value, e.g. x += 2 */
+    static final class SetOp extends BinaryOp {
+        public SetOp(ASTNode left, ASTNode right, Token token) {
+            super(left, right, token);
+        }
+    }
+
+    /** Indexes a container object, e.g. x[2] */
+    static final class Index extends BinaryOp {
+        Expression left, right;
+
+        Index(Expression var, Expression index) {
+            super(var, index, values.get("ARR_TYPE"));
+            this.left = var;
+            this.right = index;
+        }
+
+        Expression var() { return left; }
+
+        Expression index() { return right; }
+    }
+
+    /** Gets a property from an object, e.g. person.height */
+    static final class Get extends BinaryOp {
+        Expression left, right;
+
+        Get(Expression var, Expression property) {
+            super(var, property, values.get("PERIOD"));
+        }
+
+        Expression var() { return left; }
+
+        Expression property() { return right; }
+    }
+
+
+    /** An operation that takes in three children */
+    static final class TernaryOp extends Op {
         ASTNode left, center, right;
 
         TernaryOp(ASTNode left, ASTNode center, ASTNode right, Token token) {
@@ -1014,50 +1229,43 @@ public class Parser {
         }
     }
 
-    static final class Index extends BinaryOp {
-        Expression left, right;
 
-        Index(Token token, Expression var, Expression index) {
-            super(var, index, token);
-            this.left = var;
-            this.right = index;
-        }
+    /** A proper value that serves no abstraction */
+    static abstract class Literal extends Expression {}
 
-        Expression var() { return left; }
-
-        Expression index() { return right; }
-    }
-
-    static final class Call extends BinaryOp {
-        Expression left, right;
-
-        Call(Expression var, Expression property) {
-            super(var, property, values.get("ARR_OPEN"));
-            this.left = var;
-            this.right = property;
-        }
-
-        Expression var() { return left; }
-
-        Expression property() { return right; }
-    }
-
-    static abstract class Literal extends ASTNode {}
-
+    /** An integer literal */
     static final class IntLiteral extends Literal {
-        public IntLiteral(Token token) {
+        IntLiteral(Token token) {
             this.token = token;
         }
     }
 
+    /** A real number literal */
     static final class RealLiteral extends Literal {
-        public RealLiteral(Token token) {
+        RealLiteral(Token token) {
             this.token = token;
         }
     }
 
+    /** A String literal */
     static final class StringLiteral extends Literal {
-        public StringLiteral(Token token) {
+        StringLiteral(Token token) {
+            this.token = token;
+        }
+    }
+
+    /** A boolean literal */
+    static final class BooleanLiteral extends Literal {
+        BooleanLiteral(Token token) {
+            assert token.type() == Token.TokenType.TRUE || token.type() == Token.TokenType.FALSE;
+            this.token = token;
+        }
+    }
+
+    /** A null literal */
+    static final class NullLiteral extends Literal {
+        NullLiteral(Token token) {
+            assert token.type() == Token.TokenType.NULL;
             this.token = token;
         }
     }
