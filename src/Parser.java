@@ -38,6 +38,14 @@ public class Parser {
         }
     }
 
+    private void eat(String name) {
+        if (values.get(name).equals(current())) {
+            current(_lexer.next());
+        } else {
+            System.out.println("Unknown token");
+        }
+    }
+
     private Token current() {
         return _current;
     }
@@ -136,28 +144,24 @@ public class Parser {
                 current().isVar()
                 ) {
             return parseAssignment(values.get("EOL"));
-            eat(values.get("EOL"));
+            eat("EOL");
         } else {
             parseExpression(values.get("EOL"));
         }
     }
 
     private Return parseReturn() {
-        eat(values.get("RETURN"));
+        eat("RETURN");
         Expression expression = parseExpression(values.get("EOL"));
-        eat(values.get("EOL"));
+        eat("EOL");
         return new Return(expression);
     }
 
-    private Assignment parseAssignment(Token endToken) {
+    private Assignment parseAssignment(Token... endTokens) {
         Declare declaration = parseDeclare();
-        eat(values.get("ASSIGN"));
-
-        if (current().isConstruct()) {
-            return new Assignment(declaration, parseConstruct());
-        }
-
-        Expression expression = parseExpression();
+        eat("ASSIGN");
+        Expression expression = parseExpression(endTokens);
+        return new Assignment(declaration, expression);
     }
 
     private List<Type> parseType(Token endToken) {
@@ -168,7 +172,7 @@ public class Parser {
             /* Check if is a pointer */
             boolean isPointer = false;
             if (current().type() == Token.TokenType.MULTIPLY) {
-                eat(values.get("MULTIPLY"));
+                eat("MULTIPLY");
                 isPointer = true;
             }
 
@@ -210,12 +214,12 @@ public class Parser {
 
             /* Check if is a shorthand for graph */
             if (current().type() == Token.TokenType.DIR_TYPE) {
-                eat(values.get("DIR_GRAPH_TYPE"));
+                eat("DIR_GRAPH_TYPE");
                 List<Type> containedType = new ArrayList<>();
                 types.add(new ContainerType(isPointer, ContainerType.Container.DIR, containedType));
                 continue;
             } else if (current().type() == Token.TokenType.UNDIR_TYPE) {
-                eat(values.get("UNDIR_GRAPH_TYPE"));
+                eat("UNDIR_GRAPH_TYPE");
                 List<Type> containedType = new ArrayList<>();
                 types.add(new ContainerType(isPointer, ContainerType.Container.UNDIR, containedType));
                 continue;
@@ -228,7 +232,7 @@ public class Parser {
             eat(current());
 
             if(!currentIs(endToken)) {
-                eat(values.get("COMMA"));
+                eat("COMMA");
             }
         }
 
@@ -246,7 +250,7 @@ public class Parser {
         List<Assignment> paramDefs = new ArrayList<>();
         while (!current().equals(endBlock)) {
             paramDefs.add(parseAssignment(values.get("COMMA")));
-            eat(values.get("COMMA"));
+            eat("COMMA");
         }
         return new ParamDefs(paramDefs);
     }
@@ -263,9 +267,9 @@ public class Parser {
 
         List<Type> types = new ArrayList<>();
         if (currentIs("LESS_THAN")) {
-            eat(values.get("LESS_THAN"));
+            eat("LESS_THAN");
             types = parseType(values.get("GREATER_THAN"));
-            eat(values.get("GREATER_THAN"));
+            eat("GREATER_THAN");
         }
 
         return new Declare(modifiers, var, types);
@@ -283,11 +287,126 @@ public class Parser {
             values.get("PAR_OPEN")
     };
 
-    private Expression parseExpression(Token... endTokens) {
 
+    /**
+     * Takes in a expression tree in a weave (a series of operations branching
+     * through the left side of the tree, such as one made initially by
+     * parseExpression). Applies operator precedence to the tree by shuffling
+     * nodes to make sure that higher precedence operators are lower in the
+     * tree, and therefore are executed first by the interpreter.
+     *
+     * Terms are leaves (at least in this abstraction - terms can contain their
+     * own expressions, but because they are bounded by parenthesis, they are
+     * automatically a higher precedence than anything in this expression,so we
+     * can ignore them as leaves. They can also contain unitary operators,
+     * which also have higher precedence.
+     *
+     * Example -> g + f + e**d  * c**b + a
+     *
+     * Converts this (what I call a weave):
+     *
+     *                           +
+     *                          / \
+     * 						  **   a
+     * 						 / \
+     *                      *    b
+     *                     / \
+     * 					 **   c
+     *                  / \
+     * 				   +   d
+     *                / \
+     * 				 +   e
+     *              / \
+     * 			   g   f
+     *
+     *
+     * Into this:
+     *
+     * 			        +
+     *                /   \
+     *               +    a
+     *             /   \
+     *           +      *
+     *         /  \    /  \
+     *        g    f  **   **
+     * 			     /  \ /	\
+     *              e  d  c   b
+     *
+     * *** MUTATIVE ***
+     *
+     * @param node Head of expression tree
+     */
+    private void parse(Expression node) {
+        if (!(node instanceof Op)) {
+            return;
+        }
+
+        /* Store left's parents to cancel any need of storing parent pointers
+         * for each operation */
+        BinaryOp op = (BinaryOp) node;
+        Expression left = op.left;
+
+        /* Run down left side of tree (which here in the tree is only non-trivial side)
+         * until you hit a node with an equal to or lower precedence than the head node
+         */
+        while (!op.higherPrecedenceThan(left)) {
+            left = op.left;
+        }
+
+        /* If left has the same precedence as the root op,
+         *
+         */
+        BinaryOp opLeft = (BinaryOp) left;
+        if (op.equalPrecedenceTo(left)) {
+            ((BinaryOp) opLeft.parent).setLeft(opLeft.right);
+            parse(op.left);
+            opLeft.setRight(op.left);
+            op.setLeft(opLeft);
+        } else {
+            if (((BinaryOp) op.parent).left.equals(op)) {
+                ((BinaryOp) left.parent).setLeft(op.right);
+            } else {
+                ((BinaryOp) left.parent).setRight(op.right);
+            }
+            ((BinaryOp) op.parent).setLeft(left);
+            parse(op);
+            opLeft.setRight(op);
+        }
+
+        parse(left);
     }
 
+
+    /** Entry point for all expression parsing
+     * */
+    private Expression parseExpression(Token... endTokens) {
+        Expression expression, nextTerm = null;
+        Token current;
+        do {
+            expression = parseTerm(endTokens);
+            if (current().isOperator()) {
+                current = current();
+                eat(current);
+                expression = new BinaryOp(expression, parseTerm(endTokens), current);
+            }
+        } while (!currentIs("EOL"));
+
+        parse(expression);
+        return expression;
+    }
+
+    /**
+     * Parses terms, which are expressions that denote:
+     *  1. variables or literals with property calls, unary operations, or indexes applied,
+     *  2. nested expressions within parenthesis with same applications,
+     *  3. container literals,
+     *  4. construct definitions.
+     * ** Except in special cases, use with postfix() to get full term **
+     * @param endTokens A token to check for to see if the expression is finished
+     * @return A term, which can later be combined with other terms
+     */
     private Expression parseTerm(Token... endTokens) {
+        /* Expression is over */
         if (currentIs(endTokens)) {
             return null;
         }
@@ -302,41 +421,73 @@ public class Parser {
         } else if (current().isVar()) {
             eat(current());
             expression = new Var(current());
-        } else if (currentIs(values.get("PAR_OPEN"))) {
-            eat(values.get("PAR_OPEN"));
+        }
+
+        /* Is a nested expression */
+        else if (currentIs(values.get("PAR_OPEN"))) {
+            eat("PAR_OPEN");
             expression = parseExpression(values.get("PAR_CLOSE"));
-            eat(values.get("PAR_CLOSE"));
-        } else if (currentIs(values.get("MULTIPLY"))) {
-            eat(values.get("MULTIPLY"));
-            expression = new UnaryOp(parseExpression(afterTokens), values.get("MULTIPLY"));
+            eat("PAR_CLOSE");
+        }
+
+        /* Prefix unary operators */
+        else if (currentIs(values.get("MULTIPLY"))) {
+            eat("MULTIPLY");
+            expression = new UnaryOp(parseTerm(afterTokens), values.get("MULTIPLY"));
         } else if (current().isContainer()) {
             expression = parseContainer();
         } else if (currentIs("SUBTRACT")) {
-            eat(values.get("SUBTRACT"));
+            eat("SUBTRACT");
             expression = new UnaryOp(parseTerm(afterTokens), values.get("SUBTRACT"));
         } else if (currentIs("ADD")) {
-            eat(values.get("ADD"));
+            eat("ADD");
             return parseTerm(endTokens);
+        } else if (currentIs("L_NOT")) {
+            eat("L_NOT");
+            expression = new UnaryOp(parseTerm(afterTokens), values.get("L_NOT"));
+        } else if (currentIs("B_NOT")) {
+            eat("B_NOT");
+            expression = new UnaryOp(parseTerm(afterTokens), values.get("B_NOT"));
+        } else if (currentIs("INCREMENT")) {
+            eat("INCREMENT");
+            expression = new UnaryOp(parseTerm(afterTokens), values.get("INCREMENT"), Meta.PREFIX);
+        } else if (currentIs("DECREMENT")) {
+            eat("DECREMENT");
+            expression = new UnaryOp(parseTerm(afterTokens), values.get("DECREMENT"), Meta.PREFIX);
         }
 
-        return parseAfter(expression);
+        /* Creation expressions */
+        else if (current().isConstruct()) {
+            return parseConstruct();
+        } else if (current().isContainer()) {
+            return parseContainer();
+        }
+
+        /* Any term that has not already been returned can have after-effects (property
+         * calls, after-unary operators, and indexes) */
+        return postFix(expression);
     }
 
-    private Expression parseAfter(Expression expression) {
+    /**
+     * Handles postfix operations, such as property calls, method calls, and postfix operators
+     * @param expression Expression to attach postfix operations on
+     * @return A full term made up of expression and added postfix operations
+     */
+    private Expression postFix(Expression expression) {
         if (currentIs("ARR_OPEN")) {
-            return parseAfter(parseIndex(expression));
+            return postFix(parseIndex(expression));
         } else if (currentIs("PERIOD")) {
-            return parseAfter(parseProperty(expression));
+            return postFix(parseProperty(expression));
         } else if (currentIs("PAR_OPEN")) {
             return parseCall(expression);
         } else if (currentIs("INCREMENT")) {
-            eat(values.get("INCREMENT"));
-            return parseAfter(new UnaryOp(expression, values.get("INCREMENT")));
+            eat("INCREMENT");
+            return postFix(new UnaryOp(expression, values.get("INCREMENT"), Meta.POSTFIX));
         } else if (currentIs("DECREMENT")) {
-            eat(values.get("DECREMENT"));
-            return parseAfter(new UnaryOp(expression, values.get("DECREMENT")));
+            eat("DECREMENT");
+            return postFix(new UnaryOp(expression, values.get("DECREMENT"), Meta.POSTFIX));
         } else if (currentIs("ROUND")) {
-            eat(values.get("ROUND"));
+            eat("ROUND");
             if (current().isLiteral()) {
                 return new BinaryOp(expression, parseLiteral(), values.get("ROUND"));
             } else if (current().isVar()) {
@@ -349,32 +500,32 @@ public class Parser {
     }
 
     private Index parseIndex(Expression var) {
-        eat(values.get("ARR_OPEN"));
+        eat("ARR_OPEN");
         Expression index = parseExpression(values.get("ARR_CLOSE"));
-        eat(values.get("ARR_CLOSE"));
+        eat("ARR_CLOSE");
         return new Index(var, index);
     }
 
     private Get parseProperty(Expression var) {
-        eat(values.get("PERIOD"));
+        eat("PERIOD");
         if (current().isVar()) {
             Var getVar = new Var(current());
             eat(current());
             return new Get(var, getVar);
         }
-        eat(values.get("PAR_OPEN"));
+        eat("PAR_OPEN");
         Get get = new Get(var, parseExpression(values.get("PAR_CLOSE")));
-        eat(values.get("PAR_CLOSE"));
+        eat("PAR_CLOSE");
         return get;
     }
 
     private Call parseCall(Expression var) {
-        eat(values.get("PAR_OPEN"));
+        eat("PAR_OPEN");
         List<Expression> expressions = new ArrayList<>();
         while(!currentIs("PAR_CLOSE")) {
             expressions.add(parseExpression(values.get("COMMA")));
         }
-        eat(values.get("PAR_CLOSE"));
+        eat("PAR_CLOSE");
         return new Call(new Params(expressions), var);
     }
 
@@ -418,65 +569,65 @@ public class Parser {
     }
 
     private Loop parseLoop() {
-        eat(values.get("LOOP"));
-        eat(values.get("PAR_OPEN"));
+        eat("LOOP");
+        eat("PAR_OPEN");
 
         List<Assignment> initClauses = new ArrayList<>();
         while(!currentIs("COLON")) {
-            initClauses.add(parseAssignment());
+            initClauses.add(parseAssignment(values.get("COLON")));
             if (currentIs("COMMA")) {
-                eat(values.get("COMMA"));
+                eat("COMMA");
             }
         }
-        eat(values.get("COLON"));
+        eat("COLON");
 
         List<Expression> breakClauses = new ArrayList<>();
         while(!currentIs("COLON")) {
             breakClauses.add(parseExpression(values.get("COMMA"), values.get("COLON")));
             if (currentIs("COMMA")) {
-                eat(values.get("COMMA"));
+                eat("COMMA");
             }
         }
-        eat(values.get("COLON"));
+        eat("COLON");
 
         List<Expression> loopClauses = new ArrayList<>();
         while(!currentIs("PAR_CLOSE")) {
             loopClauses.add(parseExpression(values.get("COMMA"), values.get("PAR_CLOSE")));
             if (currentIs("COMMA")) {
-                eat(values.get("COMMA"));
+                eat("COMMA");
             }
         }
 
-        eat(values.get("PAR_CLOSE"));
+        eat("PAR_CLOSE");
 
-        eat(values.get("DIRECT"));
+        eat("DIRECT");
 
-        eat(values.get("SCOPE_OPEN"));
+        eat("SCOPE_OPEN");
         Block loopBlock = parseBlock(values.get("SCOPE_CLOSE"));
-        eat(values.get("SCOPE_CLOSE"));
+        eat("SCOPE_CLOSE");
 
         Block elseBlock = null;
         if (currentIs("ELSE")) {
-            eat(values.get("SCOPE_OPEN"));
+            eat("SCOPE_OPEN");
             elseBlock = parseBlock(values.get("SCOPE_CLOSE"));
-            eat(values.get("SCOPE_CLOSE"));
+            eat("SCOPE_CLOSE");
         }
 
         return new Loop(initClauses, breakClauses, loopClauses, loopBlock, elseBlock);
     }
 
     private If parseIf() {
-        eat(values.get("IF"));
+        eat("IF");
 
-        eat(values.get("PAR_OPEN"));
+        eat("PAR_OPEN");
         Expression expression = parseExpression(values.get("PAR_CLOSE"));
-        eat(values.get("PAR_CLOSE"));
+        eat("PAR_CLOSE");
 
-        eat(values.get("DIRECT"));
+        eat("DIRECT");
 
-        eat(values.get("SCOPE_OPEN"));
+        eat("SCOPE_OPEN");
         Block block = parseBlock(values.get("SCOPE_CLOSE"));
-        eat(values.get("SCOPE_CLOSE"));
+        eat("SCOPE_CLOSE");
 
         List<IfBlock> ifblocks = new ArrayList<IfBlock>() {{
             add(new IfBlock(expression, block));
@@ -487,15 +638,15 @@ public class Parser {
 
         /* Check if (an) else if(s), or just an else, exist */
         if (currentIs("ELSE")) {
-            eat(values.get("ELSE"));
+            eat("ELSE");
 
             if (currentIs("SCOPE_OPEN")) {
                 /* If just an else */
-                eat(values.get("DIRECT"));
+                eat("DIRECT");
 
-                eat(values.get("SCOPE_OPEN"));
+                eat("SCOPE_OPEN");
                 elseBlock = parseBlock(values.get("SCOPE_CLOSE"));
-                eat(values.get("SCOPE_CLOSE"));
+                eat("SCOPE_CLOSE");
             } else {
                 /* If an else if */
                 If nextIf = parseIf();
@@ -518,13 +669,13 @@ public class Parser {
     private Direct parseSwitchLike(Token startToken) {
         eat(startToken);
 
-        eat(values.get("PAR_OPEN"));
+        eat("PAR_OPEN");
         Expression switchExpression = parseExpression(values.get("PAR_CLOSE"));
-        eat(values.get("PAR_CLOSE"));
+        eat("PAR_CLOSE");
 
-        eat(values.get("DIRECT"));
+        eat("DIRECT");
 
-        eat(values.get("SCOPE_OPEN"));
+        eat("SCOPE_OPEN");
 
         List<Case> cases = new ArrayList<>();
         Block defaultBlock = null;
@@ -532,27 +683,27 @@ public class Parser {
 
         while (!currentIs("SCOPE_CLOSE")) {
             if (currentIs("CASE")) {
-                eat(values.get("CASE"));
+                eat("CASE");
                 Expression caseExpression = parseExpression(values.get("COLON"));
-                eat(values.get("COLON"));
+                eat("COLON");
                 Block caseBlock = parseBlock(values.get("CASE"), values.get("DEFAULT"));
 
                 Case newCase = new Case(caseExpression, caseBlock);
                 cases.add(newCase);
             } else if (currentIs("DEFAULT")) {
-                eat(values.get("DEFAULT"));
-                eat(values.get("COLON"));
+                eat("DEFAULT");
+                eat("COLON");
 
                 defaultBlock = parseBlock(values.get("SCOPE_CLOSE"));
             }
         }
 
-        eat(values.get("SCOPE_CLOSE"));
+        eat("SCOPE_CLOSE");
 
         if (currentIs("ELSE")) {
-            eat(values.get("SCOPE_OPEN"));
+            eat("SCOPE_OPEN");
             elseBlock = parseBlock(values.get("SCOPE_CLOSE"));
-            eat(values.get("SCOPE_CLOSE"));
+            eat("SCOPE_CLOSE");
         }
 
         if (startToken.type() == Token.TokenType.SWITCH) {
@@ -563,34 +714,34 @@ public class Parser {
     }
 
     private Try parseTry() {
-        eat(values.get("TRY"));
+        eat("TRY");
 
-        eat(values.get("SCOPE_OPEN"));
+        eat("SCOPE_OPEN");
         Block tryBlock = parseBlock(values.get("SCOPE_CLOSE"));
-        eat(values.get("SCOPE_CLOSE"));
+        eat("SCOPE_CLOSE");
 
         Declare exception;
         Block catchBlock, elseBlock = null;
         List<Catch> catches = new ArrayList<>();
 
         while (currentIs("CATCH")) {
-            eat(values.get("CATCH"));
+            eat("CATCH");
 
-            eat(values.get("PAR_OPEN"));
+            eat("PAR_OPEN");
             exception = parseDeclare();
-            eat(values.get("PAR_CLOSE"));
+            eat("PAR_CLOSE");
 
-            eat(values.get("SCOPE_OPEN"));
+            eat("SCOPE_OPEN");
             catchBlock = parseBlock(values.get("SCOPE_CLOSE"));
-            eat(values.get("SCOPE_CLOSE"));
+            eat("SCOPE_CLOSE");
 
             catches.add(new Catch(exception, catchBlock));
         }
 
         if (currentIs("ELSE")) {
-            eat(values.get("SCOPE_OPEN"));
+            eat("SCOPE_OPEN");
             elseBlock = parseBlock(values.get("SCOPE_CLOSE"));
-            eat(values.get("SCOPE_CLOSE"));
+            eat("SCOPE_CLOSE");
         }
 
         return new Try(tryBlock, catches, elseBlock);
@@ -609,19 +760,19 @@ public class Parser {
     }
 
     private Func parseFuncDeclare() {
-        eat(values.get("FUNC"));
+        eat("FUNC");
 
-        eat(values.get("PAR_OPEN"));
+        eat("PAR_OPEN");
         ParamDefs paramDefs = parseParamDefs(values.get("PAR_CLOSE"));
-        eat(values.get("PAR_CLOSE"));
+        eat("PAR_CLOSE");
 
-        eat(values.get("DIRECT"));
+        eat("DIRECT");
 
         ASTNode operations;
         if (currentIs("SCOPE_OPEN")) {
-            eat(values.get("SCOPE_OPEN"));
+            eat("SCOPE_OPEN");
             operations = parseBlock(values.get("SCOPE_CLOSE"));
-            eat(values.get("SCOPE_CLOSE"));
+            eat("SCOPE_CLOSE");
         } else {
             operations = parseExpression(values.get("EOL"));
         }
@@ -672,51 +823,51 @@ public class Parser {
     }
 
     private HArrayList parseArrayList() {
-        eat(values.get("ARR_OPEN"));
+        eat("ARR_OPEN");
         List<Expression> items = new ArrayList<>();
         while (!currentIs("ARR_CLOSE")) {
             items.add(parseExpression(values.get("COMMA")));
-            eat(values.get("COMMA"));
+            eat("COMMA");
         }
-        eat(values.get("ARR_CLOSE"));
+        eat("ARR_CLOSE");
         return new HArrayList(items);
     }
 
     private HLinkedList parseLinkedList() {
-        eat(values.get("L_ARR_OPEN"));
+        eat("L_ARR_OPEN");
         List<Expression> items = new ArrayList<>();
         while (!currentIs("ARR_CLOSE")) {
             items.add(parseExpression(values.get("COMMA")));
-            eat(values.get("COMMA"));
+            eat("COMMA");
         }
-        eat(values.get("ARR_CLOSE"));
+        eat("ARR_CLOSE");
         return new HLinkedList(items);
     }
 
     private HDoubleLinkedList parseDoubleLinkedList() {
-        eat(values.get("DL_ARR_OPEN"));
+        eat("DL_ARR_OPEN");
         List<Expression> items = new ArrayList<>();
         while (!currentIs("ARR_CLOSE")) {
             items.add(parseExpression(values.get("COMMA")));
-            eat(values.get("COMMA"));
+            eat("COMMA");
         }
-        eat(values.get("ARR_CLOSE"));
+        eat("ARR_CLOSE");
         return new HDoubleLinkedList(items);
     }
 
     private HSet parseSet() {
-        eat(values.get("SET_OPEN"));
+        eat("SET_OPEN");
         List<Expression> items = new ArrayList<>();
         while (!currentIs("SET_CLOSE")) {
             items.add(parseExpression(values.get("COMMA")));
-            eat(values.get("COMMA"));
+            eat("COMMA");
         }
-        eat(values.get("SET_CLOSE"));
+        eat("SET_CLOSE");
         return new HSet(items);
     }
 
     private HMap parseMap() {
-        eat(values.get("SCOPE_OPEN"));
+        eat("SCOPE_OPEN");
 
         Map<Expression, Expression> items = new HashMap<>();
         while (!currentIs("SCOPE_CLOSE")) {
@@ -725,19 +876,19 @@ public class Parser {
             items.put(key, value);
         }
 
-        eat(values.get("SCOPE_CLOSE"));
+        eat("SCOPE_CLOSE");
         return new HMap(items);
     }
 
     private HDirectedGraph parseDirectedGraph() {
-        eat(values.get("DIR_OPEN"));
+        eat("DIR_OPEN");
 
         List<Expression> nodes = new ArrayList<>();
         while (!currentIs("EOL")) {
             nodes.add(parseExpression(values.get("COMMA")));
-            eat(values.get("COMMA"));
+            eat("COMMA"));
         }
-        eat(values.get("EOL"));
+        eat("EOL");
 
         List<HDirectedGraph.HDirectedEdge> edges = new ArrayList<>();
         while (!currentIs("DIR_CLOSE")) {
@@ -751,37 +902,37 @@ public class Parser {
             Expression second = parseExpression(values.get("COMMA"));
 
             edges.add(new HDirectedGraph.HDirectedEdge(first, second, doubleEdge));
-            eat(values.get("COMMA"));
+            eat("COMMA");
         }
 
-        eat(values.get("DIR_CLOSE"));
+        eat("DIR_CLOSE");
         return new HDirectedGraph(nodes, edges);
     }
 
     private HUndirectedGraph parseUndirectedGraph() {
-        eat(values.get("UNDIR_OPEN"));
+        eat("UNDIR_OPEN");
 
         List<Expression> nodes = new ArrayList<>();
         while (!currentIs("EOL")) {
             nodes.add(parseExpression(values.get("COMMA")));
-            eat(values.get("COMMA"));
+            eat("COMMA");
         }
-        eat(values.get("EOL"));
+        eat("EOL");
 
         List<HGraph.HEdge> edges = new ArrayList<>();
         while (!currentIs("DIR_CLOSE")) {
             Expression first = parseExpression(values.get("DIR_EDGE"),
                     values.get("DIR_2_EDGE"));
 
-            eat(values.get("MINUS"));
+            eat("MINUS");
 
             Expression second = parseExpression(values.get("COMMA"));
 
             edges.add(new HGraph.HEdge(first, second));
-            eat(values.get("COMMA"));
+            eat("COMMA");
         }
 
-        eat(values.get("UNDIR_CLOSE"));
+        eat("UNDIR_CLOSE");
         return new HUndirectedGraph(nodes, edges);
     }
 
@@ -793,13 +944,30 @@ public class Parser {
 
     static abstract class ASTNode {
         Token token;
+        ASTNode parent;
+
+        void setParent(ASTNode... nodes) {
+            Arrays.asList(nodes).forEach(node -> node.parent = this);
+        }
+
+        void setParent(List<? extends ASTNode>... nodes) {
+            Arrays.asList(nodes).forEach(list -> list.forEach(node -> node.parent = this));
+        }
+
+        void setParent(Map<? extends ASTNode, ? extends ASTNode>... nodes) {
+            Arrays.asList(nodes).forEach(map -> map.forEach((name, node) -> node.parent = this));
+        }
     }
 
     /** A sequential list of statements */
     static final class Block extends ASTNode {
         List<? extends ASTNode> statements;
 
-        Block(List<? extends ASTNode> statements) {
+        Block(List<? extends ASTNode> statements, ASTNode parent) {
+            setParent(statements);
+            setParent(parent);
+
+            this.parent = parent;
             this.statements = statements;
         }
     }
@@ -811,7 +979,9 @@ public class Parser {
     static final class Assignment extends Statement {
         ASTNode var, value;
 
-        Assignment(ASTNode var, ASTNode value) {
+        Assignment(ASTNode var, ASTNode value, ASTNode parent) {
+            setParent(var, value, parent);
+
             assert var instanceof Declare || var instanceof Var;
             this.var = var;
 
@@ -829,6 +999,9 @@ public class Parser {
         List<Type> type;
 
         Declare(List<Modifier> modifier, Var var, List<Type> type) {
+            setParent(modifier, type);
+            setParent(var);
+
             this.modifier = modifier;
             this.var = var;
             this.type = type;
@@ -836,15 +1009,15 @@ public class Parser {
     }
 
     /** A series of logical steps that returns a value */
-    static abstract class Expression extends ASTNode {
-
-    } // TODO
+    static abstract class Expression extends ASTNode {}
 
     /** A statement on what to return from a function */
     static final class Return extends Statement {
         Expression expression;
 
         Return(Expression expression) {
+            setParent(expression);
+
             this.expression = expression;
             this.token = values.get("RETURN");
         }
@@ -870,8 +1043,7 @@ public class Parser {
             this.token = token;
             this.isPointer = isPointer;
         }
-
-    } // TODO
+    }
 
     static final class ContainerType extends Type {
         Container container;
@@ -879,6 +1051,7 @@ public class Parser {
 
         ContainerType(boolean isPointer, Container container, List<Type> types) {
             super(null, isPointer);
+            setParent(types);
             this.container = container;
             this.types = types;
         }
@@ -899,6 +1072,7 @@ public class Parser {
         List<Assignment> parameters;
 
         ParamDefs(List<Assignment> parameters) {
+            setParent(parameters);
             this.parameters = parameters;
         }
     }
@@ -908,6 +1082,7 @@ public class Parser {
         List<Expression> parameters;
 
         public Params(List<Expression> parameters) {
+            setParent(parameters);
             this.parameters = parameters;
         }
     }
@@ -924,6 +1099,7 @@ public class Parser {
         Func(ParamDefs paramDefs, ASTNode operations) {
             assert operations instanceof Block || operations instanceof Expression;
 
+            setParent(paramDefs, operations);
             this.token = new Token(Token.TokenType.FUNC);
             this.paramDefs = paramDefs;
             this.operations = operations;
@@ -944,6 +1120,10 @@ public class Parser {
 
         Loop(List<Assignment> initClauses, List<Expression> breakClauses,
                     List<Expression> loopClauses, Block block, Block elseBlock) {
+
+            setParent(initClauses, breakClauses, loopClauses);
+            setParent(block, elseBlock);
+
             this.token = new Token(Token.TokenType.LOOP);
             this.initClauses = initClauses;
             this.breakClauses = breakClauses;
@@ -958,6 +1138,9 @@ public class Parser {
         List<IfBlock> ifblocks;
 
         If(List<IfBlock> ifblocks, Block elseBlock) {
+            setParent(ifblocks);
+            setParent(elseBlock);
+
             this.token = new Token(Token.TokenType.IF);
             this.ifblocks = ifblocks;
             this.elseBlock = elseBlock;
@@ -970,6 +1153,7 @@ public class Parser {
         Block block;
 
         IfBlock(Expression condition, Block block) {
+            setParent(condition, block);
             this.condition = condition;
             this.block = block;
         }
@@ -983,6 +1167,9 @@ public class Parser {
         Block defaultBlocks;
 
         Switch(Expression expression, List<Case> cases, Block defaultBlocks, Block elseBlock) {
+            setParent(expression, defaultBlocks, elseBlock);
+            setParent(cases);
+
             this.token = new Token(Token.TokenType.SWITCH);
             this.expression = expression;
             this.cases = cases;
@@ -999,6 +1186,9 @@ public class Parser {
         Block defaultBlocks;
 
         Select(Expression expression, List<Case> cases, Block defaultBlocks, Block elseBlock) {
+            setParent(expression, defaultBlocks, elseBlock);
+            setParent(cases);
+
             this.token = new Token(Token.TokenType.SWITCH);
             this.expression = expression;
             this.cases = cases;
@@ -1013,6 +1203,8 @@ public class Parser {
         Block block;
 
         Case(Expression expression, Block block) {
+            setParent(expression, block);
+
             this.expression = expression;
             this.block = block;
         }
@@ -1024,6 +1216,9 @@ public class Parser {
         List<Catch> catchBlocks;
 
         Try(Block block, List<Catch> catchBlocks, Block elseBlock) {
+            setParent(block, elseBlock);
+            setParent(catchBlocks);
+
             this.block = block;
             this.catchBlocks = catchBlocks;
             this.elseBlock = elseBlock;
@@ -1036,6 +1231,7 @@ public class Parser {
         Block block;
 
         Catch(Declare exception, Block block) {
+            setParent(exception, block);
             Exception = exception;
             this.block = block;
         }
@@ -1048,6 +1244,7 @@ public class Parser {
         Expression val;
 
         Call(Params params, Expression val) {
+            setParent(params, val);
             this.token = values.get("PAR_OPEN");
             this.params = params;
             this.val = val;
@@ -1068,6 +1265,7 @@ public class Parser {
         List<Expression> items;
 
         HArrayList(List<Expression> items) {
+            setParent(items);
             this.items = items;
             this.token = values.get("ARR_TYPE");
         }
@@ -1078,6 +1276,7 @@ public class Parser {
         List<Expression> items;
 
         HLinkedList(List<Expression> items) {
+            setParent(items);
             this.items = items;
             this.token = values.get("L_ARR_TYPE");
         }
@@ -1088,6 +1287,7 @@ public class Parser {
         List<Expression> items;
 
         HDoubleLinkedList(List<Expression> items) {
+            setParent(items);
             this.items = items;
             this.token = values.get("DL_ARR_TYPE");
         }
@@ -1098,6 +1298,7 @@ public class Parser {
         Map<Expression, Expression> items;
 
         HMap(Map<Expression, Expression> items) {
+            setParent(items);
             this.items = items;
             this.token = Parser.values.get("MAP_TYPE");
         }
@@ -1108,6 +1309,7 @@ public class Parser {
         List<Expression> items;
 
         HSet(List<Expression> items) {
+            setParent(items);
             this.items = items;
             this.token = values.get("SET_TYPE");
         }
@@ -1119,6 +1321,7 @@ public class Parser {
         List<? extends HEdge> edges;
 
         HGraph(List<Expression> nodes, List<? extends HEdge> edges, Token token) {
+            setParent(nodes, edges);
             this.nodes = nodes;
             this.edges = edges;
             this.token = token;
@@ -1128,6 +1331,7 @@ public class Parser {
             ASTNode first, second;
 
             HEdge(Expression first, Expression second) {
+                setParent(first, second);
                 this.first = first;
                 this.second = second;
             }
@@ -1144,6 +1348,7 @@ public class Parser {
             boolean doubleEdge;
             HDirectedEdge(Expression first, Expression second, boolean doubleEdge) {
                 super(first, second);
+                setParent(first, second);
                 this.doubleEdge = doubleEdge;
             }
         }
@@ -1158,32 +1363,80 @@ public class Parser {
 
 
     /** Built-in operations between language members */
-    static abstract class Op extends Expression {}
+    static abstract class Op extends Expression {
+        /**
+         * Whether this has a higher operator precedence than op. If op is actually
+         * just a literal, return false.
+         * */
+        boolean higherPrecedenceThan(Expression op) {
+            return op instanceof Op &&
+                    Token.operatorPrecedence.get(this.token.type()) <
+                    Token.operatorPrecedence.get(op.token.type());
+        }
+
+        /**
+         * Whether this has equal operator precedence than op. If op is actually
+         * just a literal, return false.
+         * */
+        boolean equalPrecedenceTo(Expression op) {
+            return op instanceof Op &&
+                    Token.operatorPrecedence.get(this.token.type()) ==
+                            Token.operatorPrecedence.get(op.token.type());
+        }
+    }
+
+    /** Meta information about operators that tokens cannot provide */
+    enum Meta {
+        POSTFIX, PREFIX
+    }
 
     /** An operation that takes in one child */
     static final class UnaryOp extends Op {
-        ASTNode child;
+        Expression child;
+        Meta meta;
 
-        UnaryOp(ASTNode child, Token token) {
+        UnaryOp(Expression child, Token token) {
+            setParent(child);
             this.child = child;
             this.token = token;
+        }
+
+        UnaryOp(Expression child, Token token, Meta meta) {
+            this(child, token);
+            this.meta = meta;
+        }
+
+        void setChild(Expression expression) {
+            this.child = expression;
+            expression.parent = this;
         }
     }
 
     /** An operation that takes in two children */
     static class BinaryOp extends Op {
-        ASTNode left, right;
+        Expression left, right;
 
-        BinaryOp(ASTNode left, ASTNode right, Token token) {
+        BinaryOp(Expression left, Expression right, Token token) {
+            setParent(left, right);
             this.left = left;
             this.right = right;
             this.token = token;
+        }
+
+        void setLeft(Expression expression) {
+            this.left = expression;
+            expression.parent = this;
+        }
+
+        void setRight(Expression expression) {
+            this.right = expression;
+            expression.parent = this;
         }
     }
 
     /** Applies a binary op then sets left to resulting value, e.g. x += 2 */
     static final class SetOp extends BinaryOp {
-        public SetOp(ASTNode left, ASTNode right, Token token) {
+        public SetOp(Expression left, Expression right, Token token) {
             super(left, right, token);
         }
     }
@@ -1219,13 +1472,29 @@ public class Parser {
 
     /** An operation that takes in three children */
     static final class TernaryOp extends Op {
-        ASTNode left, center, right;
+        Expression left, center, right;
 
-        TernaryOp(ASTNode left, ASTNode center, ASTNode right, Token token) {
+        TernaryOp(Expression left, Expression center, Expression right, Token token) {
+            setParent(left, center, right);
             this.left = left;
             this.center = center;
             this.right = right;
             this.token = token;
+        }
+
+        void setLeft(Expression expression) {
+            this.left = expression;
+            expression.parent = this;
+        }
+
+        void setCenter(Expression expression) {
+            this.center = expression;
+            expression.parent = this;
+        }
+
+        void setRight(Expression expression) {
+            this.right = expression;
+            expression.parent = this;
         }
     }
 

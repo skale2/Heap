@@ -174,6 +174,9 @@ public class Lexer {
             } else if (peek() == '/') {
                 skipComment('/');
                 return next();
+            } else if (peek() == '=') {
+                advance(2);
+                return new Token(Token.TokenType.DIVIDE_EQ);
             }
             return new Token(Token.TokenType.DIVIDE);
         } else if (_current == '=') {
@@ -189,7 +192,7 @@ public class Lexer {
         } else if (_current == ':') {
             if (peek() == '=' && peek(2) == '=') {
                 advance(3);
-                return new Token(Token.TokenType.CAST_EQUALS);
+                return new Token(Token.TokenType.CAST_EQUAL);
             } else if (peek() == '!' && peek(2) == '=') {
                 advance(3);
                 return new Token(Token.TokenType.CAST_NOT_EQUAL);
@@ -198,22 +201,43 @@ public class Lexer {
             return new Token(Token.TokenType.COLON);
         } else if (_current == '&') {
             if (peek() == '&') {
+                if (peek() == '=') {
+                    advance(3);
+                    return new Token(Token.TokenType.L_AND_EQ);
+                }
                 advance(2);
                 return new Token(Token.TokenType.L_AND);
+            } else if (peek() == '=') {
+                advance(2);
+                return new Token(Token.TokenType.B_AND_EQ);
             }
             advance();
             return new Token(Token.TokenType.B_AND);
         } else if (_current == '|') {
             if (peek() == '|') {
+                if (peek() == '=') {
+                    advance(3);
+                    return new Token(Token.TokenType.L_OR_EQ);
+                }
                 advance(2);
                 return new Token(Token.TokenType.L_OR);
+            } else if (peek() == '=') {
+                advance(2);
+                return new Token(Token.TokenType.B_OR_EQ);
             }
             advance();
             return new Token(Token.TokenType.B_OR);
         } else if (_current == '^') {
             if (peek() == '^') {
+                if (peek() == '=') {
+                    advance(3);
+                    return new Token(Token.TokenType.L_XOR_EQ);
+                }
                 advance(2);
                 return new Token(Token.TokenType.L_XOR);
+            } else if (peek() == '=') {
+                advance(2);
+                return new Token(Token.TokenType.B_XOR_EQ);
             }
             advance();
             return new Token(Token.TokenType.B_XOR);
@@ -225,7 +249,13 @@ public class Lexer {
             advance();
             return new Token(Token.TokenType.L_NOT);
         } else if (_current == '<') {
-            if (peek() == '}') {
+            if (peek() == '<') {
+                advance(2);
+                return new Token(Token.TokenType.SHIFT_LEFT);
+            } else if (peek() == '=') {
+                advance(2);
+                return new Token(Token.TokenType.LESS_THAN_EQ);
+            } else if (peek() == '}') {
                 advance(2);
                 return new Token(Token.TokenType.SET_CLOSE);
             } else if (peek() == '-') {
@@ -240,7 +270,10 @@ public class Lexer {
             advance();
             return new Token(Token.TokenType.LESS_THAN);
         } else if (_current == '*') {
-            if (peek() == '-') {
+            if (peek() == '*') {
+                advance(2);
+                return new Token(Token.TokenType.EXP);
+            } else if (peek() == '-') {
                 if (peek(2) == '>') {
                     if (peek(3) == '*') {
                         advance(4);
@@ -254,6 +287,9 @@ public class Lexer {
                 }
                 advance(2);
                 return new Token(Token.TokenType.UNDIR_OPEN);
+            } else if (peek() == '=') {
+                advance(2);
+                return new Token(Token.TokenType.MULTIPLY_EQ);
             }
             advance();
             return new Token(Token.TokenType.MULTIPLY);
@@ -274,6 +310,16 @@ public class Lexer {
             } else if (peek() == '>') {
                 advance(2);
                 return new Token(Token.TokenType.DIR_EDGE);
+            } else if (peek() == '/') {
+                if (peek() == '=') {
+                    advance(3);
+                    return new Token(Token.TokenType.FLOOR_EQ);
+                }
+                advance(2);
+                return new Token(Token.TokenType.FLOOR);
+            } else if (peek() == '=') {
+                advance(2);
+                return new Token(Token.TokenType.SUBTRACT_EQ);
             }
             advance();
             return new Token(Token.TokenType.SUBTRACT);
@@ -284,16 +330,40 @@ public class Lexer {
             }
             advance();
             return new Token(Token.TokenType.ARR_OPEN);
+        } else if (_current == '+') {
+            if (peek() == '+') {
+                advance(2);
+                return new Token(Token.TokenType.INCREMENT);
+            } else if (peek() == '=') {
+                advance(2);
+                return new Token(Token.TokenType.ADD_EQ);
+            }
+            advance();
+            return new Token(Token.TokenType.ADD);
+        } else if (_current == '>') {
+            if (peek() == '>') {
+                advance(2);
+                return new Token(Token.TokenType.SHIFT_RIGHT);
+            } else if (peek() == '=') {
+                advance(2);
+                return new Token(Token.TokenType.GREATER_THAN_EQ);
+            }
+            advance();
+            return new Token(Token.TokenType.GREATER_THAN);
+        } else if (_current == '%') {
+            if (peek() == '=') {
+                advance(2);
+                return new Token(Token.TokenType.MOD_EQ);
+            }
+            advance();
+            return new Token(Token.TokenType.MOD);
         }
 
 
         switch(_current) {
             case ',': return new Token(Token.TokenType.COMMA);
             case ';': return new Token(Token.TokenType.EOL);
-            case '+': return new Token(Token.TokenType.ADD);
-            case '%': return new Token(Token.TokenType.MOD);
             case '`': return new Token(Token.TokenType.ROUND);
-            case '>': return new Token(Token.TokenType.GREATER_THAN);
             case ']': return new Token(Token.TokenType.ARR_CLOSE);
             case '}': return new Token(Token.TokenType.SCOPE_CLOSE);
             case '(': return new Token(Token.TokenType.PAR_OPEN);

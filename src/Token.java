@@ -26,19 +26,89 @@ class Token {
         return Objects.hash(_type, _value);
     }
 
-    public String value() { return _value; }
+    String value() { return _value; }
 
-    public TokenType type() { return _type; }
+    TokenType type() { return _type; }
 
-    public Boolean isLiteral()      { return _type._groups.contains(LIT); }
-    public Boolean isReserved()     { return _type._groups.contains(RSD); }
-    public Boolean isOperator()     { return _type._groups.contains(OPR); }
-    public Boolean isModifier()     { return _type._groups.contains(MDF); }
-    public Boolean isType()         { return _type._groups.contains(TYP); }
-    public Boolean isConstruct()    { return _type._groups.contains(CNS); }
-    public Boolean isDirect()       { return _type._groups.contains(DIR); }
-    public Boolean isContainer()    { return _type._groups.contains(CNT); }
-    public boolean isVar()          { return _type == TokenType.VAR; }
+    /**
+     * Helper functions to get all categories token is in
+     * */
+    boolean isLiteral()      { return _type._groups.contains(LIT); }
+    boolean isReserved()     { return _type._groups.contains(RSD); }
+    boolean isOperator()     { return _type._groups.contains(OPR); }
+    boolean isModifier()     { return _type._groups.contains(MDF); }
+    boolean isType()         { return _type._groups.contains(TYP); }
+    boolean isConstruct()    { return _type._groups.contains(CNS); }
+    boolean isDirect()       { return _type._groups.contains(DIR); }
+    boolean isContainer()    { return _type._groups.contains(CNT); }
+    boolean isAssignment()   { return _type._groups.contains(ASN); }
+    boolean isVar()          { return _type == TokenType.VAR; }
+
+    /**
+     * Precedence of different operators by their token type (lower number means
+     * higher precedence)
+     * */
+    static Map<TokenType, Integer> operatorPrecedence = new HashMap<>() {{
+        /* Rounding */
+        put(TokenType.ROUND,            0);
+
+        /* Exponentiative */
+        put(TokenType.EXP,              1);
+
+        /* Multiplicative */
+        put(TokenType.MULTIPLY,         2);
+        put(TokenType.DIVIDE,           2);
+        put(TokenType.MOD,              2);
+        put(TokenType.FLOOR,            2);
+
+        /* Additive and concatenative */
+        put(TokenType.ADD,              3);
+        put(TokenType.SUBTRACT,         3);
+
+        /* Shift */
+        put(TokenType.SHIFT_LEFT,       4);
+        put(TokenType.SHIFT_RIGHT,      4);
+
+        /* Relational */
+        put(TokenType.GREATER_THAN,     5);
+        put(TokenType.LESS_THAN,        5);
+        put(TokenType.GREATER_THAN_EQ,  5);
+        put(TokenType.LESS_THAN_EQ,     5);
+
+        /* Equality */
+        put(TokenType.EQUAL,            6);
+        put(TokenType.NOT_EQUAL,        6);
+        put(TokenType.CAST_EQUAL,       6);
+        put(TokenType.CAST_NOT_EQUAL,   6);
+
+        /* Bitwise boolean operators */
+        put(TokenType.B_AND,            7);
+        put(TokenType.B_OR,             8);
+        put(TokenType.B_XOR,            9);
+
+        /* Logical boolean operators */
+        put(TokenType.L_AND,            10);
+        put(TokenType.L_OR,             11);
+        put(TokenType.L_XOR,            12);
+
+        /* Ternary operators */
+        put(TokenType.TERNARY,          13);
+        
+        /* Assignment */
+        put(TokenType.ADD_EQ,           14);
+        put(TokenType.SUBTRACT_EQ,      14);
+        put(TokenType.MULTIPLY_EQ,      14);
+        put(TokenType.DIVIDE_EQ,        14);
+        put(TokenType.FLOOR_EQ,         14);
+        put(TokenType.ROUND_EQ,         14);
+        put(TokenType.EXP_EQ,           14);
+        put(TokenType.L_AND_EQ,         14);
+        put(TokenType.L_OR_EQ,          14);
+        put(TokenType.L_XOR_EQ,         14);
+        put(TokenType.B_AND_EQ,         14);
+        put(TokenType.B_OR_EQ,          14);
+        put(TokenType.B_XOR_EQ,         14);
+    }};
 
     private TokenType _type;
     private String _value;
@@ -52,14 +122,18 @@ class Token {
             TYP = "TYPE",
             CNS = "CONSTRUCT",
             DIR = "DIRECT",
-            CNT = "CONTAINER";
+            CNT = "CONTAINER",
+            ASN = "ASSIGNMENT";
 
+    /**
+     * The type of this token
+     */
     public enum TokenType {
 
         EOL(";"), EOF(""), COMMA(","), COLON(":"), DIRECT("=>"),
         ANNOTATION("@"), TERNARY("?"), PERIOD("."),
 
-        ASSIGN("="), EQUAL("==", OPR), CAST_EQUALS(":=="), NOT_EQUAL("!="), CAST_NOT_EQUAL(":!="),
+        ASSIGN("="), EQUAL("==", OPR), CAST_EQUAL(":=="), NOT_EQUAL("!="), CAST_NOT_EQUAL(":!="),
 
         VAR("[a-zA-Z\\_]+[a-zA-Z0-9\\_]*"),
 
@@ -77,6 +151,17 @@ class Token {
         B_AND("&", OPR), B_OR("|", OPR), B_NOT("~", OPR), B_XOR("^", OPR),
 
         LESS_THAN("<", OPR), GREATER_THAN(">", OPR),
+        LESS_THAN_EQ("<", OPR), GREATER_THAN_EQ(">=", OPR),
+        SHIFT_RIGHT(">>", OPR), SHIFT_LEFT("<<", OPR),
+
+        ADD_EQ("+=", OPR, ASN), SUBTRACT_EQ("-=", OPR, ASN), MULTIPLY_EQ("*=", OPR, ASN),
+        DIVIDE_EQ("/=", OPR, ASN), MOD_EQ("%=", OPR, ASN), FLOOR_EQ("-/=", OPR, ASN),
+        ROUND_EQ("`=", OPR, ASN), EXP_EQ("**=", OPR, ASN),
+
+        L_AND_EQ("&&=", OPR, ASN), L_OR_EQ("||=", OPR, ASN), L_XOR_EQ("^^=", OPR, ASN),
+        B_AND_EQ("&=", OPR, ASN), B_OR_EQ("|=", OPR, ASN), B_XOR_EQ("^=", OPR, ASN),
+
+        SHIFT_RIGHT_EQ(">>=", OPR, ASN), SHIFT_LEFT_EQ("<<=", OPR, ASN),
 
         PAR_OPEN("("), PAR_CLOSE(")"),
 
