@@ -301,7 +301,7 @@ public class Parser {
      * can ignore them as leaves. They can also contain unitary operators,
      * which also have higher precedence.
      *
-     * Example -> g + f + e**d  * c**b + a
+     * Example -> g + f + e**d * c**b + a
      *
      * Converts this (what I call a weave):
      *
@@ -341,8 +341,6 @@ public class Parser {
             return;
         }
 
-        /* Store left's parents to cancel any need of storing parent pointers
-         * for each operation */
         BinaryOp op = (BinaryOp) node;
         Expression left = op.left;
 
@@ -350,27 +348,46 @@ public class Parser {
          * until you hit a node with an equal to or lower precedence than the head node
          */
         while (!op.higherPrecedenceThan(left)) {
-            left = op.left;
+            left = ((BinaryOp) left).left;
         }
 
-        /* If left has the same precedence as the root op,
-         *
-         */
-        BinaryOp opLeft = (BinaryOp) left;
-        if (op.equalPrecedenceTo(left)) {
-            ((BinaryOp) opLeft.parent).setLeft(opLeft.right);
-            parse(op.left);
-            opLeft.setRight(op.left);
-            op.setLeft(opLeft);
-        } else {
-            if (((BinaryOp) op.parent).left.equals(op)) {
-                ((BinaryOp) left.parent).setLeft(op.right);
-            } else {
-                ((BinaryOp) left.parent).setRight(op.right);
+        /* Make sure that left isn't just the left of op */
+        if (op.left != left) {
+            BinaryOp opLeft = (BinaryOp) left;
+
+            /* If left has the same precedence as the root op,
+             * then op can stay at its relative position
+             *
+             * Point op's left child to left, point left's right child
+             * to op's left child, point op's parent's left child
+             * to left's right child, and recurse onto left's new right
+             * child
+             */
+            if (op.equalPrecedenceTo(left)) {
+                ((BinaryOp) opLeft.parent).setLeft(opLeft.right);
+                parse(op.left);
+                opLeft.setRight(op.left);
+                op.setLeft(opLeft);
             }
-            ((BinaryOp) op.parent).setLeft(left);
-            parse(op);
-            opLeft.setRight(op);
+
+            /* If left has a lower precedence than root op,
+             * then left and op needs to switch
+             *
+             * Point op's parent's child (left or right) to left,
+             *
+             */
+            else {
+                if (op.parent != null) {
+                    if (((BinaryOp) op.parent).left == op) {
+                        ((BinaryOp) op.parent).setLeft(opLeft);
+                    } else {
+                        ((BinaryOp) op.parent).setRight(opLeft);
+                    }
+                }
+                ((BinaryOp) opLeft.parent).setLeft(opLeft.right);
+                parse(op);
+                opLeft.setRight(op);
+            }
         }
 
         parse(left);
