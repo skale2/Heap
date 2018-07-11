@@ -1,0 +1,713 @@
+
+Comments
+/* */
+//
+
+
+/* ************************************* Primitive Types ************************************ */
+
+int
+real
+char
+str
+bool
+null
+
+However, each type has a wrapper class with built-in in functions
+
+
+/* Primitive Operations (basic, complex, logical, bitwise)
+ */
+
+x = 7 + 5;                  // Addition
+x = 8 - 3;                  // Subtraction
+x = 12 * 2;                 // Multiplication
+x = 22 / 2;                 // Division
+
+x = 12 % 4;                 // Modulo
+x = 17 -/ 4;                // Floor Division
+x = 9**3;                   // Exponentiation
+x = 3.239`2;                // Round to second decimal point
+x = 7.8`;                   // Round to nearest integer (same as 7.8^0)
+
+x = true && false;          // logical and
+x = false || true;          // logical or
+x = !true;                  // logical not
+x = true ^^ true;           // logical xor
+
+x = true & false;           // bitwise and
+x = false | false;          // bitwise or
+x = ~true;                  // bitwise not
+x = true ^ true;            // bitwise xor
+
+
+/* **************************************** Variables *************************************** */
+
+n;                          // Declares a variable n in the namespace
+
+x = 5;
+y = '34332';
+z = 343.234;
+
+
+/* Statically typing variables 
+ */
+
+m<char>;                     // Declares a char variable in the namespace
+
+a<int> = 6;
+b<str> = 'aas32da';
+c<float> = 9898.298;
+
+g<str> = 3;                 // <TypeError: cannot assign Integer to String variable>
+
+h<> = 'djkj';               // Declares and statically types h to the type of whatever it 
+                            // is initialized to, so in this case, h must be a string
+
+h<>;                        // Useless, as h is statically typed to null and cannot be changed
+
+
+/* ****************************************** Lists ****************************************** */
+
+/* Container objects that can hold any datatype 
+ */
+arr = [23, 49, 3, 'sdfd', 'c', 123.231]; 
+
+
+/* Total Reference: arr refers to the whole array; the whole array is passed around 
+ */
+zero = arr[0];              // 23, zero is an int
+third = arr[3];             // 'sdfd', third is a string
+
+
+/* Pointer Reference: zero2 refers to 23, pointing to the first element of arr one can pass  
+ * around zero2 around and access different portions of it by first dereferencing (*zero2) and 
+ * then adding 
+ */
+
+*zeroP = arr;              
+print(*zeroP);              // <Array Pointer Object |> 23>
+print(zeroP);               // 23
+
+value = zeroP + 3          // value is an int
+print(value);               // 26
+
+*thirdP = *zeroP += 3;      // zeroP is an array pointer
+print(thirdP);              // 'sdfd'
+print(*thirdP);             // <Array Pointer Object |> 'sdfd'>
+
+
+/* Get total reference from pointer reference; same total reference attained from referencing
+ * any array pointer reference in the array
+ */
+
+arr1 = #zeroP;              // Get full array from array element zeroP
+print(arr1);                // <Array Object> arr1 and arr now point to the same array
+
+arr2 = #thirdP; 
+print(arr2);                // <Array Object> arr2 and arr now point to the same array
+
+print(arr1 == arr2);        // True
+print(arr == arr1);         // True
+print(arr == arr2);         // True
+
+
+/* Get pointer reference from indexing total reference
+ */
+
+*firstP = arr[1]; 
+print(*firstP);             // <Array Pointer Object |> 49>
+print(firstP);              // 49
+
+
+/* Assigning pointer objects changes the array it is derived from
+ */
+
+firstP += 34;
+print(arr);                 // [23, 83, 3, 'sdfd', 'c', 123.231], first element is changed
+
+
+/* Dereferencing pointer object into the underlying data type
+ */
+
+zeroD = &zeroP;
+print(zeroD);               // 23
+
+zeroD += 28;
+print(arr);                 // [23, 83, 3, 'sdfd', 'c', 123.231], array is unchanged because
+                            // zeroP was dereferenced into zeroD, an int, rather than a 
+                            // pointer referencing an int
+
+
+/* Arrays can be sliced, with format array[start index : end index : step]
+ */
+
+slice = arr[2:5];
+print(slice);               // [3, 'sdfd', 'c']
+
+slice2 = arr[1:5:2];        // Slicing with a step function
+print(slice2);              // [83, 'sdfd']
+
+
+/* Array slices can also become pointer references
+ */
+
+*sliceP = arr[2:5];
+print(sliceP);              // [3, 'sdfd', 'c']
+print(*sliceP);             // <Array Slice Pointer Object |> [3, 'sdfd', 'c']>
+
+
+/* Changing values of array pointer slices changes the underlying array
+ */
+
+sliceP[0] = false;             
+print(sliceP);              // [false, 'sdfd', 'c']
+print(arr);                 // [23, 83, false, 'sdfd', 'c', 123.231]
+
+
+/* Slice pointers can have their locations added to as well
+ */
+
+*sliceP += 1;
+print(sliceP);              // ['sdfd', 'c', 123.231], each element in the slice is shifted by the amount
+
+*slice2P = arr[1:5:2];      
+print(slice2P);             // [83, 'sdfd']
+
+*slice2P += 1;
+print(slice2P);             // [false, 'c'], the whole array keeps its step size, but shifts
+
+*slice2P += 2;              // ['c', null], when the slice overflows, its values become null
+
+
+/* Built in array functions
+ */
+
+print(size(arr));           // 6, calls built-in .__size__() function 
+print(hash(arr));           // 03a08b09800ed1339aa8, calls built-in .__hash__() function
+print(arr1 == arr2);        // true, calls built-in .__equals__() function on arr1
+print(arr1 :== arr2);       // true, calls built-in .__equalsCast__() function on arr1
+
+
+/* Adding to array object 
+ */
+
+arr += [0];                 // Add 0 to end of arr
+arr.add(0);                 // Same as above
+arr.add(3, 2);              // Add 3 to index 2 of arr, pushing afterwards up a step
+arr.replace(4, 2);          // Replace second index of arr with 4
+
+
+/* Statically typing array 
+ */
+
+ints<[int]> = [3, 32, 45, 1, 0, 23, -23, -121];
+val1<int> = ints[3];
+print(val1)                 // 1
+
+val2<char> = ints[2];       // <TypeError: cannot assign Integer to Character variable>
+
+val2<char> := ints[2];      
+print(val2);                // '-', because the := casts the value from int to char
+
+
+/* Multiple types allowed in an array if specified 
+ */
+intsAndStrings<[str, int]> = [23, 'dfdf', 'held', 234, -123];
+
+
+/* Range function: [[start ]=> end[ : step]]
+ */
+
+range1 = [=> 3];
+print(range1);              // [0, 1, 2, 3]
+
+range2 = [2 => 3];             
+print(range2)               // [2, 3] 
+
+range3 = [4 => 10 : 3]      
+print(range3)               // [4, 7, 10]
+
+/* Declarations
+ */
+
+oneArray<[]>                // Declares a variable typed as an array
+
+twoArray<[int]>             // Declares a variable typed as an array of ints
+
+threeArray<[int(3)]>        // Declares a variable typed as an array of size 3 of ints,
+                            // all array elements are initialized as null.
+
+
+/* Implementation Choices (regular arrays are implemented as dynamic arrays)
+ */
+
+linked = -[0, 3, 4, 1];     // Creates a linked list representation;
+double = --[0, 3, 4, 1];    // Creates a doubly-linked list representation;
+
+linkedStat<-[int]>;         // Declares a linked list of ints  
+doubleStat<--[]>;           // Declares a doubly-linked list of any object
+
+
+/* ************************************* Conditionals ************************************** */
+
+/* Basic if statements 
+ */
+
+if (bool) => {
+    // if block
+} else if (bool) => {
+    // else if block
+} else {
+    // else block;
+} finally {
+    // Do this no matter what case ends up happening, or if no case happens
+}
+
+switch (var) => {
+    case option1:
+        // Do something
+        break;
+    case option2:
+        // Do something
+        break;
+    default:
+        // Do something
+}
+
+select (var) => {           // Same as switch, but the break after each case is implied
+    case option1:
+        // Do something
+    case option2:
+        // Do something
+    default:
+        // Do something
+}
+
+
+/* Ternary operator
+ */
+
+x = 10 > 5 ? 'yes' : 'no';
+
+
+/* ***************************************** Loops ***************************************** */
+
+/* Syntax: 
+ * initialize variables scoped within loop : end condition : loop on end statement 
+ */
+
+/* for loop */
+loop(x = 5 : x < 112 : x++) => { 
+    x += 12;
+} 
+
+/* for each loop */
+*arr1 = [2, 3, 34, -23, 23]
+loop(:: *arr1++) => {
+    print(arr)
+}
+
+arr2 = [2, 3, 34, -23, 23]
+loop(*elem = arr2 ::) => {
+    print(elem)             // elem has no ties to arr
+}
+
+
+loop(*elem = arr2 ::) => {
+    print(*elem)            // <Array Pointer Object |> whatever>
+}
+
+/* while loop */
+count = 0;
+loop(: count > -12 :) => {
+    count -= 13;
+}
+
+
+/* **************************************** Functions *************************************** */
+
+name = func(arguments) => {
+    // function block
+}
+name(arguments);
+
+
+arr1 = arr2 = arr3 = [3, 9, 23, 0, -4];
+
+/* Function that adds val to every element in arr; non-mutative
+ */
+mapAdd = func(arr, val) => {
+    newArr = [];
+    loop(elem = arr ::) => {
+        newArr += [elem + val];
+    }
+    return newArr;
+}
+
+/* Function that adds val to every element in arr; mutative
+mapAdd = func(arr, val) => {
+    loop(*elem = arr ::) => {
+        elem = elem + val;
+    }
+}
+
+mapAdd(arr1, 5);
+print(arr1);                // [8, 14, 28, 5, 1]     
+
+/* Same as above, but shows what happens if the element pointer is dereferenced; the resulting
+ * mutation does not affect the underlying array
+mapAddBad = func(arr, val) => {
+    loop(*elem = arr ::) => {
+        elem = &elem;
+        elem = elem + val;
+    }
+}
+
+mapAddBad(arr2, 5);
+print(arr2);                // [3, 9, 23, 0, -4]
+
+
+/* Simpler lambdas with no function block return expression 
+ */
+
+lamb = func(val) => val/2;
+print(lamb(34));            // 17
+
+
+/* Functions are first class objects 
+ */
+
+map = func(f, arr) => {
+    loop(*elem = arr) => {
+        elem = f(elem);
+    }
+}
+
+map(func(x) => x**2, arr3);
+print(arr3)                 // [9, 81, 529, 0, 16]
+
+
+/* Var args 
+ */
+
+sum = func(...vals) => {
+    sum = 0;
+    loop(elem = vals ::) => {
+        sum += elem;
+    }
+}
+
+print(sum([:4]));           // 10, pass in array
+print(sum(0, 1, 2, 3, 4))   // 10, pass in individual values
+
+
+/* Statically typed arguments 
+ */
+printIf = func(s<str>, toPrint<bool>) => {
+    if (toPrint) => {
+        print(s);
+    }
+}
+
+
+/* Statically typed return value
+ */
+isBig<bool> = func(x<int>) => {
+    if (x > 100) => {
+        return true;
+    } else {
+        return false;
+    }
+}
+
+/* ***************************************** Classes *************************************** */
+
+Person = class() => {                       // Implicitly subclasses Object class
+
+    @static num = 0;                        // Class variables
+    @static @final species = 'Human';       // Cannot be changed later or when 
+    
+    name<str>;                              // Declares an instance level variable, initiates
+                                            // to null initially. However, all instance variables   
+                                            // don't have to be declared outside the constructor
+                                            // like this, Java or C++ style.
+
+    __create__<Person> = func(name<str>, gender<str>, likes<str[]>, job<str>) => {
+        this.name = name;                   // this references the object function is called
+        this.gender = gender;               // on; available on any non static function defined
+        this.likes = likes;                 // on the class
+        this.job = job;
+
+        cls.num += 1;                       // cls references Person, access through any function
+                                            // defined on the class
+    }
+
+    __str__<str> = func() => {              // Must be <str> typed
+        return this.name + ' is a ' + this.gender + ' who likes ' + str(this.likes);
+    }
+
+    __equals__<bool> = func(other) => {
+        return this.name == other.name && this.gender == other.gender && this.likes == other.likes;
+    }
+
+    @static                                 // Definition belongs to the class itself
+    __size__<int> = func() => {
+        return cls.num
+    }
+
+    __destroy__ = func() => {
+        cls.num -= 1;
+    }
+    
+    @private                                // Available only within class itself
+    deliberate = func(thing<str>) => {
+        return thing in this.likes ? true : false;
+    }
+
+    @public                                 // Available to everyone
+    giveOpinions = func(things<str[]>) => {
+        opinions<bool[]> = [];
+        loop (*thing = things) => {
+            opinions.add(this.deliberate(thing));
+        }
+        return opinions;
+    }
+
+    @property                               // this can be called as an instance attribute, rather 
+    firstName = func() => {                 // than a method. e.g. person.first_name
+        return this.name.split(' ');
+    }
+
+    @abstract                               // Must be implemented in subclasses to be used, or else
+    grow = func(amount);                    // throws <NotImplementedError> 
+
+}
+
+
+/* Class Parameters: can be attached to any property, method, or class definition
+ */
+
+@static:        // A property belonging to the class, not instances. Can be accessed within the 
+                // class as cls.whatever, or anywhere else as ClassName.whatever. A static method
+                // does not have access to the this object within its body
+
+@final:         // Can be used on any variable, not just a class property. Can only be instantiated
+                // once, any further setting of this variable throws an error. If on a method, cannot
+                // be overridden. If on a class, cannot be subclassed
+
+@public         // Accessible anywhere inside or outside of the class's module 
+
+@module         // Accessible anywhere inside the class's module 
+
+@private        // Accessible only inside the class itself
+
+@property       // States that a method represents an instance property; i.e. it does not have to be
+                // called with a ()
+
+@abstract       // Method or property that has not been implemented or has not been instantiated
+
+
+/* OOP design strategies available 
+
+Method overloading      // Two methods can have the same name with different arguments
+
+
+
+/* Subclassing
+ */
+
+Cyborg = class(Person, Robot) => {
+    __create__ = func(name<str>, gender<str>, likes<str[]>, mailAmount<int>, 
+                    memory<double>, material<str>) => {
+
+        likes.add('oil');
+
+        super<Person>(name, gender, likes, 'Cyborg');       // When inherting from multiple super
+        super<Robot>(memory, material);                     // classes, the super function must 
+                                                            // be typed <> with one of the 
+        this.firstName = super<Person>.firstName + '_12a';  // superclasses to prevent ambiguity
+                                                            
+                                                            // If only single inheritance, only
+                                                            // using super(...) is fine
+    }
+
+}
+
+/* Implementing a container
+ */
+Queue<char> = class(:[]) => {                   // class(subclasses : interfaces) => {...}
+    __create__ = func() => {
+        this.arr = [];                          // 
+    }
+
+    __index__ = func(index<int>) => {           // Because this is implementing a container class,
+        /**                                     // Queue can be typed as only taking chars. In general,
+         * Get the value at this index; all     // container subclasses can hold types more specific
+         * implementations must implement       // than the types its superclass can hold
+         * this method 
+         */
+        return super<[]>.__index__(index);      // You can also call super on the interface
+    }
+
+    __add__  = func(value<char>) => {
+        
+    }
+}
+
+
+/* Enums: fixed instance classes representating final objects.
+ */
+
+Direction = enum() => {
+    NORTH(0);
+    SOUTH(180);
+    EAST(90);
+    WEST(270);
+
+    __create__ = func(angle<int>) => {
+        this.angle = angle;
+    }
+}
+
+
+/* Structs: class-like dictionary.
+ */
+
+circle = struct() => {
+    radius<int>;
+    center<[double, double]>;
+}
+
+c1 = c2 = circle(5, [2, 9.9]);
+print(c1 == c2);                        // True, as the objects are compared by value, not by
+                                        // reference like normal classes
+
+print(str(c1));                         // "Circle(2, [2, 9.9])"; __str__ is implemented by
+                                        // default on this value object
+
+
+/* Extensions: A way to add extra functionality to a class or type, that applies to all 
+ instances of that class or type. Useful to add functionality to built-in types
+ */
+
+x = {2 : 5, 6 : 10}
+
+extend({}) => {                         // Extends the Map container; isn't usually assigned
+    addOneToValue = func() => {         // Add a new function
+        loop(*elem = x::) => {
+            elem.key += 1;
+        }
+    }
+
+    __str__ = func() => {               // Override an existing function to apply to all 
+        stringValue = "{";              // objects
+        loopN(*elem = x::) => {
+            stringValue += 
+                elem.key + 
+                ":::" + 
+                elem.value + 
+                " ? ";
+        }
+        return stringValue + "}";
+    }
+}
+
+x.addOneToValue();                      // Call new method on an existing map object
+print(x);                               // {3:::5 ? 7:::10 ? }
+
+
+
+/* ****************************************** Maps ***************************************** */
+                        
+/* A mapping between datatypes of any kind 
+ */
+
+m = {};                                 // How to intially define a map, an object meant to 
+                                        // store a set of key, value pairs
+
+m['c'] = 523.2                          // Add a key, value pair
+m['c'] = null                           // Remove a key, value pair (since all keys that don't
+                                        // exist in the map will return null anyways)
+
+aMap = {                                // How to define and populate a map with key, values
+    52: 5,                              // pairs instantly
+    4: 'hello, 
+    'john': false,
+};
+
+
+/* Object Maps, an object-like dictionary, where keys become variable tokens and are accessed
+ * as such. Similar to structs, except are not reusable in their definitions, and cannot
+ * hold methods. Useful for one time object construction.
+ */
+
+circle = {                              // An example of an object map. Here, the 
+    radius: 5,                          // keys are treated as variables, and the map implements
+    center: [2, -4.5]                   // the "Value Object" pattern, and methods such as
+}                                       // __str__, __equals__, and __hash__ are implemented
+                                        // by default
+
+square = {                              // Here, the object-map has typed keys, that are already
+    name<str>: "A square",              // initialized. If the value associated with a typed key
+    sideLen<double>: 34.0               // is changed, the value will be typed check
+}
+
+triangle = {                            // Here, the object map is typed, but isn't initialized
+    sides<[int(3)]>                    
+}
+
+print(square.name);                     // Accessing an object map's attributes are like accessing
+                                        // an instance's attributes
+
+
+
+/* ***************************************** Graphs **************************************** */
+
+/* A set of nodes (any object) and a set of edges, which connect the nodes 
+ */
+
+g = *-                                      // Start a graph container
+    5, 2, 4, 10, 29;                        // The set of nodes, ended by ;
+    5-10, 2-10, 4-5, 29-2, 29-5, 29-10;     // The set of edges, connected by -, ended by ;
+-*;                                         // End a graph container
+
+
+/* Accessing values of the graph follows the container rule of pointers vs values 
+ */
+
+five = g[5];                                // Access the value of a node of the graph
+print(five);                                // 5
+
+*edge = g[2-10];                            // Access the value of an edge of the graph
+print(edge);                                // null, the edge doesn't have a value associated  
+                                            // with it
+
+*fiveP = g[5];                              // Accessing a node object of the graph
+print(fiveP);                               // <Graph Pointer Object |> 5>
+
+*edgeP = g[2-10];                           // Access an edge object of the graph
+print(*edgeP);                              // <Graph Edge Object |> null>
+
+g2 = #fiveP;                                // Access the whole graph object from an object
+print(g == g2);                             // True
+
+
+/* Adding elements to the graph 
+ */
+
+*e2 = g[29] - g[4];                         // Adding an edge to the graph 
+print(*e2);                                 // <Graph Edge Object |> null>
+
+*e3 = g[4] -('an edge')- g[2];              // Adding an edge with a value to the graph
+print(*e3);                                 // <Graph Edge Object |> null>
+print(e3);                                  // 'an edge'
+
+
+
+
+
+
+
+
+

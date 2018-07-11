@@ -1,4 +1,4 @@
-public class NULL {
+public class NULL extends Any {
     private static NULL ourInstance = new NULL();
 
     public static NULL getInstance() {

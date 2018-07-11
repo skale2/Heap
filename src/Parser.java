@@ -1,6 +1,5 @@
 
 import java.util.*;
-import java.lang.reflect.Method;
 
 /**
  * A class that takes in a stream of tokens from the Lexer and parses them
@@ -78,15 +77,16 @@ public class Parser {
      * @return Whether *all* of types returns true
      */
     private boolean currentAll(String... types) {
-        try {
-            return Arrays.stream(types)
-                    .allMatch(type -> current()
-                            .getClass().getDeclaredMethod(type)
-                            .invoke(current())
-                    );
-        } catch (NoSuchMethodException nsme) {
-            return false;
-        }
+//        try {
+//            return Arrays.stream(types)
+//                    .allMatch(type -> current()
+//                            .getClass().getDeclaredMethod(type)
+//                            .invoke(current())
+//                    );
+//        } catch (NoSuchMethodException nsme) {
+//            return false;
+//        }
+        return false;
     }
 
     /**
@@ -95,15 +95,16 @@ public class Parser {
      * @return Whether *any* of types returns true
      */
     private boolean currentAny(String... types) {
-        try {
-            return Arrays.stream(types)
-                    .anyMatch(type -> current()
-                            .getClass().getDeclaredMethod(type)
-                            .invoke(current())
-                    );
-        } catch (NoSuchMethodException nsme) {
-            return false;
-        }
+//        try {
+//            return Arrays.stream(types)
+//                    .anyMatch(type -> current()
+//                            .getClass().getDeclaredMethod(type)
+//                            .invoke(current())
+//                    );
+//        } catch (NoSuchMethodException nsme) {
+//            return false;
+//        }
+        return false;
     }
 
 
@@ -128,7 +129,18 @@ public class Parser {
         List<Statement> statements = new ArrayList<>();
         List tokens = Arrays.asList(endTokens);
         while (!tokens.contains(current())) {
-            parseStatement();
+            statements.add(parseStatement());
+        }
+        return new Block(statements);
+    }
+
+    private Block parseClassBlock(Token... endTokens) {
+        List<Statement> statements = new ArrayList<>();
+        List tokens = Arrays.asList(endTokens);
+        while (!tokens.contains(current())) {
+            Statement statement = parseStatement();
+            assert statement instanceof Assignment;
+            statements.add(statement);
         }
         return new Block(statements);
     }
@@ -143,10 +155,10 @@ public class Parser {
                 currentIs("MULTIPLY") ||  // References a pointer variable
                 current().isVar()
                 ) {
-            return parseAssignment(values.get("EOL"));
             eat("EOL");
+            return parseAssignment(values.get("EOL"));
         } else {
-            parseExpression(values.get("EOL"));
+            return parseExpression(values.get("EOL"));
         }
     }
 
@@ -397,7 +409,7 @@ public class Parser {
     /** Entry point for all expression parsing
      * */
     private Expression parseExpression(Token... endTokens) {
-        Expression expression, nextTerm = null;
+        Expression expression = new NoOp;
         Token current;
         do {
             expression = parseTerm(endTokens);
@@ -451,8 +463,6 @@ public class Parser {
         else if (currentIs(values.get("MULTIPLY"))) {
             eat("MULTIPLY");
             expression = new UnaryOp(parseTerm(afterTokens), values.get("MULTIPLY"));
-        } else if (current().isContainer()) {
-            expression = parseContainer();
         } else if (currentIs("SUBTRACT")) {
             eat("SUBTRACT");
             expression = new UnaryOp(parseTerm(afterTokens), values.get("SUBTRACT"));
@@ -477,7 +487,7 @@ public class Parser {
         else if (current().isConstruct()) {
             return parseConstruct();
         } else if (current().isContainer()) {
-            return parseContainer();
+            return (Container) parseContainer();
         }
 
         /* Any term that has not already been returned can have after-effects (property
@@ -492,7 +502,7 @@ public class Parser {
      */
     private Expression postFix(Expression expression) {
         if (currentIs("ARR_OPEN")) {
-            return postFix(parseIndex(expression));
+            return postFix((Expression) parseIndex(expression));
         } else if (currentIs("PERIOD")) {
             return postFix(parseProperty(expression));
         } else if (currentIs("PAR_OPEN")) {
@@ -503,6 +513,12 @@ public class Parser {
         } else if (currentIs("DECREMENT")) {
             eat("DECREMENT");
             return postFix(new UnaryOp(expression, values.get("DECREMENT"), Meta.POSTFIX));
+        } else if (currentIs("DEREF")) {
+            eat("DEREF");
+            return postFix(new UnaryOp(expression, values.get("DEREF")));
+        } else if (currentIs("TOTAL_REF")) {
+            eat("TOTAL_REF");
+            return postFix(new UnaryOp(expression, values.get("TOTAL_REF")));
         } else if (currentIs("ROUND")) {
             eat("ROUND");
             if (current().isLiteral()) {
@@ -516,9 +532,24 @@ public class Parser {
         }
     }
 
-    private Index parseIndex(Expression var) {
+    private ArrayOp parseIndex(Expression var) {
         eat("ARR_OPEN");
-        Expression index = parseExpression(values.get("ARR_CLOSE"));
+        Expression index = parseExpression(values.get("ARR_CLOSE"), values.get("COLON"));
+
+        if (currentIs("COLON")) {
+            eat("COLON");
+            Expression stop = parseExpression(values.get("ARR_CLOSE"), values.get("COLON"));
+
+            if (currentIs("COLON")) {
+                eat("COLON");
+                Expression step = parseExpression(values.get("ARR_CLOSE"));
+                return new Slice(var, index, stop, step);
+            }
+
+            eat("ARR_CLOSE");
+            return new Slice(var, index, stop, new NoOp());
+        }
+
         eat("ARR_CLOSE");
         return new Index(var, index);
     }
@@ -550,14 +581,14 @@ public class Parser {
         Token current = current();
         eat(current);
 
-        if (current.type().equals(Token.TokenType.INT_VAL) {
+        if (current.type().equals(Token.TokenType.INT_VAL)) {
             return new IntLiteral(current);
         } else if (current.type() == Token.TokenType.REAL_VAL) {
             return new RealLiteral(current);
         } else if (current.type() == Token.TokenType.STR_VAL) {
             return new StringLiteral(current);
         } else if (current.type() == Token.TokenType.TRUE || current.type() == Token.TokenType.FALSE) {
-            return new BooleanLiteral((current);
+            return new BooleanLiteral(current);
         } else if (current.type().equals(Token.TokenType.NULL)) {
             return new NullLiteral(current);
         }
@@ -583,6 +614,7 @@ public class Parser {
         } else if (current().type() == Token.TokenType.TRY) {
             return parseTry();
         }
+        return null;
     }
 
     private Loop parseLoop() {
@@ -773,7 +805,16 @@ public class Parser {
     private Construct parseConstruct() {
         if (currentIs("FUNC")) {
             return parseFuncDeclare();
+        } else if (currentIs("CLASS")) {
+            return parseClass();
+        } else if (currentIs("STRUCT")) {
+            return parseStruct();
+        } else if (currentIs("INTERFACE")) {
+            return parseInterface();
+        } else if (currentIs("ENUM")) {
+            return parseEnum();
         }
+        return null;
     }
 
     private Func parseFuncDeclare() {
@@ -797,13 +838,97 @@ public class Parser {
         return new Func(paramDefs, operations);
     }
 
+    private Construct constructHelper(boolean hasinstances) {
+        eat("PAR_OPEN");
+
+        List<Var> superclasses = new ArrayList<>();
+        while (!currentIs("COLON", "PAR_CLOSE")) {
+            superclasses.add(new Var(current()));
+            eat(current());
+            eat("COMMA");
+        }
+
+        List<Var> interfaces = new ArrayList<>();
+        if (currentIs("COLON")) {
+            eat("COLON");
+            while (!currentIs("COLON", "PAR_CLOSE")) {
+                interfaces.add(new Var(current()));
+                eat(current());
+                eat("COMMA");
+            }
+        }
+        eat("PAR_CLOSE");
+
+        eat("DIRECT");
+
+        eat("SCOPE_OPEN");
+
+        List<Call> instances = new ArrayList<>();
+        if (hasinstances) {
+            while (!currentIs("EOL")) {
+                Var var = new Var(current());
+                eat(current());
+                if (currentIs("PAR_OPEN")) {
+                    instances.add(parseCall(var));
+                } else {
+                    instances.add(new Call(new Params(new ArrayList<>()), var));
+                }
+            }
+            eat("EOL");
+        }
+
+        Block block = parseClassBlock(values.get("SCOPE_CLOSE"));
+        eat("SCOPE_CLOSE");
+
+        if (hasinstances)
+            return new Enum(instances, superclasses, interfaces, block);
+        else
+            return new Class(superclasses, interfaces, block);
+    }
+
+    private Class parseClass() {
+        eat("CLASS");
+        return (Class) constructHelper(false);
+    }
+
+    private Struct parseStruct() {
+        eat("STRUCT");
+        return (Struct) constructHelper(false);
+    }
+
+    private Interface parseInterface() {
+        eat("INTERFACE");
+
+        eat("PAR_OPEN");
+        List<Var> interfaces = new ArrayList<>();
+        while (!currentIs("COLON", "PAR_CLOSE")) {
+            interfaces.add(new Var(current()));
+            eat(current());
+            eat("COMMA");
+        }
+        eat("PAR_CLOSE");
+
+        eat("DIRECT");
+
+        eat("SCOPE_OPEN");
+        Block block = parseClassBlock(values.get("SCOPE_CLOSE"));
+        eat("SCOPE_CLOSE");
+
+        return new Interface(interfaces, block);
+    }
+
+    private Enum parseEnum() {
+        eat("ENUM");
+        return (Enum) constructHelper(true);
+    }
+
 
     /** *************************************************************************************************
      *  CONTAINERS
      *  Containers hold objects and add relations between them
      */
 
-    private Container parseContainer() {
+    private ContainerCreation parseContainer() {
         if (currentIs("ARR_OPEN")) {
             return parseArrayList();
         } else if (currentIs("L_ARR_OPEN")) {
@@ -827,7 +952,7 @@ public class Parser {
         } else if (currentIs("DL_ARR_TYPE")) {
             return new HDoubleLinkedList(new ArrayList<>());
         } else if (currentIs("MAP_TYPE")) {
-            return new HMap(new HashMap<>());
+            return new HValueMap(new HashMap<>());
         } else if (currentIs("SET_TYPE")) {
             return new HSet(new ArrayList<>());
         } else if (currentIs("UNDIR_TYPE")) {
@@ -839,33 +964,73 @@ public class Parser {
         return null;
     }
 
-    private HArrayList parseArrayList() {
+    private Expression[] rangeHelper(Expression start) {
+        eat("DIRECT");
+        Expression stop = parseExpression(values.get("COLON"), values.get("ARR_CLOSE"));
+        if (currentIs("COLON")) {
+            Expression step = parseExpression(values.get("ARR_CLOSE"));
+            return new Expression[] {start, stop, step};
+        }
+        return new Expression[] {start, stop, new NoOp()};
+    }
+
+    private ContainerCreation parseArrayList() {
         eat("ARR_OPEN");
         List<Expression> items = new ArrayList<>();
+
+        Expression start = parseExpression(values.get("COMMA"), values.get("ARR_CLOSE"), values.get("DIRECT"));
+        if (currentIs("DIRECT")) {
+            Expression[] rangeValues = rangeHelper(start);
+            return new ArrayListRange(rangeValues[0], rangeValues[1], rangeValues[2]);
+        } else if (currentIs("ARR_CLOSE")) {
+            return new HArrayList(items);
+        }
+
+        items.add(start);
         while (!currentIs("ARR_CLOSE")) {
-            items.add(parseExpression(values.get("COMMA")));
+            items.add(parseExpression(values.get("COMMA"), values.get("ARR_CLOSE")));
             eat("COMMA");
         }
         eat("ARR_CLOSE");
         return new HArrayList(items);
     }
 
-    private HLinkedList parseLinkedList() {
+    private ContainerCreation parseLinkedList() {
         eat("L_ARR_OPEN");
         List<Expression> items = new ArrayList<>();
+
+        Expression start = parseExpression(values.get("COMMA"), values.get("ARR_CLOSE"), values.get("DIRECT"));
+        if (currentIs("DIRECT")) {
+            Expression[] rangeValues = rangeHelper(start);
+            return new LinkedListRange(rangeValues[0], rangeValues[1], rangeValues[2]);
+        } else if (currentIs("ARR_CLOSE")) {
+            return new HLinkedList(items);
+        }
+
+        items.add(start);
         while (!currentIs("ARR_CLOSE")) {
-            items.add(parseExpression(values.get("COMMA")));
+            items.add(parseExpression(values.get("COMMA"), values.get("ARR_CLOSE")));
             eat("COMMA");
         }
         eat("ARR_CLOSE");
         return new HLinkedList(items);
     }
 
-    private HDoubleLinkedList parseDoubleLinkedList() {
+    private ContainerCreation parseDoubleLinkedList() {
         eat("DL_ARR_OPEN");
         List<Expression> items = new ArrayList<>();
+
+        Expression start = parseExpression(values.get("COMMA"), values.get("ARR_CLOSE"), values.get("DIRECT"));
+        if (currentIs("DIRECT")) {
+            Expression[] rangeValues = rangeHelper(start);
+            return new DoubleLinkedListRange(rangeValues[0], rangeValues[1], rangeValues[2]);
+        } else if (currentIs("ARR_CLOSE")) {
+            return new HDoubleLinkedList(items);
+        }
+
+        items.add(start);
         while (!currentIs("ARR_CLOSE")) {
-            items.add(parseExpression(values.get("COMMA")));
+            items.add(parseExpression(values.get("COMMA"), values.get("ARR_CLOSE")));
             eat("COMMA");
         }
         eat("ARR_CLOSE");
@@ -876,7 +1041,7 @@ public class Parser {
         eat("SET_OPEN");
         List<Expression> items = new ArrayList<>();
         while (!currentIs("SET_CLOSE")) {
-            items.add(parseExpression(values.get("COMMA")));
+            items.add(parseExpression(values.get("COMMA"), values.get("SET_CLOSE")));
             eat("COMMA");
         }
         eat("SET_CLOSE");
@@ -886,15 +1051,56 @@ public class Parser {
     private HMap parseMap() {
         eat("SCOPE_OPEN");
 
-        Map<Expression, Expression> items = new HashMap<>();
+        Expression key = parseExpression(values.get("COLON"));
+        eat("COLON");
+        Expression val = parseExpression(values.get("COMMA"), values.get("SCOPE_CLOSE"));
+
+        if (key instanceof Var) {
+            return parseObjectMap((Var) key, val);
+        } else {
+            return parseValueMap(key, val);
+        }
+    }
+
+    private HObjectMap parseObjectMap(Var firstKey, Expression firstVal) {
+        Map<Var, Expression> items = new HashMap<>();
+        items.put(firstKey, firstVal);
+
         while (!currentIs("SCOPE_CLOSE")) {
             Expression key = parseExpression(values.get("COLON"));
-            Expression value = parseExpression(values.get("COMMA"));
-            items.put(key, value);
+            assert key instanceof Var;
+
+            eat("COLON");
+
+            Expression value = parseExpression(values.get("COMMA"), values.get("SCOPE_CLOSE"));
+            items.put((Var) key, value);
+
+            if (currentIs("COMMA"))
+                eat("COMMA");
         }
 
         eat("SCOPE_CLOSE");
-        return new HMap(items);
+        return new HObjectMap(items);
+    }
+
+    private HValueMap parseValueMap(Expression firstKey, Expression firstVal) {
+        Map<Expression, Expression> items = new HashMap<>();
+        items.put(firstKey, firstVal);
+
+        while (!currentIs("SCOPE_CLOSE")) {
+            Expression key = parseExpression(values.get("COLON"));
+
+            eat("COLON");
+
+            Expression value = parseExpression(values.get("COMMA"), values.get("SCOPE_CLOSE"));
+            items.put(key, value);
+
+            if (currentIs("COMMA"))
+                eat("COMMA");
+        }
+
+        eat("SCOPE_CLOSE");
+        return new HValueMap(items);
     }
 
     private HDirectedGraph parseDirectedGraph() {
@@ -903,7 +1109,7 @@ public class Parser {
         List<Expression> nodes = new ArrayList<>();
         while (!currentIs("EOL")) {
             nodes.add(parseExpression(values.get("COMMA")));
-            eat("COMMA"));
+            eat("COMMA");
         }
         eat("EOL");
 
@@ -916,7 +1122,7 @@ public class Parser {
             boolean doubleEdge = currentIs("DIR_EDGE");
             eat(current());
 
-            Expression second = parseExpression(values.get("COMMA"));
+            Expression second = parseExpression(values.get("COMMA"), values.get("GRAPH_CLOSE"));
 
             edges.add(new HDirectedGraph.HDirectedEdge(first, second, doubleEdge));
             eat("COMMA");
@@ -943,7 +1149,7 @@ public class Parser {
 
             eat("MINUS");
 
-            Expression second = parseExpression(values.get("COMMA"));
+            Expression second = parseExpression(values.get("COMMA"), values.get("GRAPH_CLOSE"));
 
             edges.add(new HGraph.HEdge(first, second));
             eat("COMMA");
@@ -980,9 +1186,8 @@ public class Parser {
     static final class Block extends ASTNode {
         List<? extends ASTNode> statements;
 
-        Block(List<? extends ASTNode> statements, ASTNode parent) {
+        Block(List<? extends ASTNode> statements) {
             setParent(statements);
-            setParent(parent);
 
             this.parent = parent;
             this.statements = statements;
@@ -996,8 +1201,8 @@ public class Parser {
     static final class Assignment extends Statement {
         ASTNode var, value;
 
-        Assignment(ASTNode var, ASTNode value, ASTNode parent) {
-            setParent(var, value, parent);
+        Assignment(ASTNode var, ASTNode value) {
+            setParent(var, value);
 
             assert var instanceof Declare || var instanceof Var;
             this.var = var;
@@ -1026,7 +1231,10 @@ public class Parser {
     }
 
     /** A series of logical steps that returns a value */
-    static abstract class Expression extends ASTNode {}
+    static abstract class Expression extends Statement {}
+
+    /** An empty expression */
+    static final class NoOp extends Expression {}
 
     /** A statement on what to return from a function */
     static final class Return extends Statement {
@@ -1098,7 +1306,7 @@ public class Parser {
     static final class Params extends ASTNode {
         List<Expression> parameters;
 
-        public Params(List<Expression> parameters) {
+        Params(List<Expression> parameters) {
             setParent(parameters);
             this.parameters = parameters;
         }
@@ -1117,9 +1325,67 @@ public class Parser {
             assert operations instanceof Block || operations instanceof Expression;
 
             setParent(paramDefs, operations);
-            this.token = new Token(Token.TokenType.FUNC);
+            this.token = values.get("FUNC");
             this.paramDefs = paramDefs;
             this.operations = operations;
+        }
+    }
+
+    /** A blueprint for objects */
+    static class Class extends Construct {
+        List<Var> superClasses;
+        List<Var> interfaces;
+        Block block;
+
+        public Class(List<Var> superClasses, List<Var> interfaces, Block block) {
+            setParent(superClasses, interfaces);
+            setParent(block);
+
+            this.superClasses = superClasses;
+            this.interfaces = interfaces;
+            this.block = block;
+            this.token = values.get("CLASS");
+        }
+    }
+
+    /** A class definition that follows the "value object" pattern */
+    static final class Struct extends Class {
+        public Struct(List<Var> superClasses, List<Var> interfaces, Block block) {
+            super(superClasses, interfaces, block);
+        }
+    }
+
+    /** A blueprint for classes, that cannot be instantiated */
+    static final class Interface extends Construct {
+        List<Var> interfaces;
+        Block block;
+
+        Interface(List<Var> interfaces, Block block) {
+            setParent(interfaces);
+            setParent(block);
+
+            this.interfaces = interfaces;
+            this.block = block;
+            this.token = values.get("INTERFACE");
+        }
+    }
+
+    /** A class that comes with an immutable set of instances */
+    static final class Enum extends Construct {
+        List<Call> instances;
+        List<Var> superClasses;
+        List<Var> interfaces;
+        Block block;
+
+        Enum(List<Call> instances, List<Var> superClasses, List<Var> interfaces, Block block) {
+            setParent(instances, superClasses, interfaces);
+            setParent(block);
+
+            this.instances = instances;
+            this.superClasses = superClasses;
+            this.interfaces = interfaces;
+            this.block = block;
+            this.token = values.get("ENUM");
         }
     }
 
@@ -1269,8 +1535,11 @@ public class Parser {
     }
 
 
-    /** Container nodes */
-    static abstract class Container extends Expression {}
+    /** Anything that creates a container */
+    interface ContainerCreation {}
+
+    /** Container literal nodes */
+    static abstract class Container extends Expression implements ContainerCreation {}
 
     /** A dynamic array of objects */
     static class HList extends Container {
@@ -1311,13 +1580,31 @@ public class Parser {
     }
 
     /** A bijective mapping between objects */
-    static final class HMap extends Container {
-        Map<Expression, Expression> items;
+    static abstract class HMap extends Container {
+        Map<? extends Expression, Expression> items;
 
-        HMap(Map<Expression, Expression> items) {
+        HMap(Map<? extends Expression, Expression> items) {
             setParent(items);
             this.items = items;
             this.token = Parser.values.get("MAP_TYPE");
+        }
+    }
+
+    /** A map that maps expressions to expression */
+    static final class HValueMap extends HMap {
+        Map<Expression, Expression> items;
+
+        HValueMap(Map<Expression, Expression> items) {
+            super(items);
+        }
+    }
+
+    /** A map that maps variables to expressions */
+    static final class HObjectMap extends HMap {
+        Map<Var, Expression> items;
+
+        HObjectMap(Map<Var, Expression> items) {
+            super(items);
         }
     }
 
@@ -1397,8 +1684,8 @@ public class Parser {
          * */
         boolean equalPrecedenceTo(Expression op) {
             return op instanceof Op &&
-                    Token.operatorPrecedence.get(this.token.type()) ==
-                            Token.operatorPrecedence.get(op.token.type());
+                    Token.operatorPrecedence.get(this.token.type())
+                            .equals(Token.operatorPrecedence.get(op.token.type()));
         }
     }
 
@@ -1406,6 +1693,9 @@ public class Parser {
     enum Meta {
         POSTFIX, PREFIX
     }
+
+    /** An operation that acts on an array */
+    interface ArrayOp {}
 
     /** An operation that takes in one child */
     static final class UnaryOp extends Op {
@@ -1425,7 +1715,7 @@ public class Parser {
 
         void setChild(Expression expression) {
             this.child = expression;
-            expression.parent = this;
+            setParent(expression);
         }
     }
 
@@ -1442,12 +1732,12 @@ public class Parser {
 
         void setLeft(Expression expression) {
             this.left = expression;
-            expression.parent = this;
+            setParent(expression);
         }
 
         void setRight(Expression expression) {
             this.right = expression;
-            expression.parent = this;
+            setParent(expression);
         }
     }
 
@@ -1459,7 +1749,7 @@ public class Parser {
     }
 
     /** Indexes a container object, e.g. x[2] */
-    static final class Index extends BinaryOp {
+    static final class Index extends BinaryOp implements ArrayOp {
         Expression left, right;
 
         Index(Expression var, Expression index) {
@@ -1488,7 +1778,7 @@ public class Parser {
 
 
     /** An operation that takes in three children */
-    static final class TernaryOp extends Op {
+    static class TernaryOp extends Op {
         Expression left, center, right;
 
         TernaryOp(Expression left, Expression center, Expression right, Token token) {
@@ -1501,18 +1791,125 @@ public class Parser {
 
         void setLeft(Expression expression) {
             this.left = expression;
-            expression.parent = this;
+            setParent(expression);
         }
 
         void setCenter(Expression expression) {
             this.center = expression;
-            expression.parent = this;
+            setParent(expression);
         }
 
         void setRight(Expression expression) {
             this.right = expression;
-            expression.parent = this;
+            setParent(expression);
         }
+    }
+
+    static abstract class Range extends  TernaryOp implements ContainerCreation {
+        public Range(Expression start, Expression stop, Expression step) {
+            super(start, stop, step, values.get("ARR_TYPE"));
+        }
+
+        Expression start() {
+            return left;
+        }
+
+        Expression stop() {
+            return center;
+        }
+
+        Expression step() {
+            return right;
+        }
+
+        void setStart(Expression start) { setLeft(start); }
+
+        void setStop(Expression stop) { setCenter(stop); }
+
+        void setStep(Expression step) { setRight(step); }
+    }
+
+    static final class ArrayListRange extends Range {
+        public ArrayListRange(Expression start, Expression stop, Expression step) {
+            super(start, stop, step);
+        }
+    }
+
+    static final class LinkedListRange extends Range {
+        public LinkedListRange(Expression start, Expression stop, Expression step) {
+            super(start, stop, step);
+        }
+    }
+
+    static final class DoubleLinkedListRange extends Range {
+        public DoubleLinkedListRange(Expression start, Expression stop, Expression step) {
+            super(start, stop, step);
+        }
+    }
+
+    /** An operation that takes four children */
+    static class QuaternaryOp  extends Op {
+        Expression left, centerLeft, centerRight, right;
+
+        QuaternaryOp(Expression left, Expression centerLeft, Expression centerRight, Expression right, Token token) {
+            setParent(left, centerLeft, centerRight, right);
+            this.left = left;
+            this.centerLeft = centerLeft;
+            this.centerRight = centerRight;
+            this.right = right;
+            this.token = token;
+        }
+
+        void setLeft(Expression left) {
+            this.left = left;
+            setParent(left);
+        }
+
+        void setCenterLeft(Expression centerLeft) {
+            this.centerLeft = centerLeft;
+            setParent(centerLeft);
+        }
+
+        void setCenterRight(Expression centerRight) {
+            this.centerRight = centerRight;
+            setParent(centerRight);
+        }
+
+        void setRight(Expression right) {
+            this.right = right;
+            setParent(right);
+        }
+    }
+
+    static final class Slice extends QuaternaryOp implements ArrayOp, ContainerCreation {
+        public Slice(Expression var, Expression start, Expression stop, Expression step) {
+            super(var, start, stop, step, values.get("COLON"));
+        }
+
+
+        Expression var() {
+            return left;
+        }
+
+        Expression start() {
+            return centerLeft;
+        }
+
+        Expression stop() {
+            return centerRight;
+        }
+
+        Expression step() {
+            return right;
+        }
+
+        void setVar(Expression var) { setLeft(var); }
+
+        void setStart(Expression start) { setCenterLeft(start); }
+
+        void setStop(Expression stop) { setCenterRight(stop); }
+
+        void setStep(Expression step) { setRight(step); }
     }
 
 

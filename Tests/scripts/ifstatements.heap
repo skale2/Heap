@@ -1,0 +1,17 @@
+// Script
+if (x >= 2) => {
+    y.run();
+} else if {
+    (*y).stop();
+} else {
+    x = lib.copy(y);
+}
+
+// Tokens
+IF, PAR_OPEN, VAR(x), GREATER_THAN_EQ, INT_VAL(2), PAR_CLOSE, DIRECT, SCOPE_OPEN,
+VAR(y), PERIOD, VAR(run), PAR_OPEN, PAR_CLOSE, EOL,
+SCOPE_CLOSE, ELSE, IF, SCOPE_OPEN,
+PAR_OPEN, MULTIPLY, VAR(y), PAR_CLOSE, PERIOD, VAR(stop), PAR_OPEN, PAR_CLOSE, EOL,
+SCOPE_CLOSE, ELSE, SCOPE_OPEN,
+VAR(x), ASSIGN, VAR(lib), PERIOD, VAR(copy), PAR_OPEN, VAR(y), PAR_CLOSE, EOL,
+SCOPE_CLOSE

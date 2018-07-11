@@ -1,6 +1,9 @@
-import java.util.HashMap;
 
-public class TokenTypeTrie {
+class TokenTypeTrie {
+    TokenTypeTrie() {
+        _root = new TrieNode(' ');
+    }
+
     /**
      * Inserts WORD into the trie
      * @param token The set of characters to be inserted
@@ -48,23 +51,23 @@ public class TokenTypeTrie {
             _token = null;
         }
 
-        public TrieNode[] children() {
+        TrieNode[] children() {
             return _children;
         }
 
-        public TrieNode getChild(char c) { return _children[c - 'A']; }
+        TrieNode getChild(char c) { return _children[c - 'A']; }
 
-        public TrieNode setChild(char c) {
+        TrieNode setChild(char c) {
             TrieNode child = new TrieNode(c);
             _children[c - 'A'] = child;
             return child;
         }
 
-        public Token.TokenType tokenType() {
+        Token.TokenType tokenType() {
             return _token;
         }
 
-        public void setToken(Token.TokenType token) {
+        void setToken(Token.TokenType token) {
             this._token = token;
         }
     }

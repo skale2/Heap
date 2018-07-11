@@ -1,0 +1,5 @@
+// Script
+x = 7 + 5;
+
+// Tokens
+VAR(x), ASSIGN, INT_VAL(7), ADD, INT_VAL(5), EOL

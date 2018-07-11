@@ -1,0 +1,29 @@
+// Script
+arr = [2, 3, 1, 10, -23];
+linked = -[2, 18, -10];
+set = {> 'John', 'Marc', 'Allen' <};
+map = {
+    3: 'three',
+    2: 'two',
+    10: 'ten',
+    13: 'thirteen'
+};
+graph = *-
+    a, b, c, d, e;
+    a-b, a-e, d-c, b-e, c-a, b-d;
+-*
+
+// Tokens
+VAR(arr), ASSIGN, ARR_OPEN, INT_VAL(2), COMMA, INT_VAL(3), COMMA, INT_VAL(1), COMMA, INT_VAL(10), COMMA, INT_VAL(-23), ARR_CLOSE, EOL,
+VAR(linked), ASSIGN, L_ARR_OPEN, INT_VAL(2), COMMA, INT_VAL(18), COMMA, INT_VAL(-10), ARR_CLOSE, EOL,
+VAR(set), ASSIGN, SET_OPEN, STR_VAL(John), COMMA, STR_VAL(Marc), COMMA, STR_VAL(Allen), SET_CLOSE, EOL,
+VAR(map), ASSIGN, SCOPE_OPEN,
+INT_VAL(3), COLON, STR_VAL(three), COMMA,
+INT_VAL(2), COLON, STR_VAL(two), COMMA,
+INT_VAL(10), COLON, STR_VAL(ten), COMMA,
+INT_VAL(13), COLON, STR_VAL(thirteen),
+SCOPE_CLOSE, EOL,
+VAR(graph), ASSIGN, UNDIR_OPEN,
+VAR(a), COMMA, VAR(b), COMMA, VAR(c), COMMA, VAR(d), COMMA, VAR(e), EOL,
+VAR(a), SUBTRACT, VAR(b), COMMA, VAR(a), SUBTRACT, VAR(e), COMMA, VAR(d), SUBTRACT, VAR(c), COMMA, VAR(b), SUBTRACT, VAR(e), COMMA, VAR(c), SUBTRACT, VAR(a), COMMA, VAR(b), SUBTRACT, VAR(d), EOL,
+UNDIR_CLOSE

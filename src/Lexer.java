@@ -1,10 +1,12 @@
+import org.codehaus.groovy.util.CharSequenceReader;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.util.ArrayDeque;
 
 
 public class Lexer {
-    public Lexer(BufferedReader text) {
+    Lexer(BufferedReader text) {
         _text = text;
         _peekChars = new ArrayDeque();
         _EOF = false;
@@ -15,10 +17,10 @@ public class Lexer {
      * */
     private char advance() {
         try {
-            if (!_peekChars.isEmpty()) {
-                return (char) _peekChars.poll();
-            }
-            _current = (char) _text.read();
+            if (!_peekChars.isEmpty())
+                _current = (char) _peekChars.poll();
+            else
+                _current = (char) _text.read();
             return _current;
         } catch (IOException io) {
             _EOF = true;
@@ -30,11 +32,11 @@ public class Lexer {
     private char advance(int num) {
         try {
             while(num > 0) {
-                while (!_peekChars.isEmpty()) {
+                if (!_peekChars.isEmpty())
                     _current = (char) _peekChars.poll();
-                }
-                _current = (char) _text.read();
-                num -= 0;
+                else
+                    _current = (char) _text.read();
+                num--;
             }
             return _current;
         } catch (IOException io) {
@@ -63,11 +65,13 @@ public class Lexer {
         try {
             char ch = EMPTY;
             while(num > 0) {
-                if (!_peekChars.isEmpty()) {
+                if (!_peekChars.isEmpty())
                     ch = (char) _peekChars.peek();
+                else {
+                    ch = (char) _text.read();
+                    _peekChars.offer(ch);
                 }
-                ch = (char) _text.read();
-                _peekChars.offer(ch);
+                num--;
             }
             return ch;
         } catch (IOException io) {
@@ -77,25 +81,31 @@ public class Lexer {
 
     private Token getString(char type) {
         StringBuilder string = new StringBuilder();
-        string.append(_current);
-        while (peek() != type && _current != '\\') {
-            string.append(advance());
+        advance();
+        while (_current != type) {
+            string.append(_current);
+            advance();
         }
+        advance();
         return new Token(string.toString(), Token.TokenType.STR_VAL);
     }
 
     private Token getNumber() {
         StringBuilder number = new StringBuilder();
-        number.append(_current);
+        if (_current == '-') {
+            number.append('-');
+            advance();
 
+        }
         Token.TokenType type = Token.TokenType.INT_VAL;
-        while (_current != EMPTY) {
-            if (advance() == '.') {
+        while (Character.isDigit(_current) || _current == '.') {
+            if (peek() == '.') {
                 type = Token.TokenType.REAL_VAL;
             }
             number.append(_current);
+            advance();
         }
-        return new Token(number.toString(), Token.TokenType.STR_VAL);
+        return new Token(number.toString(), type);
     }
 
     private Token getIdentifier() {
@@ -320,6 +330,8 @@ public class Lexer {
             } else if (peek() == '=') {
                 advance(2);
                 return new Token(Token.TokenType.SUBTRACT_EQ);
+            } else if (Character.isDigit(peek())) {
+                return getNumber();
             }
             advance();
             return new Token(Token.TokenType.SUBTRACT);
@@ -357,20 +369,28 @@ public class Lexer {
             }
             advance();
             return new Token(Token.TokenType.MOD);
+        } else if (_current == '.') {
+            if (Character.isDigit(peek())) {
+                return getNumber();
+            }
+            advance();
+            return new Token(Token.TokenType.PERIOD);
         }
 
 
         switch(_current) {
-            case ',': return new Token(Token.TokenType.COMMA);
-            case ';': return new Token(Token.TokenType.EOL);
-            case '`': return new Token(Token.TokenType.ROUND);
-            case ']': return new Token(Token.TokenType.ARR_CLOSE);
-            case '}': return new Token(Token.TokenType.SCOPE_CLOSE);
-            case '(': return new Token(Token.TokenType.PAR_OPEN);
-            case ')': return new Token(Token.TokenType.PAR_CLOSE);
-            case '~': return new Token(Token.TokenType.B_NOT);
-            case '@': return new Token(Token.TokenType.ANNOTATION);
-            case '?': return new Token(Token.TokenType.TERNARY);
+            case ',': advance(); return new Token(Token.TokenType.COMMA);
+            case ';': advance(); return new Token(Token.TokenType.EOL);
+            case '`': advance(); return new Token(Token.TokenType.ROUND);
+            case ']': advance(); return new Token(Token.TokenType.ARR_CLOSE);
+            case '}': advance(); return new Token(Token.TokenType.SCOPE_CLOSE);
+            case '(': advance(); return new Token(Token.TokenType.PAR_OPEN);
+            case ')': advance(); return new Token(Token.TokenType.PAR_CLOSE);
+            case '~': advance(); return new Token(Token.TokenType.B_NOT);
+            case '@': advance(); return new Token(Token.TokenType.ANNOTATION);
+            case '?': advance(); return new Token(Token.TokenType.TERNARY);
+            case '#': advance(); return new Token(Token.TokenType.TOTAL_REF);
+            case '&': advance(); return new Token(Token.TokenType.DEREF);
             default:
                 System.out.println("Error: Syntax");
                 return null;

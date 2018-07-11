@@ -1,0 +1,13 @@
+// Script
+y = 2 + 5;
+x = y * 2;
+x /= y;
+z = 11.5 % x;
+z -= 1;
+
+// Tokens
+VAR(y), ASSIGN, INT_VAL(2), ADD, INT_VAL(5), EOL,
+VAR(x), ASSIGN, VAR(y), MULTIPLY, INT_VAL(2), EOL,
+VAR(x), DIVIDE_EQ, VAR(y), EOL,
+VAR(z), ASSIGN, REAL_VAL(11.5), MOD, VAR(x), EOL,
+VAR(z), SUBTRACT_EQ, INT_VAL(1), EOL

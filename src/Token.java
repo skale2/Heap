@@ -13,6 +13,15 @@ class Token {
     }
 
     @Override
+    public String toString() {
+        if (_value.equals(_type._value)) {
+            return _type.toString();
+        } else {
+            return String.format("%s(%s)", _type.toString(), _value);
+        }
+    }
+
+    @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (!(o instanceof Token)) return false;
@@ -48,7 +57,7 @@ class Token {
      * Precedence of different operators by their token type (lower number means
      * higher precedence)
      * */
-    static Map<TokenType, Integer> operatorPrecedence = new HashMap<>() {{
+    static Map<TokenType, Integer> operatorPrecedence = new HashMap<TokenType, Integer>() {{
         /* Rounding */
         put(TokenType.ROUND,            0);
 
@@ -133,6 +142,8 @@ class Token {
         EOL(";"), EOF(""), COMMA(","), COLON(":"), DIRECT("=>"),
         ANNOTATION("@"), TERNARY("?"), PERIOD("."),
 
+        DEREF("&"), TOTAL_REF("#"),
+
         ASSIGN("="), EQUAL("==", OPR), CAST_EQUAL(":=="), NOT_EQUAL("!="), CAST_NOT_EQUAL(":!="),
 
         VAR("[a-zA-Z\\_]+[a-zA-Z0-9\\_]*"),
@@ -169,9 +180,10 @@ class Token {
         DL_ARR_OPEN("--[", CNT), ARR_CLOSE("]", CNT),
         SCOPE_OPEN("{", CNT), SCOPE_CLOSE("}", CNT),
         SET_OPEN("{<", CNT), SET_CLOSE("<}", CNT),
-        UNDIR_OPEN("*-", CNT), UNDIR_CLOSE("-*", CNT),
+        UNDIR_OPEN("*-", CNT, OPR), UNDIR_CLOSE("-*", CNT, OPR),
         DIR_OPEN("*->", CNT), DIR_CLOSE("<-*", CNT),
-        DIR_EDGE("->", CNT), DIR_2_EDGE("<->", CNT),
+
+        DIR_EDGE("->", OPR), DIR_2_EDGE("<->", OPR),
 
         ARR_TYPE("[]", CNT, TYP), L_ARR_TYPE("-[]", CNT, TYP),
         DL_ARR_TYPE("--[]", CNT, TYP),
@@ -180,8 +192,7 @@ class Token {
 
         STR_BOUND("\"|\'"),
 
-        INT("int", RSD, TYP), LONG("long", RSD, TYP), DOUBLE("double", RSD, TYP),
-        FLOAT("float", RSD, TYP), CHAR("char", RSD, TYP), BOOL("bool", RSD, TYP),
+        INT("int", RSD, TYP), REAL(RSD, TYP), CHAR("char", RSD, TYP), BOOL("bool", RSD, TYP),
         STR("str", RSD, TYP), NULL("null", RSD, TYP, LIT), ANY("any", RSD, TYP),
 
         IF("if", RSD, DIR), ELSE("else", RSD, DIR), SWITCH("switch", RSD, DIR),
@@ -190,8 +201,8 @@ class Token {
 
         PRINT("print", RSD), SIZE("size", RSD), HASH("hash"), LOOP("loop", RSD),
 
-        FUNC("func", RSD, CNS), CLASS("class", RSD, CNS), ENUM("enum", RSD, CNS),
-        INTERFACE("interface", RSD, CNS), STRUCT("struct", RSD, CNS),
+        FUNC("func", RSD, CNS, TYP), CLASS("class", RSD, CNS, TYP), ENUM("enum", RSD, CNS, TYP),
+        INTERFACE("interface", RSD, CNS, TYP), STRUCT("struct", RSD, CNS, TYP),
         EXTEND("extend", RSD, CNS),
 
         SUPER("super", RSD), THIS("this", RSD),
@@ -201,6 +212,8 @@ class Token {
         ABSTRACT("abstract", RSD, MDF), MODULE("module", RSD, MDF),
         FINAL("final", RSD, MDF),
 
+        BREAK("break", RSD), CONTINUE("continue", RSD), PASS("pass"),
+        
         RETURN("return", RSD);
 
 
