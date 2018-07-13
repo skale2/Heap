@@ -388,7 +388,7 @@ map(func(x) => x**2, arr3);
 print(arr3)                 // [9, 81, 529, 0, 16]
 
 
-/* Var args 
+/* Objects.Var args
  */
 
 sum = func(...vals) => {
@@ -421,11 +421,38 @@ isBig<bool> = func(x<int>) => {
     }
 }
 
+
+/* Function Modifiers: can be attached to any property, method, or class definition
+ */
+
+@curry                      // Curries the function automatically, so a function declared as 
+                            // add = func(a, b, c) => a + b + c
+                            // can be called as either add(1, 2, 3) or add(1)(2)(3). Partial
+                            // currying (i.e. add(1)(2)) returns another function that takes
+                            // the remaining arguments as parameters
+
+@debounce(                  // Takes multiple function calls rapidly called and calls the 
+    period<float>,          // function only after PERIOD seconds have passed without a call
+)                           // event
+                            
+                            
+                        
+@throttle(                  // Only allows function to be called every PERIOD seconds, removing
+    period<float>,          // any calls that occur between those seconds. If silent is false, 
+    silent<boolean>=true,   // then function throws exception on unallowed call
+)    
+
+@pure                       // This states that the function has no side effects when being called.
+                            // The interpreter makes sure that the only variables that are changed
+                            // are local ones (including attributes passed in)
+                            
+
+
 /* ***************************************** Classes *************************************** */
 
 Person = class() => {                       // Implicitly subclasses Object class
 
-    @static num = 0;                        // Class variables
+    @static num = 0;                        // Objects.Class variables
     @static @final species = 'Human';       // Cannot be changed later or when 
     
     name<str>;                              // Declares an instance level variable, initiates
@@ -474,9 +501,15 @@ Person = class() => {                       // Implicitly subclasses Object clas
         return opinions;
     }
 
-    @property                               // this can be called as an instance attribute, rather 
+    @getter                                 // this can be called as an instance attribute, rather 
     firstName = func() => {                 // than a method. e.g. person.first_name
         return this.name.split(' ');
+    }
+
+    @setter
+    firstName = func(firstname<str>) => {   // this references a method that sets a property on the instance
+        this.name = firstname +             
+            this.name.split(' ')[1];
     }
 
     @abstract                               // Must be implemented in subclasses to be used, or else
@@ -485,14 +518,14 @@ Person = class() => {                       // Implicitly subclasses Object clas
 }
 
 
-/* Class Parameters: can be attached to any property, method, or class definition
+/* Objects.Class Modifiers: can be attached to any property, method, or class definition
  */
 
-@static:        // A property belonging to the class, not instances. Can be accessed within the 
+@static         // A property belonging to the class, not instances. Can be accessed within the 
                 // class as cls.whatever, or anywhere else as ClassName.whatever. A static method
                 // does not have access to the this object within its body
 
-@final:         // Can be used on any variable, not just a class property. Can only be instantiated
+@final          // Can be used on any variable, not just a class property. Can only be instantiated
                 // once, any further setting of this variable throws an error. If on a method, cannot
                 // be overridden. If on a class, cannot be subclassed
 
@@ -502,8 +535,8 @@ Person = class() => {                       // Implicitly subclasses Object clas
 
 @private        // Accessible only inside the class itself
 
-@property       // States that a method represents an instance property; i.e. it does not have to be
-                // called with a ()
+@getter         // States that a method represents an instance property; i.e. it does not have to be
+                // called with a (). Cannot take any arguments
 
 @abstract       // Method or property that has not been implemented or has not been instantiated
 

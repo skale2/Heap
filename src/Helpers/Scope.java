@@ -1,8 +1,14 @@
+package Helpers;
+
+import Objects.Any;
+import Objects.Boolean;
+import Objects.Var;
+
 import java.util.HashMap;
 import java.util.Map;
 
 public class Scope {
-    Scope(Scope parent) {
+    public Scope(Scope parent) {
         _scope = new HashMap<>();
         _parent = parent;
     }
@@ -11,7 +17,7 @@ public class Scope {
         _scope.put(var, object);
     }
 
-    Any lookup(Var name, Boolean thisScope) {
+    Any lookup(Var name, boolean thisScope) {
         Any object = _scope.get(name);
         if (object == null && !thisScope && _parent != null) {
             return _parent.lookup(name, thisScope);

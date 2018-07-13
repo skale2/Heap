@@ -1,5 +1,6 @@
+package Helpers;
 
-class TokenTypeTrie {
+public class TokenTypeTrie {
     TokenTypeTrie() {
         _root = new TrieNode(' ');
     }
@@ -36,11 +37,11 @@ class TokenTypeTrie {
         return current.tokenType();
     }
 
-    TrieNode root() { return _root; }
+    public TrieNode root() { return _root; }
 
     private TrieNode _root;
 
-    static class TrieNode {
+    public static class TrieNode {
         private TrieNode[] _children;
         private char _content;
         private Token.TokenType _token;
@@ -55,7 +56,7 @@ class TokenTypeTrie {
             return _children;
         }
 
-        TrieNode getChild(char c) { return _children[c - 'A']; }
+        public TrieNode getChild(char c) { return _children[c - 'A']; }
 
         TrieNode setChild(char c) {
             TrieNode child = new TrieNode(c);
@@ -63,7 +64,7 @@ class TokenTypeTrie {
             return child;
         }
 
-        Token.TokenType tokenType() {
+        public Token.TokenType tokenType() {
             return _token;
         }
 

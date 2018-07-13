@@ -1,3 +1,4 @@
+import Main.Lexer;
 import org.codehaus.groovy.util.CharSequenceReader;
 import org.junit.jupiter.api.Test;
 

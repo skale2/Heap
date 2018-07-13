@@ -1,13 +1,15 @@
+package Helpers;
+
 import java.util.*;
 
-class Token {
+public class Token {
 
-    Token(String value, TokenType type) {
+    public Token(String value, TokenType type) {
         _value = value;
         _type = type;
     }
 
-    Token(TokenType type) {
+    public Token(TokenType type) {
         _value = type._value;
         _type = type;
     }
@@ -35,29 +37,29 @@ class Token {
         return Objects.hash(_type, _value);
     }
 
-    String value() { return _value; }
+    public String value() { return _value; }
 
-    TokenType type() { return _type; }
+    public TokenType type() { return _type; }
 
     /**
      * Helper functions to get all categories token is in
      * */
-    boolean isLiteral()      { return _type._groups.contains(LIT); }
-    boolean isReserved()     { return _type._groups.contains(RSD); }
-    boolean isOperator()     { return _type._groups.contains(OPR); }
-    boolean isModifier()     { return _type._groups.contains(MDF); }
-    boolean isType()         { return _type._groups.contains(TYP); }
-    boolean isConstruct()    { return _type._groups.contains(CNS); }
-    boolean isDirect()       { return _type._groups.contains(DIR); }
-    boolean isContainer()    { return _type._groups.contains(CNT); }
-    boolean isAssignment()   { return _type._groups.contains(ASN); }
-    boolean isVar()          { return _type == TokenType.VAR; }
+    public boolean isLiteral()      { return _type._groups.contains(LIT); }
+    public boolean isReserved()     { return _type._groups.contains(RSD); }
+    public boolean isOperator()     { return _type._groups.contains(OPR); }
+    public boolean isModifier()     { return _type._groups.contains(MDF); }
+    public boolean isType()         { return _type._groups.contains(TYP); }
+    public boolean isConstruct()    { return _type._groups.contains(CNS); }
+    public boolean isDirect()       { return _type._groups.contains(DIR); }
+    public boolean isContainer()    { return _type._groups.contains(CNT); }
+    public boolean isAssignment()   { return _type._groups.contains(ASN); }
+    public boolean isVar()          { return _type == TokenType.VAR; }
 
     /**
      * Precedence of different operators by their token type (lower number means
      * higher precedence)
      * */
-    static Map<TokenType, Integer> operatorPrecedence = new HashMap<TokenType, Integer>() {{
+    public static Map<TokenType, Integer> operatorPrecedence = new HashMap<TokenType, Integer>() {{
         /* Rounding */
         put(TokenType.ROUND,            0);
 
@@ -144,7 +146,7 @@ class Token {
 
         DEREF("&"), TOTAL_REF("#"),
 
-        ASSIGN("="), EQUAL("==", OPR), CAST_EQUAL(":=="), NOT_EQUAL("!="), CAST_NOT_EQUAL(":!="),
+        ASSIGN("="), CAST_ASSIGN(":="), EQUAL("==", OPR), CAST_EQUAL(":=="), NOT_EQUAL("!="), CAST_NOT_EQUAL(":!="),
 
         VAR("[a-zA-Z\\_]+[a-zA-Z0-9\\_]*"),
 

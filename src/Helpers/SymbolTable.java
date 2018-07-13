@@ -1,4 +1,7 @@
-import java.util.Arrays;
+package Helpers;
+
+import Main.Parser;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -26,8 +29,6 @@ public class SymbolTable {
             return false;
         }
     }
-
-    boolean
 
 
     static class Type {

@@ -1,8 +1,10 @@
-import org.codehaus.groovy.util.CharSequenceReader;
+package Main;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.util.ArrayDeque;
+
+import Helpers.*;
 
 
 public class Lexer {
@@ -150,7 +152,7 @@ public class Lexer {
     }
 
 
-    Token next() {
+    public Token next() {
         if (_current == ' ') {
             skipWhitespace();
             return next();
@@ -200,9 +202,13 @@ public class Lexer {
             advance();
             return new Token(Token.TokenType.ASSIGN);
         } else if (_current == ':') {
-            if (peek() == '=' && peek(2) == '=') {
-                advance(3);
-                return new Token(Token.TokenType.CAST_EQUAL);
+            if (peek() == '=') {
+                if (peek(2) == '=') {
+                    advance(3);
+                    return new Token(Token.TokenType.CAST_EQUAL);
+                }
+                advance(2);
+                return new Token(Token.TokenType.CAST_ASSIGN);
             } else if (peek() == '!' && peek(2) == '=') {
                 advance(3);
                 return new Token(Token.TokenType.CAST_NOT_EQUAL);

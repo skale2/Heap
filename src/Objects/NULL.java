@@ -1,3 +1,6 @@
+package Objects;
+
+
 public class NULL extends Any {
     private static NULL ourInstance = new NULL();
 

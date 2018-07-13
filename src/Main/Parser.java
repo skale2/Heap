@@ -1,8 +1,11 @@
+package Main;
 
 import java.util.*;
 
+import Helpers.*;
+
 /**
- * A class that takes in a stream of tokens from the Lexer and parses them
+ * A class that takes in a stream of tokens from the Main.Lexer and parses them
  * into an Abstract Syntax Tree (AST), which is easier to run through
  * when interpreting.
  */
@@ -18,7 +21,7 @@ public class Parser {
         this._current = null;
     }
 
-    /** Entry method into Parser - considers program as Block and parses it */
+    /** Entry method into Main.Parser - considers program as Block and parses it */
     ASTNode parse() {
         return parseBlock();
     }
@@ -110,7 +113,7 @@ public class Parser {
 
     /** A map of usable tokens that aren't dependent on user code, for comparisons. Avoids the
      * creation of unnecessary tokens. */
-    private static final Map<String, Token> values = new HashMap<String, Token>() {{
+    private static final Map<String, Token> values = new HashMap<>() {{
         for (Token.TokenType type : Token.TokenType.values()) {
             if (type != Token.TokenType.VAR && type != Token.TokenType.INT_VAL &&
                     type != Token.TokenType.STR_VAL &&  type != Token.TokenType.REAL_VAL) {
@@ -171,9 +174,17 @@ public class Parser {
 
     private Assignment parseAssignment(Token... endTokens) {
         Declare declaration = parseDeclare();
-        eat("ASSIGN");
+
+        boolean cast = false;
+        if (currentIs("ASSIGN")) {
+            eat("ASSIGN");
+        } else if (currentIs("CAST_ASSIGN")) {
+            eat("CAST_ASSIGN");
+            cast = true;
+        }
+
         Expression expression = parseExpression(endTokens);
-        return new Assignment(declaration, expression);
+        return new Assignment(declaration, expression, cast);
     }
 
     private List<Type> parseType(Token endToken) {
@@ -402,6 +413,7 @@ public class Parser {
             }
         }
 
+        /* Recurse down the left side */
         parse(left);
     }
 
@@ -409,7 +421,7 @@ public class Parser {
     /** Entry point for all expression parsing
      * */
     private Expression parseExpression(Token... endTokens) {
-        Expression expression = new NoOp;
+        Expression expression = new NoOp();
         Token current;
         do {
             expression = parseTerm(endTokens);
@@ -490,7 +502,7 @@ public class Parser {
             return (Container) parseContainer();
         }
 
-        /* Any term that has not already been returned can have after-effects (property
+        /* Objects.Any term that has not already been returned can have after-effects (property
          * calls, after-unary operators, and indexes) */
         return postFix(expression);
     }
@@ -1165,8 +1177,8 @@ public class Parser {
      *  Abstract Syntax Tree node classes
      */
 
-    static abstract class ASTNode {
-        Token token;
+    public static abstract class ASTNode {
+        public Token token;
         ASTNode parent;
 
         void setParent(ASTNode... nodes) {
@@ -1183,8 +1195,8 @@ public class Parser {
     }
 
     /** A sequential list of statements */
-    static final class Block extends ASTNode {
-        List<? extends ASTNode> statements;
+    public static final class Block extends ASTNode {
+        public List<? extends ASTNode> statements;
 
         Block(List<? extends ASTNode> statements) {
             setParent(statements);
@@ -1195,13 +1207,14 @@ public class Parser {
     }
 
     /** A complete line of instruction */
-    static abstract class Statement extends ASTNode {}
+    public static abstract class Statement extends ASTNode {}
 
     /** Assigns a variable a value */
-    static final class Assignment extends Statement {
-        ASTNode var, value;
+    public static final class Assignment extends Statement {
+        public ASTNode var, value;
+        public boolean cast;
 
-        Assignment(ASTNode var, ASTNode value) {
+        Assignment(ASTNode var, ASTNode value, boolean cast) {
             setParent(var, value);
 
             assert var instanceof Declare || var instanceof Var;
@@ -1210,15 +1223,16 @@ public class Parser {
             assert value instanceof Expression;
             this.value = value;
 
+            this.cast = cast;
             this.token = new Token(Token.TokenType.ASSIGN);
         }
     }
 
     /** Declares a variable in the namespace */
-    static final class Declare extends ASTNode {
-        List<Modifier> modifier;
-        Var var;
-        List<Type> type;
+    public static final class Declare extends ASTNode {
+        public List<Modifier> modifier;
+        public Var var;
+        public List<Type> type;
 
         Declare(List<Modifier> modifier, Var var, List<Type> type) {
             setParent(modifier, type);
@@ -1231,14 +1245,14 @@ public class Parser {
     }
 
     /** A series of logical steps that returns a value */
-    static abstract class Expression extends Statement {}
+    public static abstract class Expression extends Statement {}
 
     /** An empty expression */
-    static final class NoOp extends Expression {}
+    public static final class NoOp extends Expression {}
 
     /** A statement on what to return from a function */
-    static final class Return extends Statement {
-        Expression expression;
+    public static final class Return extends Statement {
+        public Expression expression;
 
         Return(Expression expression) {
             setParent(expression);
@@ -1250,8 +1264,8 @@ public class Parser {
 
 
     /** A variable identifier */
-    static final class Var extends Expression {
-        String value;
+    public static final class Var extends Expression {
+        public String value;
 
         Var(Token token) {
             this.token = token;
@@ -1260,7 +1274,7 @@ public class Parser {
     }
 
     /** A (possibly nested) type */
-    static class Type extends ASTNode {
+    public static class Type extends ASTNode {
         boolean isPointer;
 
         Type(Token token, boolean isPointer) {
@@ -1270,9 +1284,9 @@ public class Parser {
         }
     }
 
-    static final class ContainerType extends Type {
-        Container container;
-        List<Type> types;
+    public static final class ContainerType extends Type {
+        public Container container;
+        public List<Type> types;
 
         ContainerType(boolean isPointer, Container container, List<Type> types) {
             super(null, isPointer);
@@ -1285,7 +1299,7 @@ public class Parser {
     }
 
     /** A @modifier that can be applied to a method, class, or variable */
-    static final class Modifier extends ASTNode {
+    public static final class Modifier extends ASTNode {
         Modifier(Token token) {
             assert token.isModifier();
             this.token = token;
@@ -1293,8 +1307,8 @@ public class Parser {
     }
 
     /** A list of definitions for parameters, which are syntactically Declares */
-    static final class ParamDefs extends ASTNode {
-        List<Assignment> parameters;
+    public static final class ParamDefs extends ASTNode {
+        public List<Assignment> parameters;
 
         ParamDefs(List<Assignment> parameters) {
             setParent(parameters);
@@ -1303,8 +1317,8 @@ public class Parser {
     }
 
     /** A list of passed in parameters, which are syntactically Expressions */
-    static final class Params extends ASTNode {
-        List<Expression> parameters;
+    public static final class Params extends ASTNode {
+        public List<Expression> parameters;
 
         Params(List<Expression> parameters) {
             setParent(parameters);
@@ -1314,12 +1328,12 @@ public class Parser {
 
 
     /** Object-building blocks */
-    static abstract class Construct extends Expression {}
+    public static abstract class Construct extends Expression {}
 
     /** A defined operation taking a Param node */
-    static final class Func extends Construct {
-        ParamDefs paramDefs;
-        ASTNode operations;
+    public static final class Func extends Construct {
+        public ParamDefs paramDefs;
+        public ASTNode operations;
 
         Func(ParamDefs paramDefs, ASTNode operations) {
             assert operations instanceof Block || operations instanceof Expression;
@@ -1332,10 +1346,10 @@ public class Parser {
     }
 
     /** A blueprint for objects */
-    static class Class extends Construct {
-        List<Var> superClasses;
-        List<Var> interfaces;
-        Block block;
+    public static class Class extends Construct {
+        public List<Var> superClasses;
+        public List<Var> interfaces;
+        public Block block;
 
         public Class(List<Var> superClasses, List<Var> interfaces, Block block) {
             setParent(superClasses, interfaces);
@@ -1349,16 +1363,16 @@ public class Parser {
     }
 
     /** A class definition that follows the "value object" pattern */
-    static final class Struct extends Class {
+    public static final class Struct extends Class {
         public Struct(List<Var> superClasses, List<Var> interfaces, Block block) {
             super(superClasses, interfaces, block);
         }
     }
 
     /** A blueprint for classes, that cannot be instantiated */
-    static final class Interface extends Construct {
-        List<Var> interfaces;
-        Block block;
+    public static final class Interface extends Construct {
+        public List<Var> interfaces;
+        public Block block;
 
         Interface(List<Var> interfaces, Block block) {
             setParent(interfaces);
@@ -1371,11 +1385,11 @@ public class Parser {
     }
 
     /** A class that comes with an immutable set of instances */
-    static final class Enum extends Construct {
-        List<Call> instances;
-        List<Var> superClasses;
-        List<Var> interfaces;
-        Block block;
+    public static final class Enum extends Construct {
+        public List<Call> instances;
+        public List<Var> superClasses;
+        public List<Var> interfaces;
+        public Block block;
 
         Enum(List<Call> instances, List<Var> superClasses, List<Var> interfaces, Block block) {
             setParent(instances, superClasses, interfaces);
@@ -1391,15 +1405,15 @@ public class Parser {
 
 
     /** Control-flow blocks */
-    static abstract class Direct extends Statement {
-        Block elseBlock;
+    public static abstract class Direct extends Statement {
+        public Block elseBlock;
     }
 
     /** A repeated set of statements */
-    static final class Loop extends Direct {
-        List<Assignment> initClauses;
-        List<Expression> breakClauses, loopClauses;
-        Block block;
+    public static final class Loop extends Direct {
+        public List<Assignment> initClauses;
+        public List<Expression> breakClauses, loopClauses;
+        public Block block;
 
         Loop(List<Assignment> initClauses, List<Expression> breakClauses,
                     List<Expression> loopClauses, Block block, Block elseBlock) {
@@ -1417,8 +1431,8 @@ public class Parser {
     }
 
     /** A set of statements that execute conditionally */
-    static final class If extends Direct {
-        List<IfBlock> ifblocks;
+    public static final class If extends Direct {
+        public List<IfBlock> ifblocks;
 
         If(List<IfBlock> ifblocks, Block elseBlock) {
             setParent(ifblocks);
@@ -1431,9 +1445,9 @@ public class Parser {
     }
 
     /** A single condition and resulting block */
-    static final class IfBlock extends Direct {
-        Expression condition;
-        Block block;
+    public static final class IfBlock extends Direct {
+        public Expression condition;
+        public Block block;
 
         IfBlock(Expression condition, Block block) {
             setParent(condition, block);
@@ -1444,10 +1458,10 @@ public class Parser {
 
     /** A set of cases done conditionally on a starting expression; each
      * statement is checked independently of each other (requires a break)*/
-    static final class Switch extends Direct {
-        Expression expression;
-        List<Case> cases;
-        Block defaultBlocks;
+    public static final class Switch extends Direct {
+        public Expression expression;
+        public List<Case> cases;
+        public Block defaultBlocks;
 
         Switch(Expression expression, List<Case> cases, Block defaultBlocks, Block elseBlock) {
             setParent(expression, defaultBlocks, elseBlock);
@@ -1463,10 +1477,10 @@ public class Parser {
 
     /** A set of cases done conditionally on a starting expression; after a
      * case is found, immediately breaks to end */
-    static final class Select extends Direct {
-        Expression expression;
-        List<Case> cases;
-        Block defaultBlocks;
+    public static final class Select extends Direct {
+        public Expression expression;
+        public List<Case> cases;
+        public Block defaultBlocks;
 
         Select(Expression expression, List<Case> cases, Block defaultBlocks, Block elseBlock) {
             setParent(expression, defaultBlocks, elseBlock);
@@ -1481,9 +1495,9 @@ public class Parser {
     }
 
     /** A single case and the resulting block */
-    static final class Case extends Direct {
-        Expression expression;
-        Block block;
+    public static final class Case extends Direct {
+        public Expression expression;
+        public Block block;
 
         Case(Expression expression, Block block) {
             setParent(expression, block);
@@ -1494,9 +1508,9 @@ public class Parser {
     }
 
     /** A block that may throw an Exception */
-    static final class Try extends Direct {
-        Block block;
-        List<Catch> catchBlocks;
+    public static final class Try extends Direct {
+        public Block block;
+        public List<Catch> catchBlocks;
 
         Try(Block block, List<Catch> catchBlocks, Block elseBlock) {
             setParent(block, elseBlock);
@@ -1509,9 +1523,9 @@ public class Parser {
     }
 
     /** A block that deals with caught exceptions in a try block */
-    static final class Catch extends ASTNode {
-        Declare Exception;
-        Block block;
+    public static final class Catch extends ASTNode {
+        public Declare Exception;
+        public Block block;
 
         Catch(Declare exception, Block block) {
             setParent(exception, block);
@@ -1522,9 +1536,9 @@ public class Parser {
 
 
     /** Calls to a construct (functions, classes, interfaces, structs, etc. */
-    static final class Call extends Expression {
-        Params params;
-        Expression val;
+    public static final class Call extends Expression {
+        public Params params;
+        public Expression val;
 
         Call(Params params, Expression val) {
             setParent(params, val);
@@ -1539,16 +1553,16 @@ public class Parser {
     interface ContainerCreation {}
 
     /** Container literal nodes */
-    static abstract class Container extends Expression implements ContainerCreation {}
+    public static abstract class Container extends Expression implements ContainerCreation {}
 
     /** A dynamic array of objects */
-    static class HList extends Container {
-        List<Expression> items;
+    public static class HList extends Container {
+        public List<Expression> items;
     }
 
     /** A dynamic array of objects with a dynamic array implementation */
-    static final class HArrayList extends HList {
-        List<Expression> items;
+    public static final class HArrayList extends HList {
+        public List<Expression> items;
 
         HArrayList(List<Expression> items) {
             setParent(items);
@@ -1558,8 +1572,8 @@ public class Parser {
     }
 
     /** A dynamic array of objects with a linked list implementation */
-    static final class HLinkedList extends HList {
-        List<Expression> items;
+    public static final class HLinkedList extends HList {
+        public List<Expression> items;
 
         HLinkedList(List<Expression> items) {
             setParent(items);
@@ -1569,8 +1583,8 @@ public class Parser {
     }
 
     /** A dynamic array of objects with a doubly linked list implementation */
-    static final class HDoubleLinkedList extends HList {
-        List<Expression> items;
+    public static final class HDoubleLinkedList extends HList {
+        public List<Expression> items;
 
         HDoubleLinkedList(List<Expression> items) {
             setParent(items);
@@ -1580,8 +1594,8 @@ public class Parser {
     }
 
     /** A bijective mapping between objects */
-    static abstract class HMap extends Container {
-        Map<? extends Expression, Expression> items;
+    public static abstract class HMap extends Container {
+        public Map<? extends Expression, Expression> items;
 
         HMap(Map<? extends Expression, Expression> items) {
             setParent(items);
@@ -1591,8 +1605,8 @@ public class Parser {
     }
 
     /** A map that maps expressions to expression */
-    static final class HValueMap extends HMap {
-        Map<Expression, Expression> items;
+    public static final class HValueMap extends HMap {
+        public Map<Expression, Expression> items;
 
         HValueMap(Map<Expression, Expression> items) {
             super(items);
@@ -1600,8 +1614,8 @@ public class Parser {
     }
 
     /** A map that maps variables to expressions */
-    static final class HObjectMap extends HMap {
-        Map<Var, Expression> items;
+    public static final class HObjectMap extends HMap {
+        public Map<Var, Expression> items;
 
         HObjectMap(Map<Var, Expression> items) {
             super(items);
@@ -1609,8 +1623,8 @@ public class Parser {
     }
 
     /** A unique set of objects */
-    static final class HSet extends Container {
-        List<Expression> items;
+    public static final class HSet extends Container {
+        public List<Expression> items;
 
         HSet(List<Expression> items) {
             setParent(items);
@@ -1620,9 +1634,9 @@ public class Parser {
     }
 
     /** A base class for collection of objects and edges connecting them */
-    static abstract class HGraph extends Container {
-        List<Expression> nodes;
-        List<? extends HEdge> edges;
+    public static abstract class HGraph extends Container {
+        public List<Expression> nodes;
+        public List<? extends HEdge> edges;
 
         HGraph(List<Expression> nodes, List<? extends HEdge> edges, Token token) {
             setParent(nodes, edges);
@@ -1643,7 +1657,7 @@ public class Parser {
     }
 
     /** A graph where each edge is directed from one node to another */
-    static final class HDirectedGraph extends HGraph {
+    public static final class HDirectedGraph extends HGraph {
         HDirectedGraph(List<Expression> nodes, List<HDirectedEdge> edges) {
             super(nodes, edges, values.get("DIR_TYPE"));
         }
@@ -1659,7 +1673,7 @@ public class Parser {
     }
 
     /** A graph where nodes are parity-constant */
-    static final class HUndirectedGraph extends HGraph {
+    public static final class HUndirectedGraph extends HGraph {
         HUndirectedGraph(List<Expression> nodes, List<HEdge> edges) {
             super(nodes, edges, values.get("UNDIR_TYPE"));
         }
@@ -1667,7 +1681,7 @@ public class Parser {
 
 
     /** Built-in operations between language members */
-    static abstract class Op extends Expression {
+    public static abstract class Op extends Expression {
         /**
          * Whether this has a higher operator precedence than op. If op is actually
          * just a literal, return false.
@@ -1698,9 +1712,9 @@ public class Parser {
     interface ArrayOp {}
 
     /** An operation that takes in one child */
-    static final class UnaryOp extends Op {
-        Expression child;
-        Meta meta;
+    public static final class UnaryOp extends Op {
+        public Expression child;
+        public Meta meta;
 
         UnaryOp(Expression child, Token token) {
             setParent(child);
@@ -1720,8 +1734,8 @@ public class Parser {
     }
 
     /** An operation that takes in two children */
-    static class BinaryOp extends Op {
-        Expression left, right;
+    public static class BinaryOp extends Op {
+        public Expression left, right;
 
         BinaryOp(Expression left, Expression right, Token token) {
             setParent(left, right);
@@ -1742,14 +1756,14 @@ public class Parser {
     }
 
     /** Applies a binary op then sets left to resulting value, e.g. x += 2 */
-    static final class SetOp extends BinaryOp {
+    public static final class SetOp extends BinaryOp {
         public SetOp(Expression left, Expression right, Token token) {
             super(left, right, token);
         }
     }
 
     /** Indexes a container object, e.g. x[2] */
-    static final class Index extends BinaryOp implements ArrayOp {
+    public static final class Index extends BinaryOp implements ArrayOp {
         Expression left, right;
 
         Index(Expression var, Expression index) {
@@ -1758,28 +1772,28 @@ public class Parser {
             this.right = index;
         }
 
-        Expression var() { return left; }
+        public Expression var() { return left; }
 
-        Expression index() { return right; }
+        public Expression index() { return right; }
     }
 
     /** Gets a property from an object, e.g. person.height */
-    static final class Get extends BinaryOp {
+    public static final class Get extends BinaryOp {
         Expression left, right;
 
         Get(Expression var, Expression property) {
             super(var, property, values.get("PERIOD"));
         }
 
-        Expression var() { return left; }
+        public Expression var() { return left; }
 
-        Expression property() { return right; }
+        public Expression property() { return right; }
     }
 
 
     /** An operation that takes in three children */
-    static class TernaryOp extends Op {
-        Expression left, center, right;
+    public static class TernaryOp extends Op {
+        public Expression left, center, right;
 
         TernaryOp(Expression left, Expression center, Expression right, Token token) {
             setParent(left, center, right);
@@ -1805,20 +1819,20 @@ public class Parser {
         }
     }
 
-    static abstract class Range extends  TernaryOp implements ContainerCreation {
+    public static abstract class Range extends  TernaryOp implements ContainerCreation {
         public Range(Expression start, Expression stop, Expression step) {
             super(start, stop, step, values.get("ARR_TYPE"));
         }
 
-        Expression start() {
+        public Expression start() {
             return left;
         }
 
-        Expression stop() {
+        public Expression stop() {
             return center;
         }
 
-        Expression step() {
+        public Expression step() {
             return right;
         }
 
@@ -1829,27 +1843,27 @@ public class Parser {
         void setStep(Expression step) { setRight(step); }
     }
 
-    static final class ArrayListRange extends Range {
-        public ArrayListRange(Expression start, Expression stop, Expression step) {
+    public static final class ArrayListRange extends Range {
+        ArrayListRange(Expression start, Expression stop, Expression step) {
             super(start, stop, step);
         }
     }
 
-    static final class LinkedListRange extends Range {
-        public LinkedListRange(Expression start, Expression stop, Expression step) {
+    public static final class LinkedListRange extends Range {
+        LinkedListRange(Expression start, Expression stop, Expression step) {
             super(start, stop, step);
         }
     }
 
-    static final class DoubleLinkedListRange extends Range {
-        public DoubleLinkedListRange(Expression start, Expression stop, Expression step) {
+    public static final class DoubleLinkedListRange extends Range {
+        DoubleLinkedListRange(Expression start, Expression stop, Expression step) {
             super(start, stop, step);
         }
     }
 
     /** An operation that takes four children */
-    static class QuaternaryOp  extends Op {
-        Expression left, centerLeft, centerRight, right;
+    public static class QuaternaryOp  extends Op {
+        public Expression left, centerLeft, centerRight, right;
 
         QuaternaryOp(Expression left, Expression centerLeft, Expression centerRight, Expression right, Token token) {
             setParent(left, centerLeft, centerRight, right);
@@ -1881,25 +1895,25 @@ public class Parser {
         }
     }
 
-    static final class Slice extends QuaternaryOp implements ArrayOp, ContainerCreation {
+    public static final class Slice extends QuaternaryOp implements ArrayOp, ContainerCreation {
         public Slice(Expression var, Expression start, Expression stop, Expression step) {
             super(var, start, stop, step, values.get("COLON"));
         }
 
 
-        Expression var() {
+        public Expression var() {
             return left;
         }
 
-        Expression start() {
+        public Expression start() {
             return centerLeft;
         }
 
-        Expression stop() {
+        public Expression stop() {
             return centerRight;
         }
 
-        Expression step() {
+        public Expression step() {
             return right;
         }
 
@@ -1914,31 +1928,31 @@ public class Parser {
 
 
     /** A proper value that serves no abstraction */
-    static abstract class Literal extends Expression {}
+    public static abstract class Literal extends Expression {}
 
     /** An integer literal */
-    static final class IntLiteral extends Literal {
+    public static final class IntLiteral extends Literal {
         IntLiteral(Token token) {
             this.token = token;
         }
     }
 
     /** A real number literal */
-    static final class RealLiteral extends Literal {
+    public static final class RealLiteral extends Literal {
         RealLiteral(Token token) {
             this.token = token;
         }
     }
 
     /** A String literal */
-    static final class StringLiteral extends Literal {
+    public static final class StringLiteral extends Literal {
         StringLiteral(Token token) {
             this.token = token;
         }
     }
 
     /** A boolean literal */
-    static final class BooleanLiteral extends Literal {
+    public static final class BooleanLiteral extends Literal {
         BooleanLiteral(Token token) {
             assert token.type() == Token.TokenType.TRUE || token.type() == Token.TokenType.FALSE;
             this.token = token;
@@ -1946,7 +1960,7 @@ public class Parser {
     }
 
     /** A null literal */
-    static final class NullLiteral extends Literal {
+    public static final class NullLiteral extends Literal {
         NullLiteral(Token token) {
             assert token.type() == Token.TokenType.NULL;
             this.token = token;

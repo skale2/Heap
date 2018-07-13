@@ -1,17 +1,19 @@
-import javax.swing.*;
+package Main;
+
 import java.io.BufferedReader;
+import Helpers.*;
 
 
 /**
  * The main interpreter, which takes in a AST and runs through it, consuming
  * the nodes in a depth-first process.
  */
-class Interpreter {
+public class Interpreter {
     Interpreter(BufferedReader text) {
         _parser = new Parser(new Lexer(text));
     }
 
-    void run() {
+    public void run() {
         _ast = _parser.parse();
         doBlock((Parser.Block) _ast, new Scope(null));
     }
@@ -82,7 +84,7 @@ class Interpreter {
     }
 
 
-    /** **************************** Construct **************************** **/
+    /** **************************** Objects.Construct **************************** **/
 
     private void doConstruct(Parser.Construct construct) {
 
@@ -112,7 +114,10 @@ class Interpreter {
     /** **************************** Operations **************************** **/
 
     private void doOperation(Parser.Op op) {
+        if (op instanceof Parser.UnaryOp) {
+            Parser.UnaryOp unaryOp = (Parser.UnaryOp) op;
 
+        }
     }
 
 
