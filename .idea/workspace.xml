@@ -1,38 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="4479fbd9-9d25-418e-8eda-480f69b46ed6" name="Default" comment="">
-      <change beforePath="" afterPath="$PROJECT_DIR$/src/Objects/Container.java" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/src/Objects/HArrayList.java" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/src/Objects/HLinkedList.java" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/src/Objects/HList.java" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/src/Objects/Interface.java" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/src/Objects/ListPointer.java" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/src/Objects/Real.java" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" afterPath="$PROJECT_DIR$/.idea/misc.xml" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change beforePath="$PROJECT_DIR$/Heap Syntax" afterPath="$PROJECT_DIR$/Heap Syntax" />
-      <change beforePath="$PROJECT_DIR$/Tests/LexerTest.java" afterPath="$PROJECT_DIR$/Tests/LexerTest.java" />
-      <change beforePath="$PROJECT_DIR$/src/Atom.java" afterPath="" />
-      <change beforePath="$PROJECT_DIR$/src/Boolean.java" afterPath="" />
-      <change beforePath="$PROJECT_DIR$/src/Construct.java" afterPath="" />
-      <change beforePath="$PROJECT_DIR$/src/Func.java" afterPath="" />
-      <change beforePath="$PROJECT_DIR$/src/Helpers/Scope.java" afterPath="$PROJECT_DIR$/src/Helpers/Scope.java" />
-      <change beforePath="$PROJECT_DIR$/src/Helpers/SymbolTable.java" afterPath="$PROJECT_DIR$/src/Helpers/SymbolTable.java" />
-      <change beforePath="$PROJECT_DIR$/src/Helpers/Token.java" afterPath="$PROJECT_DIR$/src/Helpers/Token.java" />
-      <change beforePath="$PROJECT_DIR$/src/Helpers/TokenTypeTrie.java" afterPath="$PROJECT_DIR$/src/Helpers/TokenTypeTrie.java" />
-      <change beforePath="$PROJECT_DIR$/src/Interpreter.java" afterPath="" />
-      <change beforePath="$PROJECT_DIR$/src/Lexer.java" afterPath="" />
-      <change beforePath="$PROJECT_DIR$/src/Main.java" afterPath="" />
-      <change beforePath="$PROJECT_DIR$/src/NULL.java" afterPath="" />
-      <change beforePath="$PROJECT_DIR$/src/Number.java" afterPath="" />
-      <change beforePath="$PROJECT_DIR$/src/Objects/Any.java" afterPath="$PROJECT_DIR$/src/Objects/Any.java" />
-      <change beforePath="$PROJECT_DIR$/src/Objects/Class.java" afterPath="" />
-      <change beforePath="$PROJECT_DIR$/src/Objects/Int.java" afterPath="" />
-      <change beforePath="$PROJECT_DIR$/src/Objects/Type.java" afterPath="" />
-      <change beforePath="$PROJECT_DIR$/src/Objects/Var.java" afterPath="" />
-      <change beforePath="$PROJECT_DIR$/src/Parser.java" afterPath="" />
-    </list>
+    <list default="true" id="4479fbd9-9d25-418e-8eda-480f69b46ed6" name="Default" comment="" />
     <ignored path="$PROJECT_DIR$/out/" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
