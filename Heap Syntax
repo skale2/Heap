@@ -518,7 +518,7 @@ Person = class() => {                       // Implicitly subclasses Object clas
 }
 
 
-/* Objects.Class Modifiers: can be attached to any property, method, or class definition
+/* Class Modifiers: can be attached to any property, method, or class definition
  */
 
 @static         // A property belonging to the class, not instances. Can be accessed within the 
@@ -538,7 +538,12 @@ Person = class() => {                       // Implicitly subclasses Object clas
 @getter         // States that a method represents an instance property; i.e. it does not have to be
                 // called with a (). Cannot take any arguments
 
+@setter         // Creates an artificial property that is called when assigned. E.g. doing
+                // a.something = 5 will call 
+                // @setter something = func(x) => {...} as a.something(5)
+
 @abstract       // Method or property that has not been implemented or has not been instantiated
+
 
 
 /* OOP design strategies available 

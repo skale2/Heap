@@ -178,8 +178,7 @@ public class Token {
 
         PAR_OPEN("("), PAR_CLOSE(")"),
 
-        ARR_OPEN("[", CNT), L_ARR_OPEN("-[", CNT),
-        DL_ARR_OPEN("--[", CNT), ARR_CLOSE("]", CNT),
+        ARR_OPEN("[", CNT), L_ARR_OPEN("-[", CNT), ARR_CLOSE("]", CNT),
         SCOPE_OPEN("{", CNT), SCOPE_CLOSE("}", CNT),
         SET_OPEN("{<", CNT), SET_CLOSE("<}", CNT),
         UNDIR_OPEN("*-", CNT, OPR), UNDIR_CLOSE("-*", CNT, OPR),
@@ -188,7 +187,6 @@ public class Token {
         DIR_EDGE("->", OPR), DIR_2_EDGE("<->", OPR),
 
         ARR_TYPE("[]", CNT, TYP), L_ARR_TYPE("-[]", CNT, TYP),
-        DL_ARR_TYPE("--[]", CNT, TYP),
         UNDIR_TYPE("*-*", CNT, TYP), DIR_TYPE("*->*", CNT, TYP),
         MAP_TYPE("{}", CNT, TYP), SET_TYPE("{><}", CNT, TYP),
 
