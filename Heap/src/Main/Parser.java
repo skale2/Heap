@@ -945,8 +945,6 @@ public class Parser {
             return parseArrayList();
         } else if (currentIs("L_ARR_OPEN")) {
             return parseLinkedList();
-        } else if (currentIs("DL_ARR_OPEN")) {
-            return parseDoubleLinkedList();
         } else if (currentIs("SCOPE_OPEN")) {
             return parseMap();
         } else if (currentIs("SET_OPEN")) {

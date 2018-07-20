@@ -1,7 +1,6 @@
 package Helpers;
 
-import Objects.Any;
-import Objects.Var;
+import Objects.*;
 
 import java.util.HashMap;
 import java.util.Map;

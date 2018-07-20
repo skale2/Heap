@@ -10,6 +10,8 @@ import Main.*;
 
 public class Func extends Any implements Construct {
 
+    protected Func() {}
+
     public Func(Parser.Func funcDef, Scope parentScope) {
         super();
 
@@ -37,27 +39,27 @@ public class Func extends Any implements Construct {
         _parentScope = parentScope;
     }
 
-    public Func(BiFunction<Any, Any, Any> function) {
-
+    public Func(Functional functional) {
+        _functional = functional;
     }
 
-    public Func(Function<Any, Any> function) {
-
-    }
-
-    public static Any call(Func func, Any... arguments) {
-        Scope blockScope = new Scope(func.parentScope());
-
-        for (int i = 0; i < func.params().size(); i++) {
-            if (arguments.length > i)
-                blockScope.set(func.params().get(i), arguments[i]);
-            else if (func.defaults().get(i) != null)
-                blockScope.set(func.params().get(i), func.defaults().get(i));
-            else
-                return null; // TODO throw Exception for missing arguments
+    public Any call(Any... arguments) {
+        if (functional() != null) {
+            return functional().run(arguments);
         }
 
-        return Interpreter.doBlock(func.block(), blockScope);
+        Scope blockScope = new Scope(parentScope());
+
+        for (int i = 0; i < params().size(); i++) {
+            if (arguments.length > i)
+                blockScope.set(params().get(i), arguments[i]);
+            else if (defaults().get(i) != null)
+                blockScope.set(params().get(i), defaults().get(i));
+            else
+                return null; // TODO: throw Exception for missing arguments
+        }
+
+        return Interpreter.doBlock(block(), blockScope);
     }
 
 
@@ -65,6 +67,7 @@ public class Func extends Any implements Construct {
     private Scope _scope, _parentScope;
     private List<Var> _params;
     private List<Any> _defaults;
+    private Functional _functional;
 
     public Parser.Block block() {
         return _block;
@@ -88,5 +91,13 @@ public class Func extends Any implements Construct {
         return _defaults;
     }
 
+    public Functional functional() { return _functional; }
+
     public static final Type type = new Type("FUNC");
+
+
+    @FunctionalInterface
+    interface Functional {
+        Any run(Any... args);
+    }
 }

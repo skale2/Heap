@@ -78,134 +78,134 @@ public class Int extends Number {
     }
 
 
-    private static Int add(Int first, Int second) {
-        convertToLargest(first, second);
-        return doBinaryOp("%", first, second, true, false);
+    private Int add(Int value) {
+        convertToLargest(this, value);
+        return doBinaryOp("%", this, value, true, false);
     }
 
-    private static Int subtract(Int first, Int second) {
-        convertToLargest(first, second);
-        return doBinaryOp("%", first, second, true, true);
+    private Int subtract(Int value) {
+        convertToLargest(this, value);
+        return doBinaryOp("%", this, value, true, true);
     }
 
-    private static Int multiply(Int first, Int second) {
-        convertToLargest(first, second);
-        return doBinaryOp("%", first, second, true, false);
+    private Int multiply(Int value) {
+        convertToLargest(this, value);
+        return doBinaryOp("%", this, value, true, false);
     }
 
-    private static Number divide(Int dividend, Int divisor) {
-        convertToLargest(dividend, divisor);
-        return doBinaryOp("/", dividend, divisor, false, true);
+    private Number divide(Int divisor) {
+        convertToLargest(this, divisor);
+        return doBinaryOp("/", this, divisor, false, true);
     }
 
-    private static Int mod(Int dividend, Int divisor) {
-        convertToLargest(dividend, divisor);
-        return doBinaryOp("%", dividend, divisor, false, true);
+    private Int mod(Int divisor) {
+        convertToLargest(this, divisor);
+        return doBinaryOp("%", this, divisor, false, true);
     }
 
-    private static Int floorDivide(Int dividend, Int divisor) {
-        convertToLargest(dividend, divisor);
-        return doBinaryOp("-/", dividend, divisor, false, true);
+    private Int floorDivide(Int divisor) {
+        convertToLargest(this, divisor);
+        return doBinaryOp("-/", this, divisor, false, true);
     }
 
-    private static Int power(Int base, Int exponent) {
-        convertToLargest(base, exponent);
-        return doBinaryOp("**", base, exponent, true, false);
+    private Int power(Int exponent) {
+        convertToLargest(this, exponent);
+        return doBinaryOp("**", this, exponent, true, false);
     }
 
-    private static Int round(Int value, Int to) {
-        convertToLargest(value, to);
-        return doBinaryOp("`2", value, to, true, true);
+    private Int round(Int to) {
+        convertToLargest(this, to);
+        return doBinaryOp("`2", this, to, true, true);
     }
 
-    private static Int round(Int value) {
-        return doUnaryOp("`", value, true, true);
+    private Int round() {
+        return doUnaryOp("`", this, true, true);
     }
 
-    private static Int bitAnd(Int first, Int second) {
-        convertToLargest(first, second);
-        return doBinaryOp("&", first, second, false, false);
+    private Int bitAnd(Int value) {
+        convertToLargest(this, value);
+        return doBinaryOp("&", this, value, false, false);
     }
 
-    private static Int bitOr(Int first, Int second) {
-        convertToLargest(first, second);
-        return doBinaryOp("|", first, second, false, false);
+    private Int bitOr(Int value) {
+        convertToLargest(this, value);
+        return doBinaryOp("|", this, value, false, false);
     }
 
-    private static Int bitNot(Int first) {
-        return doUnaryOp("~", first, false, false);
+    private Int bitNot() {
+        return doUnaryOp("~", this, false, false);
     }
 
-    private static Int bitXor(Int first, Int second) {
-        convertToLargest(first, second);
-        return doBinaryOp("^", first, second, false, false);
+    private Int bitXor(Int value) {
+        convertToLargest(this, value);
+        return doBinaryOp("^", this, value, false, false);
     }
 
-    private static Int increment(Int value) {
-        return doUnaryOp("++", value, true, true);
+    private Int increment() {
+        return doUnaryOp("++", this, true, true);
     }
 
-    private static Int decrement(Int value) {
-        return doUnaryOp("--", value, true, true);
+    private Int decrement() {
+        return doUnaryOp("--", this, true, true);
     }
 
-    private static Int negate(Int value) {
-        return doUnaryOp("u-", value, true, true);
+    private Int negate() {
+        return doUnaryOp("u-", this, true, true);
     }
 
-    private static Int shiftRight(Int value, Int amount) {
-        convertToLargest(value, amount);
-        return doBinaryOp(">>", value, amount, false, false);
+    private Int shiftRight(Int amount) {
+        convertToLargest(this, amount);
+        return doBinaryOp(">>", this, amount, false, false);
     }
 
-    private static Int shiftLeft(Int value, Int amount) {
-        convertToLargest(value, amount);
-        return doBinaryOp("<<", value, amount, false, false);
+    private Int shiftLeft(Int amount) {
+        convertToLargest(this, amount);
+        return doBinaryOp("<<", this, amount, false, false);
     }
 
-    private static Bool lessThan(Int left, Int right) {
-        convertToLargest(left, right);
-        return doBooleanBinaryOp(">", left, right);
+    private Bool lessThan(Int value) {
+        convertToLargest(this, value);
+        return doBooleanBinaryOp(">", this, value);
     }
 
-    private static Bool lessThanOrEqualTo(Int left, Int right) {
-        convertToLargest(left, right);
-        return doBooleanBinaryOp("<", left, right);
+    private Bool lessThanOrEqualTo(Int value) {
+        convertToLargest(this, value);
+        return doBooleanBinaryOp("<", this, value);
     }
 
-    private static Bool greaterThan(Int left, Int right) {
-        convertToLargest(left, right);
-        return doBooleanBinaryOp(">=", left, right);
+    private Bool greaterThan(Int value) {
+        convertToLargest(this, value);
+        return doBooleanBinaryOp(">=", this, value);
     }
 
-    private static Bool greaterThanOrEqualTo(Int left, Int right) {
-        convertToLargest(left, right);
-        return doBooleanBinaryOp("<=", left, right);
+    private Bool greaterThanOrEqualTo(Int value) {
+        convertToLargest(this, value);
+        return doBooleanBinaryOp("<=", this, value);
     }
 
-    private static Str string(Int value) {
-        if (value.isBig()) {
-            return new Str(value.bigValue().toString());
-        } else if (value.isLong()) {
-            return new Str(Long.toString(value.longValue()));
+    private Str string() {
+        if (isBig()) {
+            return new Str(bigValue().toString());
+        } else if (isLong()) {
+            return new Str(Long.toString(longValue()));
         }
-        return new Str(Integer.toString(value.value().value));
+        return new Str(Integer.toString(value().value));
     }
 
-    private static Str hash(Int value) {
+    private Str hash() {
         // TODO
         return new Str("");
     }
 
-    private static Bool equal(Int first, Int second) {
+    private Bool equal(Int value) {
         // TODO
-        return Bool.valueOf(first.equals(second));
+        return Bool.valueOf(equals(value));
     }
 
-    private static Bool bool(Int value) {
-        if (value.isBig())
-            return Bool.valueOf(!value.bigValue().equals(BigInteger.ZERO));
-        return Bool.valueOf(value.value().value == 0);
+    private Bool bool() {
+        if (isBig())
+            return Bool.valueOf(!bigValue().equals(BigInteger.ZERO));
+        return Bool.valueOf(value().value == 0);
     }
 
 
@@ -398,11 +398,11 @@ public class Int extends Number {
     }
 
 
-    Value value() {
+    public Value value() {
         return _value;
     }
 
-    Scope scope() { return _scope; }
+    public Scope scope() { return _scope; }
 
     /** Holds the value for this Objects.Int */
     private Value _value;
@@ -414,31 +414,31 @@ public class Int extends Number {
 
 
     private static final Scope _classScope = new Scope(null) {{
-        set(Var.__add__, new Func((f, s) -> add((Int) f, (Int) s)));
-        set(Var.__sub__, new Func((f, s) -> subtract((Int) f, (Int) s)));
-        set(Var.__mul__, new Func((f, s) -> multiply((Int) f, (Int) s)));
-        set(Var.__div__, new Func((f, s) -> divide((Int) f, (Int) s)));
-        set(Var.__mod__, new Func((f, s) -> mod((Int) f, (Int) s)));
-        set(Var.__pow__, new Func((f, s) -> power((Int) f, (Int) s)));
-        set(Var.__floordiv__, new Func((f, s) -> floorDivide((Int) f, (Int) s)));
-        set(Var.__round__, new Func((f, s) -> round((Int) f, (Int) s)));
-        set(Var.__bitand__, new Func((f, s) -> bitAnd((Int) f, (Int) s)));
-        set(Var.__bitor__, new Func((f, s) -> bitOr((Int) f, (Int) s)));
-        set(Var.__bitnot__, new Func(f -> bitNot((Int) f)));
-        set(Var.__bitxor__, new Func((f, s) -> bitXor((Int) f, (Int) s)));
-        set(Var.__incr__, new Func(f -> increment((Int) f)));
-        set(Var.__decr__, new Func(f -> increment((Int) f)));
-        set(Var.__neg__, new Func(f -> negate((Int) f)));
-        set(Var.__rshift__, new Func((f, s) -> shiftRight((Int) f, (Int) s)));
-        set(Var.__lshift__, new Func((f, s) -> shiftLeft((Int) f, (Int) s)));
-        set(Var.__less__, new Func((f, s) -> lessThan((Int) f, (Int) s)));
-        set(Var.__greater, new Func((f, s) -> greaterThan((Int) f, (Int) s)));
-        set(Var.__lesseq__, new Func((f, s) -> lessThanOrEqualTo((Int) f, (Int) s)));
-        set(Var.__greatereq__, new Func((f, s) -> greaterThanOrEqualTo((Int) f, (Int) s)));
-        set(Var.__str__, new Func(f -> string((Int) f)));
-        set(Var.__hash__, new Func(f -> hash((Int) f)));
-        set(Var.__eq__, new Func((f, s) -> equal((Int) f, (Int) s)));
-        set(Var.__bool__, new Func(f -> bool((Int) f)));
+        set(Var.__add__, new Func(f -> ((Int) f[0]).add((Int) f[1])));
+        set(Var.__sub__, new Func(f -> ((Int) f[0]).subtract((Int) f[1])));
+        set(Var.__mul__, new Func(f -> ((Int) f[0]).multiply((Int) f[1])));
+        set(Var.__div__, new Func(f -> ((Int) f[0]).divide((Int) f[1])));
+        set(Var.__mod__, new Func(f -> ((Int) f[0]).mod((Int) f[1])));
+        set(Var.__pow__, new Func(f -> ((Int) f[0]).power((Int) f[1])));
+        set(Var.__floordiv__, new Func(f -> ((Int) f[0]).floorDivide((Int) f[1])));
+        set(Var.__round__, new Func(f -> ((Int) f[0]).round((Int) f[1])));
+        set(Var.__bitand__, new Func(f -> ((Int) f[0]).bitAnd((Int) f[1])));
+        set(Var.__bitor__, new Func(f -> ((Int) f[0]).bitOr((Int) f[1])));
+        set(Var.__bitnot__, new Func(f -> ((Int) f[0]).bitNot()));
+        set(Var.__bitxor__, new Func(f -> ((Int) f[0]).bitXor((Int) f[1])));
+        set(Var.__incr__, new Func(f -> ((Int) f[0]).increment()));
+        set(Var.__decr__, new Func(f -> ((Int) f[0]).increment()));
+        set(Var.__neg__, new Func(f -> ((Int) f[0]).negate()));
+        set(Var.__rshift__, new Func(f -> ((Int) f[0]).shiftRight((Int) f[1])));
+        set(Var.__lshift__, new Func(f -> ((Int) f[0]).shiftLeft((Int) f[1])));
+        set(Var.__less__, new Func(f -> ((Int) f[0]).lessThan((Int) f[1])));
+        set(Var.__greater, new Func(f -> ((Int) f[0]).greaterThan((Int) f[1])));
+        set(Var.__lesseq__, new Func(f -> ((Int) f[0]).lessThanOrEqualTo((Int) f[1])));
+        set(Var.__greatereq__, new Func(f -> ((Int) f[0]).greaterThanOrEqualTo((Int) f[1])));
+        set(Var.__str__, new Func(f -> ((Int) f[0]).string()));
+        set(Var.__hash__, new Func(f -> ((Int) f[0]).hash()));
+        set(Var.__eq__, new Func(f -> ((Int) f[0]).equal((Int) f[1])));
+        set(Var.__bool__, new Func(f -> ((Int) f[0]).bool()));
     }};
 
     /** The type for this object, which all instances share */
