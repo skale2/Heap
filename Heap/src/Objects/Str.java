@@ -40,7 +40,7 @@ public class Str extends Atom {
     }
 
     private Str multiply(Int times) {
-        StringBuilder s = new StringBuilder();
+        var s = new StringBuilder();
         for (int i = 0; i < times.forceLong(); i++) {
             s.append(value());
         }
@@ -48,24 +48,24 @@ public class Str extends Atom {
     }
 
     private Str divide(Int times) {
-        String value = value();
+        var value = value();
         assert value.length() % times.forceInt() == 0;
         return new Str(value.substring(0, value.length()/times.forceInt()));
     }
 
     private Str mod(Int times) {
-        String value = value();
+        var value = value();
         int len = value().length() % times.forceInt();
         return new Str(value.substring(value.length() - len));
     }
 
     private Str floorDivide(Int times) {
-        String value = value();
+        var value = value();
         return new Str(value.substring(0, Math.floorDiv(value.length(), times.forceInt())));
     }
 
     private Str shiftRight(Int amount) {
-        String strValue = value();
+        var strValue = value();
         if (amount.forceInt() > strValue.length()) {
             return new Str(new String(new char[strValue.length()]).replace("\0", " "));
         }
@@ -77,7 +77,7 @@ public class Str extends Atom {
     }
 
     private Str shiftLeft(Int amount) {
-        String strValue = value();
+        var strValue = value();
         if (amount.forceInt() > strValue.length()) {
             return new Str(new String(new char[strValue.length()]).replace("\0", " "));
         }
@@ -89,19 +89,19 @@ public class Str extends Atom {
     }
 
     private Bool lessThan(Str str) {
-        
+        return Bool.FALSE; // TODO
     }
 
     private Bool lessThanOrEqualTo(Str str) {
-
+        return Bool.FALSE; // TODO
     }
 
     private Bool greaterThan(Str str) {
-
+        return Bool.FALSE; // TODO
     }
 
     private Bool greaterThanOrEqualTo(Str str) {
-
+        return Bool.FALSE; // TODO
     }
 
     private Int size() { return new Int(value().length()); }
@@ -112,8 +112,8 @@ public class Str extends Atom {
 
     private Str hash() {
         try {
-            MessageDigest digest = MessageDigest.getInstance("SHA-256");
-            byte[] hash = digest.digest(value().getBytes(StandardCharsets.UTF_8));
+            var digest = MessageDigest.getInstance("SHA-256");
+            var hash = digest.digest(value().getBytes(StandardCharsets.UTF_8));
             return new Str(Base64.getEncoder().encodeToString(hash));
 
         } catch (java.security.NoSuchAlgorithmException snme) {
@@ -127,6 +127,23 @@ public class Str extends Atom {
 
     private Bool bool() {
         return Bool.valueOf(!value().isEmpty());
+    }
+
+
+    class StrIter extends Iterator {
+        public StrIter(Str string) {
+            _index = -1;
+            _string = string;
+        }
+
+        @Override
+        public Str next() {
+            _index++;
+            return new Str_string.value().charAt(_index);
+        }
+
+        int _index;
+        Str _string;
     }
 
     private static final Scope _classScope = new Scope(null) {{

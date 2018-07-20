@@ -1,5 +1,5 @@
 package Objects;
 
-public class Atom extends Any {
-
+public abstract class Atom extends Any {
+    public static final Type type = new Type("ATOM");
 }

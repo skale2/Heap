@@ -27,7 +27,7 @@ public class Token {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (!(o instanceof Token)) return false;
-        Token token = (Token) o;
+        var token = (Token) o;
         return _type == token._type &&
                 Objects.equals(_value, token._value);
     }
@@ -194,6 +194,7 @@ public class Token {
 
         INT("int", RSD, TYP), REAL(RSD, TYP), CHAR("char", RSD, TYP), BOOL("bool", RSD, TYP),
         STR("str", RSD, TYP), NULL("null", RSD, TYP, LIT), ANY("any", RSD, TYP),
+        ATOM("atom", RSD, TYP), CONTAINER("contain", RSD, TYP),
 
         IF("if", RSD, DIR), ELSE("else", RSD, DIR), SWITCH("switch", RSD, DIR),
         CASE("case", RSD, DIR), DEFAULT("default", RSD, DIR), SELECT("select", RSD, DIR),

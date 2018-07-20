@@ -17,13 +17,13 @@ import Objects.*;
  */
 public class Interpreter {
     public static void run(BufferedReader text) {
-        Parser parser = new Parser(new Lexer(text));
-        Parser.ASTNode ast = parser.parse();
+        var parser = new Parser(new Lexer(text));
+        var ast = parser.parse();
         doBlock((Parser.Block) ast, new Scope(null));
     }
 
     public static Any doBlock(Parser.Block block, Scope scope) {
-        Scope newScope = new Scope(scope);
+        var newScope = new Scope(scope);
         block.statements.forEach(statement -> doStatement((Parser.Statement) statement, newScope));
     }
 
@@ -168,18 +168,14 @@ public class Interpreter {
             Parser.UnaryOp unaryOp = (Parser.UnaryOp) op;
             Any child = doExpression(unaryOp.child, scope);
 
-            Func func = (Func) child.get(_operations.get(unaryOp.token));
-            func.setScope(scope);
-            Func.call(func, child);
+            child.callMethod(_operations.get(unaryOp.token), false, scope, child);
 
         } else if (op instanceof Parser.BinaryOp) {
-            Parser.BinaryOp unaryOp = (Parser.BinaryOp) op;
-            Any left = doExpression(unaryOp.left, scope);
-            Any right = doExpression(unaryOp.right, scope);
+            Parser.BinaryOp binaryOp = (Parser.BinaryOp) op;
+            Any left = doExpression(binaryOp.left, scope);
+            Any right = doExpression(binaryOp.right, scope);
 
-            Func func = (Func) left.get(_operations.get(unaryOp.token));
-            func.setScope(scope);
-            Func.call(func, left, right);
+            left.callMethod(_operations.get(binaryOp.token), false, scope, left, right);
         }
     }
 

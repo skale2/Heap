@@ -43,10 +43,10 @@ public class Bool extends Atom {
 
     private static final Scope _classScope = new Scope(null) {{
         set(Var.__eq__, new Func(f -> ((Bool) f[0]).equal((Bool) f[1])));
-        set(Var.__and__, new _Func(f -> ((Bool) f[0]).and((Bool) f[1])));
-        set(Var.__or__, new _Func(f -> ((Bool) f[0]).or((Bool) f[1])));
-        set(Var.__not__, new _Func(f -> ((Bool) f[0]).not()));
-        set(Var.__xor__, new _Func(f -> ((Bool) f[0]).xor((Bool) f[1])));
+        set(Var.__and__, new Func(f -> ((Bool) f[0]).and((Bool) f[1])));
+        set(Var.__or__, new Func(f -> ((Bool) f[0]).or((Bool) f[1])));
+        set(Var.__not__, new Func(f -> ((Bool) f[0]).not()));
+        set(Var.__xor__, new Func(f -> ((Bool) f[0]).xor((Bool) f[1])));
     }};
 
 

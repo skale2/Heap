@@ -12,7 +12,7 @@ public class TokenTypeTrie {
     void insert(Token.TokenType token) {
         TrieNode current = _root;
         TrieNode next;
-        for (int i = 0; i < token.value().length(); i++) {
+        for (var i = 0; i < token.value().length(); i++) {
             next = current.children()[token.value().charAt(i) - 'A'];
             if (next == null) {
                 next = current.setChild(token.value().charAt(i));
@@ -59,7 +59,7 @@ public class TokenTypeTrie {
         public TrieNode getChild(char c) { return _children[c - 'A']; }
 
         TrieNode setChild(char c) {
-            TrieNode child = new TrieNode(c);
+            var child = new TrieNode(c);
             _children[c - 'A'] = child;
             return child;
         }

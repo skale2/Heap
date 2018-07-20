@@ -9,4 +9,6 @@ public class NULL extends Any {
     }
 
     private NULL() {}
+
+    public static final Type type = new Type("NULL");
 }

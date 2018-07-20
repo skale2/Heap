@@ -60,6 +60,7 @@ public class Var {
             __deref__ = new Var("__deref__", Func.type),
             __point__ = new Var("__point__", Func.type),
             __total__ = new Var("__total__", Func.type),
+            __iter__ = new Var("__iter__", Func.type),
 
             add = new Var("add", Func.type);
 }

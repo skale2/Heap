@@ -59,7 +59,7 @@ public class Int extends Number {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (!(o instanceof Int)) return false;
-        Int anInt = (Int) o;
+        var anInt = (Int) o;
         return false; // TODO
     }
 
@@ -273,7 +273,7 @@ public class Int extends Number {
 
 
     private static Value combineBytes(String op, byte first, byte second, boolean overflow) {
-        int result = (int) _operations.get("byte").get(op).apply(first, second);
+        var result = (int) _operations.get("byte").get(op).apply(first, second);
         if (overflow && result > Byte.MAX_VALUE || result < Byte.MIN_VALUE) {
             return combineShorts(op, (short) first, (short) second, overflow, false);
         }
@@ -282,7 +282,7 @@ public class Int extends Number {
 
 
     private static Value combineShorts(String op, short first, short second, boolean overflow, boolean reducible) {
-        int result = (int) _operations.get("short").get(op).apply(first, second);
+        var result = (int) _operations.get("short").get(op).apply(first, second);
         if (overflow && result > Short.MAX_VALUE || result < Short.MIN_VALUE) {
             return combineInts(op, (int) first, (int) second, overflow, reducible);
         } 
@@ -291,7 +291,7 @@ public class Int extends Number {
 
     private static Value combineInts(String op, int first, int second, boolean overflow, boolean reducible) {
         try {
-            int result = (int) _operations.get("int").get(op).apply(first, second);
+            var result = (int) _operations.get("int").get(op).apply(first, second);
             return reducible ? reduceInt(result) : new IntVal(result);
         }  catch (ArithmeticException ae) {
             return combineLongs(op, (long) first, (long) second, overflow, reducible);
@@ -300,7 +300,7 @@ public class Int extends Number {
 
     private static Value combineLongs(String op, long first, long second, boolean overflow, boolean reducible) {
         try {
-            long result = (long) _operations.get("long").get(op).apply(first, second);
+            var result = (long) _operations.get("long").get(op).apply(first, second);
             return reducible ? reduceLong(result) : new LongVal(result);
         }  catch (ArithmeticException ae) {
             return combineBigs(op, BigInteger.valueOf(first), BigInteger.valueOf(second), reducible);
@@ -308,7 +308,7 @@ public class Int extends Number {
     }
 
     private static Value combineBigs(String op, BigInteger first, BigInteger second, boolean reducible) {
-        BigInteger result = (BigInteger) _operations.get("big").get(op).apply(first, second);
+        var result = (BigInteger) _operations.get("big").get(op).apply(first, second);
         return reducible ? reduceBig(result) : new BigVal(result);
     }
 

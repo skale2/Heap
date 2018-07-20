@@ -8,7 +8,9 @@ public class Pointer extends Any {
         this._container = container;
         this._index = index;
 
-        _scope.set(_container.get(_index).scope());
+        if (!value().isNull()) {
+            _scope.set(value().scope());
+        }
     }
 
     private static final Scope _classScope = new Scope(null) {{
@@ -16,6 +18,13 @@ public class Pointer extends Any {
         set(Var.__total__, new Func(f -> ((Pointer) f[0]).container()));
         set(Var.__deref__, new Func(f -> ((Pointer) f[0]).value()));
     }};
+
+    @Override
+    public void callMethod(Var methodName, boolean thisScope, Any... args) {
+        /* Because the first argument to the Func will be the instance itself, so dereference */
+        args[0] = args[0] instanceof Pointer ? ((Pointer) args[0]).value() : args[0];
+        super.callMethod(methodName, thisScope, args);
+    }
 
 
     public void setIndex(int value) { _index += value; }
@@ -31,6 +40,7 @@ public class Pointer extends Any {
     public void setValue(Any value) {
         try {
             container().set(index(), value);
+            scope().set(value.scope());
         } catch (IndexOutOfBoundsException ibe) {
             return;
         }
@@ -44,7 +54,7 @@ public class Pointer extends Any {
         return _index;
     }
 
-    public ListPointed pointed() {
+    public Pointed pointed() {
         return _pointed;
     }
 
@@ -52,25 +62,6 @@ public class Pointer extends Any {
     private Container _container;
     private Scope _scope;
     private int _index;
-    private ListPointed _pointed;
-
-
-
-    static class ListPointed extends Any {
-        private static ListPointed add (ListPointed pointed, Int amount) {
-            Pointer pointer = pointed.pointer();
-            return new ListPointed(new Pointer(pointer.container(), pointer.index() + amount.forceInt()));
-        }
-
-        public ListPointed(Pointer pointer) {
-            this._pointer = pointer;
-        }
-
-        public Pointer pointer() {
-            return _pointer;
-        }
-
-        private Pointer _pointer;
-    }
+    private Pointed _pointed;
 
 }

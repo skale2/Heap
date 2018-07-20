@@ -15,7 +15,7 @@ public class Func extends Any implements Construct {
     public Func(Parser.Func funcDef, Scope parentScope) {
         super();
 
-        for (Parser.Assignment assignment : funcDef.paramDefs.parameters) {
+        for (var assignment : funcDef.paramDefs.parameters) {
             if (assignment.var instanceof Parser.Declare) {
                 _params.add(new Var(assignment.var.token.value(), null)); // TODO: parse type
                 _defaults.add(Interpreter.doExpression(assignment.value, parentScope));
@@ -25,7 +25,7 @@ public class Func extends Any implements Construct {
             }
         }
 
-        Parser.ASTNode operations = funcDef.operations;
+        var operations = funcDef.operations;
         if (operations instanceof Parser.Block)
             _block = (Parser.Block) operations;
         else
@@ -44,13 +44,13 @@ public class Func extends Any implements Construct {
     }
 
     public Any call(Any... arguments) {
-        if (functional() != null) {
+        if (functional() !=  null) {
             return functional().run(arguments);
         }
 
-        Scope blockScope = new Scope(parentScope());
+        var blockScope = new Scope(parentScope());
 
-        for (int i = 0; i < params().size(); i++) {
+        for (var i = 0; i < params().size(); i++) {
             if (arguments.length > i)
                 blockScope.set(params().get(i), arguments[i]);
             else if (defaults().get(i) != null)
