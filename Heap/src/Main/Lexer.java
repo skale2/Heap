@@ -8,12 +8,15 @@ import Helpers.*;
 
 
 public class Lexer {
-    Lexer(BufferedReader text) {
+    public Lexer(BufferedReader text) {
         _text = text;
         _peekChars = new ArrayDeque();
         _EOF = false;
         advance();
     }
+
+    /** Whether there are no more tokens in the file */
+    public boolean isEmpty() { return _EOF; }
 
     /** Advances pointer in the filestream by one step
      * */
@@ -23,6 +26,8 @@ public class Lexer {
                 _current = (char) _peekChars.poll();
             else
                 _current = (char) _text.read();
+            if (_current == '\uFFFF')
+                _EOF = true;
             return _current;
         } catch (IOException io) {
             _EOF = true;

@@ -32,11 +32,13 @@ public class Class extends Type implements Construct {
         return scope().get(var, false);
     }
 
-    private List<Interface> _interfaces;
-    private List<Class> _superclasses;
-
     /** Holds methods and attributes on the class level */
     private Scope _scope;
+    private List<Interface> _interfaces;
+    private List<Class> _superclasses;
+    private boolean _abstract;
+
+    private boolean isAnonymous() { return name() == null; }
 
     public List<Interface> interfaces() {
         return _interfaces;
@@ -49,4 +51,6 @@ public class Class extends Type implements Construct {
     public Scope scope() {
         return _scope;
     }
+
+    public static final Type type = new Type("CLASS");
 }

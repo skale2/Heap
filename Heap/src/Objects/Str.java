@@ -130,8 +130,10 @@ public class Str extends Atom {
     }
 
 
-    class StrIter extends Iterator {
-        public StrIter(Str string) {
+    static class Iter extends Iterator {
+        public Iter(Str string) {
+            super();
+
             _index = -1;
             _string = string;
         }
@@ -139,12 +141,18 @@ public class Str extends Atom {
         @Override
         public Str next() {
             _index++;
-            return new Str_string.value().charAt(_index);
+            return new Str(String.valueOf(_string.value().charAt(_index)));
         }
 
-        int _index;
-        Str _string;
+        @Override
+        public Bool hasNext() {
+            return Bool.valueOf(_index >= _string.value().length());
+        }
+
+        private int _index;
+        private Str _string;
     }
+
 
     private static final Scope _classScope = new Scope(null) {{
         set(Var.__add__, new Func(f -> ((Str) f[0]).add((Str) f[1])));
@@ -163,7 +171,8 @@ public class Str extends Atom {
         set(Var.__eq__, new Func(f -> ((Str) f[0]).equal((Str) f[1])));
         set(Var.__bool__, new Func(f -> ((Str) f[0]).bool()));
         set(Var.__size__, new Func(f -> ((Str) f[0]).size()));
+        set(Var.__iter__, new Func(f -> new Iter((Str) f[0])));
     }};
 
-    private static final Type type = new Type("STR");
+    public static final Type type = new Type("STR");
 }

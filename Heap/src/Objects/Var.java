@@ -1,5 +1,7 @@
 package Objects;
 
+import java.util.Objects;
+
 public class Var {
     private String _name;
     private Type _type;
@@ -19,6 +21,20 @@ public class Var {
     public Var(String name, Type type) {
         _name = name;
         _type = type;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Var var = (Var) o;
+        return Objects.equals(_name, var._name) &&
+                Objects.equals(_type, var._type);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(_name, _type);
     }
 
     public static final Var
@@ -61,6 +77,8 @@ public class Var {
             __point__ = new Var("__point__", Func.type),
             __total__ = new Var("__total__", Func.type),
             __iter__ = new Var("__iter__", Func.type),
+            __next__ = new Var("__next__", Func.type),
+            __hasnext__ = new Var("__hasnext__", Func.type),
 
             add = new Var("add", Func.type);
 }

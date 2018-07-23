@@ -1,11 +1,7 @@
 import Main.Lexer;
-import org.codehaus.groovy.util.CharSequenceReader;
 import org.junit.jupiter.api.Test;
 
-import java.io.BufferedReader;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -29,6 +25,8 @@ class LexerTest {
                 } else if (line.equals("// Tokens")) {
                     isResults = true;
                     isProgram = false;
+                } else if (line.equals(("// AST"))) {
+                    break;
                 } else if (isProgram && !line.isEmpty())
                     program.append(line);
                 else if (isResults && !line.isEmpty())
@@ -36,7 +34,13 @@ class LexerTest {
                 line = file.readLine();
             }
 
-            Lexer lexer = new Lexer(new BufferedReader(new CharSequenceReader(program)));
+            Lexer lexer = new Lexer(
+                    new BufferedReader(
+                            new StringReader(
+                                    program.toString()
+                            )
+                    )
+            );
 
             String[] expectedTokens = results.toString().split(",\\s*");
 
@@ -53,26 +57,31 @@ class LexerTest {
 
     @Test
     void testAdd() {
-        test("/Users/sohamkale/Documents/Heap/Tests/scripts/add.heap");
+        test("/Users/sohamkale/Documents/Heap/Heap/Tests/scripts/add.heap");
     }
 
     @Test
     void testBinaryOps() {
-        test("/Users/sohamkale/Documents/Heap/Tests/scripts/binaryops.heap");
+        test("/Users/sohamkale/Documents/Heap/Heap/Tests/scripts/binaryops.heap");
     }
 
     @Test
     void testIfStatements() {
-        test("/Users/sohamkale/Documents/Heap/Tests/scripts/ifstatements.heap");
+        test("/Users/sohamkale/Documents/Heap/Heap/Tests/scripts/ifstatements.heap");
     }
 
     @Test
     void testContainers() {
-        test("/Users/sohamkale/Documents/Heap/Tests/scripts/containers.heap");
+        test("/Users/sohamkale/Documents/Heap/Heap/Tests/scripts/containers.heap");
     }
 
     @Test
     void testClasses() {
-        test("/Users/sohamkale/Documents/Heap/Tests/scripts/classes.heap");
+        test("/Users/sohamkale/Documents/Heap/Heap/Tests/scripts/classes.heap");
+    }
+
+    @Test
+    void testLoops() {
+        test("/Users/sohamkale/Documents/Heap/Heap/Tests/scripts/loops.heap");
     }
 }

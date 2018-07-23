@@ -2,6 +2,7 @@ package Objects;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.ListIterator;
 
 public class HLinkedList extends HList {
 
@@ -17,5 +18,24 @@ public class HLinkedList extends HList {
 
     static HList createHList(LinkedList<Any> list) { return new HLinkedList(list); }
 
-    private static final Type type = new Type("LINKEDLIST");
+    public static final Type type = new Type("LINKEDLIST");
+
+    static class Iter extends Iterator {
+        public Iter(HLinkedList list) {
+            super();
+            _listIterator = list.list().listIterator();
+        }
+
+        @Override
+        public Any next() {
+            return _listIterator.next();
+        }
+
+        @Override
+        public Bool hasNext() {
+            return Bool.valueOf(_listIterator.hasNext());
+        }
+
+        private ListIterator<Any> _listIterator;
+    }
 }

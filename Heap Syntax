@@ -304,23 +304,28 @@ loop(x = 5 : x < 112 : x++) => {
 /* for each loop */
 *arr1 = [2, 3, 34, -23, 23]
 loop(:: *arr1++) => {
-    print(arr)
+    print(arr1);
 }
 
 arr2 = [2, 3, 34, -23, 23]
 loop(*elem = arr2 ::) => {
-    print(elem)             // elem has no ties to arr
+    print(elem);            // elem has no ties to arr
 }
 
 
 loop(*elem = arr2 ::) => {
-    print(*elem)            // <Array Pointer Object |> whatever>
+    print(*elem);           // <Array Pointer Object |> whatever>
 }
 
 /* while loop */
 count = 0;
 loop(: count > -12 :) => {
     count -= 13;
+}
+
+/* Short hand for while loop; ignore the other two expression */
+loop(datetime() < datetime.date(23, 7, 2018)) => {
+    print(datetime());
 }
 
 

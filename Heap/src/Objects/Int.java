@@ -442,7 +442,7 @@ public class Int extends Number {
     }};
 
     /** The type for this object, which all instances share */
-    private static final Type type = new Type("INT");
+    public static final Type type = new Type("INT");
 
     /** Value classes; these are containers for the datatype that this Objects.Int uses */
     private static abstract class Value {

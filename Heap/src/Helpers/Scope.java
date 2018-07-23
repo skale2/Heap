@@ -11,6 +11,12 @@ public class Scope {
         _parent = parents;
     }
 
+    public boolean has(Var var) { return _scope.containsKey(var); }
+
+    public boolean has(Var var, Type type) {
+        return _scope.containsKey(var) && type.isType(var.type());
+    }
+
     public void set(Var var, Any object) {
         _scope.put(var, object);
     }

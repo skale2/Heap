@@ -20,4 +20,6 @@ public class Interface extends Type implements Construct {
 
     private List<Interface> _interfaces;
     private Scope _scope;
+
+    public static final Type type = new Type("INTERFACE");
 }

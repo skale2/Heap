@@ -3,13 +3,11 @@ package Main;
 import java.io.BufferedReader;
 import java.lang.Boolean;
 import java.lang.reflect.Array;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.Map;
+import java.util.*;
 
 import Helpers.*;
 import Objects.*;
+import Objects.Class;
 
 /**
  * The main interpreter, which takes in a AST and runs through it, consuming
@@ -25,6 +23,7 @@ public class Interpreter {
     public static Any doBlock(Parser.Block block, Scope scope) {
         var newScope = new Scope(scope);
         block.statements.forEach(statement -> doStatement((Parser.Statement) statement, newScope));
+        return null;
     }
 
     private static void doStatement(Parser.Statement statement, Scope scope) {
@@ -42,16 +41,23 @@ public class Interpreter {
     }
 
     private static Var doVar(Parser.Var var, Scope scope) {
-
+        return null;
     }
 
     public static Any doExpression(Parser.Expression expression, Scope scope) {
-
+        return null;
     }
 
     private static Any doCall(Parser.Call call, Scope scope) {
+        return null;
+    }
+
+    /** **************************** Directs **************************** **/
+
+    private static void doLoop(Parser.Loop loop) {
 
     }
+
 
     /** **************************** Containers **************************** **/
 
@@ -65,6 +71,7 @@ public class Interpreter {
         } else if (container instanceof Parser.LinkedListRange) {
             return doLinkedListRange((Parser.LinkedListRange) container, scope);
         }
+        return null;
     }
 
     private static HArrayList doArrayList(Parser.HArrayList list, Scope scope) {
@@ -109,31 +116,58 @@ public class Interpreter {
         return new HLinkedList(linkedlist);
     }
 
-    private static void doMap(Parser.HMap map, Scope scope) {
-
+    private static HMap doMap(Parser.HMap map, Scope scope) {
+        if (map instanceof Parser.HValueMap) {
+            return doValueMap((Parser.HValueMap) map, scope);
+        } else if (map instanceof Parser.HObjectMap) {
+            return doObjectMap((Parser.HObjectMap) map, scope);
+        }
+        return null;
     }
 
-    private static void doObjectMap(Parser.HObjectMap map, Scope scope) {
-
+    private static HMap doObjectMap(Parser.HObjectMap map, Scope scope) {
+        return null;
     }
 
-    private static void doValueMap(Parser.HValueMap map, Scope scope) {
-
+    private static HValueMap doValueMap(Parser.HValueMap map, Scope scope) {
+        return null;
     }
 
 
-    /** **************************** Objects.Construct **************************** **/
+    /** **************************** Constructs **************************** **/
 
-    private static void doConstruct(Parser.Construct construct, Scope scope) {
-
+    private static Construct doConstruct(Parser.Construct construct, Scope scope) {
+        if (construct instanceof Parser.Func) {
+            return doFunc((Parser.Func) construct, scope);
+        } else if (construct instanceof Parser.Class) {
+            return doClass((Parser.Class) construct, scope);
+        }
+        return null;
     }
 
     private static Func doFunc(Parser.Func _func, Scope scope) {
         return new Func(_func, scope);
     }
 
-    private static void doClass(Parser.Class _class, Scope scope) {
+    private static Class doClass(Parser.Class _class, Scope scope) {
+        List<Interface> interfaces = new ArrayList<Interface>();
+        _class.interfaces.forEach(v -> {
+            var var = new Var(v.value, Interface.type);
+            assert scope.has(var);
+            interfaces.add((Interface) scope.get(var, false));
+        });
 
+        List<Class> superClasses = new ArrayList<>();
+        _class.superClasses.forEach(v -> {
+            var var = new Var(v.value, Class.type);
+            assert scope.has(var);
+            superClasses.add((Class) scope.get(var, false));
+        });
+
+        Scope classScope = new Scope(scope);
+        doBlock(_class.block, scope);
+
+        return new Class(null, classScope, superClasses, interfaces);
     }
 
     private static void doStruct(Parser.Struct _struct, Scope scope) {

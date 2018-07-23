@@ -1,6 +1,6 @@
 // Script
 Person = class(Being) => {
-    __create__ = func(name<str>, height<float>, age<int>) => {
+    __create__ = func(name<str>, height<real>, age<int>) => {
         super(name, height, age);
     }
 
@@ -15,7 +15,7 @@ Person = class(Being) => {
 
 // Tokens
 VAR(Person), ASSIGN, CLASS, PAR_OPEN, VAR(Being), PAR_CLOSE, DIRECT, SCOPE_OPEN,
-VAR(__create__), ASSIGN, FUNC, PAR_OPEN, VAR(name), LESS_THAN, STR, GREATER_THAN, COMMA, VAR(height), LESS_THAN, FLOAT, GREATER_THAN, COMMA, VAR(age), LESS_THAN, INT, GREATER_THAN, PAR_CLOSE, DIRECT, SCOPE_OPEN,
+VAR(__create__), ASSIGN, FUNC, PAR_OPEN, VAR(name), LESS_THAN, STR, GREATER_THAN, COMMA, VAR(height), LESS_THAN, REAL, GREATER_THAN, COMMA, VAR(age), LESS_THAN, INT, GREATER_THAN, PAR_CLOSE, DIRECT, SCOPE_OPEN,
 SUPER, PAR_OPEN, VAR(name), COMMA, VAR(height), COMMA, VAR(age), PAR_CLOSE, EOL,
 SCOPE_CLOSE,
 VAR(__str__), ASSIGN, FUNC, PAR_OPEN, PAR_CLOSE, DIRECT, SCOPE_OPEN,

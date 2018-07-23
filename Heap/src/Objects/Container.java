@@ -6,4 +6,6 @@ public abstract class Container extends Any {
 
     public Any get(Int i) { return get(i.forceInt()); }
 
+    public static final Type type = new Type("CONTAINER");
+
 }

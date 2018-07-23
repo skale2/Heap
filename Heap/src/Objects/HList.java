@@ -25,7 +25,7 @@ public abstract class HList extends Container {
     }
 
     private NULL add(Any value) {
-        assert Type.isType(containerTypes(), value.type());
+        assert value.type().isType(containerTypes());
         list().add(value);
         return NULL.getInstance();
     }
@@ -125,6 +125,7 @@ public abstract class HList extends Container {
         return get(index.forceInt());
     }
 
+
     private static final Scope _classScope = new Scope(null) {{
         set(Var.__add__, new Func(f -> ((HList) f[0]).add((HList) f[1])));
         set(Var.__mul__, new Func(f -> ((HList) f[0]).multiply((Int) f[1])));
@@ -147,7 +148,7 @@ public abstract class HList extends Container {
     static HList createHList(List<Any> list) { return null; }
 
 
-    private static final Type type = new Type("LIST");
+    public static final Type type = new Type("LIST");
 
 
     public Any get(int index) {

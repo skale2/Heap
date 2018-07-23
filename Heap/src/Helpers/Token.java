@@ -60,6 +60,19 @@ public class Token {
      * higher precedence)
      * */
     public static Map<TokenType, Integer> operatorPrecedence = new HashMap<TokenType, Integer>() {{
+        /* Accesses */
+        put(TokenType.ARR_TYPE,         0);
+        put(TokenType.PAR_OPEN,         0);
+        put(TokenType.PERIOD,           0);
+
+        /* Steps */
+        put(TokenType.INCREMENT,        1);
+        put(TokenType.DECREMENT,        1);
+
+
+        put(TokenType.L_NOT,            2);
+        put(TokenType.B_NOT,            2);
+
         /* Rounding */
         put(TokenType.ROUND,            0);
 
@@ -142,7 +155,7 @@ public class Token {
     public enum TokenType {
 
         EOL(";"), EOF(""), COMMA(","), COLON(":"), DIRECT("=>"),
-        ANNOTATION("@"), TERNARY("?"), PERIOD("."),
+        ANNOTATION("@"), TERNARY("?", OPR), PERIOD("."),
 
         DEREF("&"), TOTAL_REF("#"),
 
@@ -192,12 +205,12 @@ public class Token {
 
         STR_BOUND("\"|\'"),
 
-        INT("int", RSD, TYP), REAL(RSD, TYP), CHAR("char", RSD, TYP), BOOL("bool", RSD, TYP),
+        INT("int", RSD, TYP), REAL("real", RSD, TYP), CHAR("char", RSD, TYP), BOOL("bool", RSD, TYP),
         STR("str", RSD, TYP), NULL("null", RSD, TYP, LIT), ANY("any", RSD, TYP),
         ATOM("atom", RSD, TYP), CONTAINER("contain", RSD, TYP),
 
         IF("if", RSD, DIR), ELSE("else", RSD, DIR), SWITCH("switch", RSD, DIR),
-        CASE("case", RSD, DIR), DEFAULT("default", RSD, DIR), SELECT("select", RSD, DIR),
+        CASE("case", RSD, DIR), DEFAULT("default", RSD, DIR),
         TRY("try", RSD, DIR), CATCH("catch", RSD, DIR),
 
         PRINT("print", RSD), SIZE("size", RSD), HASH("hash"), LOOP("loop", RSD),

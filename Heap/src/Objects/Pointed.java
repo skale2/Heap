@@ -100,4 +100,6 @@ public class Pointed extends Any {
     }
 
     private Pointer _pointer;
+
+    public static final Type type = new Type("POINTED");
 }

@@ -1,0 +1,19 @@
+// Script
+
+evens, odds <str> = "", "";
+
+loop(i = 0 : i < 12 : i++) => {
+    if (i % 2) => evens += str(i);
+    else => odds += str(i);
+}
+
+print(evens, odds);
+
+// Tokens
+
+VAR(evens), COMMA, VAR(odds), LESS_THAN, STR, GREATER_THAN, ASSIGN, STR_VAL(), COMMA, STR_VAL(), EOL,
+LOOP, PAR_OPEN, VAR(i), ASSIGN, INT_VAL(0), COLON, VAR(i), LESS_THAN, INT_VAL(12), COLON, VAR(i), INCREMENT, PAR_CLOSE, DIRECT, SCOPE_OPEN,
+IF, PAR_OPEN, VAR(i), MOD, INT_VAL(2), PAR_CLOSE, DIRECT, VAR(evens), ADD_EQ, STR, PAR_OPEN, VAR(i), PAR_CLOSE, EOL,
+ELSE, DIRECT, VAR(odds), ADD_EQ, STR, PAR_OPEN, VAR(i), PAR_CLOSE, EOL,
+SCOPE_CLOSE,
+PRINT, PAR_OPEN, VAR(evens), COMMA, VAR(odds), PAR_CLOSE, EOL

@@ -3,3 +3,34 @@ x = 7 + 5;
 
 // Tokens
 VAR(x), ASSIGN, INT_VAL(7), ADD, INT_VAL(5), EOL
+
+// AST
+{
+    "type": "Block",
+    "token": null,
+    "statements": [
+        {
+            "type": "Assignment",
+            "token": "ASSIGN",
+            "var": {
+                "type": "Var",
+                "token": "VAR(x)",
+                "value": "x",
+            },
+            "value": {
+                "type": "BinaryOp",
+                "token": "+",
+                "left": {
+                    "type": "IntLiteral",
+                    "token": "INT_VAL(7)",
+                    "value": "7",
+                },
+                "right": {
+                    "type": "IntLiteral",
+                    "token": "INT_VAL(5)",
+                    "value": "5",
+                },
+            },
+        },
+    ],
+}

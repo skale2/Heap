@@ -20,10 +20,10 @@ public class Pointer extends Any {
     }};
 
     @Override
-    public void callMethod(Var methodName, boolean thisScope, Any... args) {
+    public void callMethod(Var methodName, boolean thisScope, Scope scope,  Any... args) {
         /* Because the first argument to the Func will be the instance itself, so dereference */
         args[0] = args[0] instanceof Pointer ? ((Pointer) args[0]).value() : args[0];
-        super.callMethod(methodName, thisScope, args);
+        super.callMethod(methodName, thisScope, scope, args);
     }
 
 
@@ -39,7 +39,7 @@ public class Pointer extends Any {
 
     public void setValue(Any value) {
         try {
-            container().set(index(), value);
+            container().set(null, value); // TODO
             scope().set(value.scope());
         } catch (IndexOutOfBoundsException ibe) {
             return;
@@ -63,5 +63,7 @@ public class Pointer extends Any {
     private Scope _scope;
     private int _index;
     private Pointed _pointed;
+
+    public static final Type type = new Type("POINTER");
 
 }

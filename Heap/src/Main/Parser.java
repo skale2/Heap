@@ -3,6 +3,8 @@ package Main;
 import java.util.*;
 
 import Helpers.*;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
 
 /**
  * A class that takes in a stream of tokens from the Main.Lexer and parses them
@@ -16,13 +18,13 @@ public class Parser {
      *  Basic formalities for the parser
      */
 
-    Parser(Lexer lexer) {
+    public Parser(Lexer lexer) {
         this._lexer = lexer;
-        this._current = null;
+        this._current = lexer.next();
     }
 
     /** Entry method into Main.Parser - considers program as Block and parses it */
-    ASTNode parse() {
+    public ASTNode parse() {
         return parseBlock();
     }
 
@@ -74,50 +76,14 @@ public class Parser {
         return Arrays.stream(tokens).anyMatch(token -> current().equals(token));
     }
 
-    /**
-     * Check if _current falls into *all* of the passed in usage types
-     * @param types List of usage type methods to call on _current
-     * @return Whether *all* of types returns true
-     */
-    private boolean currentAll(String... types) {
-//        try {
-//            return Arrays.stream(types)
-//                    .allMatch(type -> current()
-//                            .getClass().getDeclaredMethod(type)
-//                            .invoke(current())
-//                    );
-//        } catch (NoSuchMethodException nsme) {
-//            return false;
-//        }
-        return false;
-    }
-
-    /**
-     * Check if _current falls into *any* of the passed in usage types
-     * @param types List of usage type methods to call on _current
-     * @return Whether *any* of types returns true
-     */
-    private boolean currentAny(String... types) {
-//        try {
-//            return Arrays.stream(types)
-//                    .anyMatch(type -> current()
-//                            .getClass().getDeclaredMethod(type)
-//                            .invoke(current())
-//                    );
-//        } catch (NoSuchMethodException nsme) {
-//            return false;
-//        }
-        return false;
-    }
-
 
     /** A map of usable tokens that aren't dependent on user code, for comparisons. Avoids the
      * creation of unnecessary tokens. */
-    static final Map<String, Token> values = new HashMap<>() {{
+    public static final Map<String, Token> values = new HashMap<>() {{
         for (Token.TokenType type : Token.TokenType.values()) {
             if (type != Token.TokenType.VAR && type != Token.TokenType.INT_VAL &&
                     type != Token.TokenType.STR_VAL &&  type != Token.TokenType.REAL_VAL) {
-                put(type.value(), new Token(type));
+                put(type.toString(), new Token(type));
             }
         }
     }};
@@ -131,7 +97,7 @@ public class Parser {
     private Block parseBlock(Token... endTokens) {
         List<Statement> statements = new ArrayList<>();
         List tokens = Arrays.asList(endTokens);
-        while (!tokens.contains(current())) {
+        while (!_lexer.isEmpty() && !tokens.contains(current())) {
             statements.add(parseStatement());
         }
         return new Block(statements);
@@ -158,7 +124,6 @@ public class Parser {
                 currentIs("MULTIPLY") ||  // References a pointer variable
                 current().isVar()
                 ) {
-            eat("EOL");
             return parseAssignment(values.get("EOL"));
         } else {
             return parseExpression(values.get("EOL"));
@@ -304,12 +269,38 @@ public class Parser {
      *  Strings of chained logic that includes operators, property calls, indexes, and references
      */
 
-    private Token[] afterTokens = new Token[] {
+    private static Token[] afterTokens = new Token[] {
             values.get("ARR_OPEN"),
             values.get("PERIOD"),
             values.get("PAR_OPEN")
     };
 
+    /** Entry point for all expression parsing
+     * */
+    private Expression parseExpression(Token... endTokens) {
+        Expression expression = new NoOp();
+        Token current;
+        do {
+            expression = parseTerm(endTokens);
+            if (current().isOperator()) {
+                if (currentIs("TERNARY")) {
+                    eat("TERNARY");
+                    Expression first = parseExpression(values.get("COLON"));
+                    eat("COLON");
+                    Expression second = parseExpression(endTokens);
+                    expression = new TernaryOp(expression, first, second, values.get("TERNARY"));
+                } else {
+                    current = current();
+                    eat(current);
+                    expression = new BinaryOp(expression, parseTerm(endTokens), current);
+                }
+            }
+        } while (!currentIs(endTokens));
+
+        parsePseudoBinary(expression);
+        eat(current());
+        return expression;
+    }
 
     /**
      * Takes in a expression tree in a weave (a series of operations branching
@@ -324,11 +315,13 @@ public class Parser {
      * can ignore them as leaves. They can also contain unitary operators,
      * which also have higher precedence.
      *
-     * Example -> g + f + e**d * c**b + a
+     * Example -> -g + f + e**d * c**b + a ? x : y
      *
      * Converts this (what I call a weave):
      *
-     *                           +
+     *                               ?
+     *                            /  |  \
+     *                           +   x   y
      *                          / \
      *                        **   a
      *                        / \
@@ -340,43 +333,52 @@ public class Parser {
      *                / \
      *               +   e
      *              / \
-     *             g   f
-     *
+     *             -   f
+     *            /
+     *           g
      *
      * Into this:
      *
-     *                  +
+     *                  ?
+     *               /  |  \
+     *              x   +   y
      *                /   \
      *               +    a
      *             /   \
      *           +      *
      *         /  \    /  \
-     *        g    f  **   **
-     *               /  \ /  \
-     *              e  d  c   b
+     *        -    f  **   **
+     *       /       /  \ /  \
+     *      g       e  d  c   b
+     *
+     *
+     * This works for unary, binary, and ternary operations. For unary, both
+     * left and right point to its only child, and for ternary operations,
+     * left and right are also unchanged, with center usually not cause for
+     * concern.
      *
      * *** MUTATIVE ***
      *
      * @param node Head of expression tree
      */
-    private void parse(Expression node) {
+    private void parsePseudoBinary(Expression node) {
         if (!(node instanceof Op)) {
             return;
         }
 
-        BinaryOp op = (BinaryOp) node;
-        Expression left = op.left;
+        Op op = (Op) node;
+        Expression left = op.left();
 
         /* Run down left side of tree (which here in the tree is only non-trivial side)
          * until you hit a node with an equal to or lower precedence than the head node
          */
-        while (!op.higherPrecedenceThan(left)) {
-            left = ((BinaryOp) left).left;
+        while (left instanceof Op && !op.higherPrecedenceThan(left)) {
+            left = ((Op) left).left();
         }
 
         /* Make sure that left isn't just the left of op */
-        if (op.left != left) {
-            BinaryOp opLeft = (BinaryOp) left;
+        if (op.left() != left) {
+            Op opLeft = (Op) left;
 
             /* If left has the same precedence as the root op,
              * then op can stay at its relative position
@@ -387,9 +389,12 @@ public class Parser {
              * child
              */
             if (op.equalPrecedenceTo(left)) {
-                ((BinaryOp) opLeft.parent).setLeft(opLeft.right);
-                parse(op.left);
-                opLeft.setRight(op.left);
+                ((Op) opLeft.parent()).setLeft(opLeft.right());
+
+                if (!(opLeft instanceof UnaryOp))
+                    parsePseudoBinary(op.left());
+
+                opLeft.setRight(op.left());
                 op.setLeft(opLeft);
             }
 
@@ -400,40 +405,21 @@ public class Parser {
              *
              */
             else {
-                if (op.parent != null) {
-                    if (((BinaryOp) op.parent).left == op) {
-                        ((BinaryOp) op.parent).setLeft(opLeft);
+                if (op.parent() != null) {
+                    if (((Op) op.parent()).left() == op) {
+                        ((Op) op.parent()).setLeft(opLeft);
                     } else {
-                        ((BinaryOp) op.parent).setRight(opLeft);
+                        ((Op) op.parent()).setRight(opLeft);
                     }
                 }
-                ((BinaryOp) opLeft.parent).setLeft(opLeft.right);
-                parse(op);
+                ((Op) opLeft.parent()).setLeft(opLeft.right());
+                parsePseudoBinary(op);
                 opLeft.setRight(op);
             }
         }
 
         /* Recurse down the left side */
-        parse(left);
-    }
-
-
-    /** Entry point for all expression parsing
-     * */
-    private Expression parseExpression(Token... endTokens) {
-        Expression expression = new NoOp();
-        Token current;
-        do {
-            expression = parseTerm(endTokens);
-            if (current().isOperator()) {
-                current = current();
-                eat(current);
-                expression = new BinaryOp(expression, parseTerm(endTokens), current);
-            }
-        } while (!currentIs("EOL"));
-
-        parse(expression);
-        return expression;
+        parsePseudoBinary(left);
     }
 
     /**
@@ -449,10 +435,10 @@ public class Parser {
     private Expression parseTerm(Token... endTokens) {
         /* Expression is over */
         if (currentIs(endTokens)) {
-            return null;
+            return new NoOp();
         }
 
-        Expression expression = null;
+        Expression expression = new NoOp();
 
         if (current().isLiteral()) {
             expression = parseLiteral();
@@ -621,8 +607,6 @@ public class Parser {
             return parseLoop();
         } else if (current().type() == Token.TokenType.SWITCH) {
             return parseSwitch();
-        } else if (current().type() == Token.TokenType.SELECT) {
-            return parseSelect();
         } else if (current().type() == Token.TokenType.TRY) {
             return parseTry();
         }
@@ -633,11 +617,15 @@ public class Parser {
         eat("LOOP");
         eat("PAR_OPEN");
 
+        //TODO
+
         List<Assignment> initClauses = new ArrayList<>();
         while(!currentIs("COLON")) {
-            initClauses.add(parseAssignment(values.get("COLON")));
+            initClauses.add(parseAssignment(values.get("COLON"), values.get("COMMA"), values.get("PAR_CLOSE")));
             if (currentIs("COMMA")) {
                 eat("COMMA");
+            } else if (currentIs("PAR_CLOSE")) {
+                return parseLoopFinish(new ArrayList<Assignment>(), null, new ArrayList<Expression>());
             }
         }
         eat("COLON");
@@ -659,6 +647,10 @@ public class Parser {
             }
         }
 
+        return parseLoopFinish(initClauses, breakClauses, loopClauses);
+    }
+
+    private Loop parseLoopFinish(List<Assignment> initClauses, List<Expression> breakClauses, List<Expression> loopClauses) {
         eat("PAR_CLOSE");
 
         eat("DIRECT");
@@ -720,15 +712,7 @@ public class Parser {
     }
 
     private Direct parseSwitch() {
-        return parseSwitchLike(values.get("SWITCH"));
-    }
-
-    private Direct parseSelect() {
-        return parseSwitchLike(values.get("SELECT"));
-    }
-
-    private Direct parseSwitchLike(Token startToken) {
-        eat(startToken);
+        eat(values.get("SWITCH"));
 
         eat("PAR_OPEN");
         Expression switchExpression = parseExpression(values.get("PAR_CLOSE"));
@@ -767,11 +751,7 @@ public class Parser {
             eat("SCOPE_CLOSE");
         }
 
-        if (startToken.type() == Token.TokenType.SWITCH) {
-            return new Switch(switchExpression, cases, defaultBlock, elseBlock);
-        } else if (startToken.type() == Token.TokenType.SELECT) {
-            return new Select(switchExpression, cases, defaultBlock, elseBlock);
-        } return null;
+        return new Switch(switchExpression, cases, defaultBlock, elseBlock);
     }
 
     private Try parseTry() {
@@ -1148,37 +1128,56 @@ public class Parser {
     }
 
 
-    /** *************************************************************************************************
-     *  NODES
-     *  Abstract Syntax Tree node classes
-     */
+    /** ************************************************************************************************* **/
+    /** ************************************************************************************************* **/
+    /** NODES                                                                                             **/
+    /** Abstract Syntax Tree node classes                                                                 **/
+    /** ************************************************************************************************* **/
+    /** ************************************************************************************************* **/
 
     public static abstract class ASTNode {
         public Token token;
         ASTNode parent;
 
-        void setParent(ASTNode... nodes) {
+        public void setParent(ASTNode... nodes) {
             Arrays.asList(nodes).forEach(node -> node.parent = this);
         }
 
-        void setParent(List<? extends ASTNode>... nodes) {
+        public void setParent(List<? extends ASTNode>... nodes) {
             Arrays.asList(nodes).forEach(list -> list.forEach(node -> node.parent = this));
         }
 
-        void setParent(Map<? extends ASTNode, ? extends ASTNode>... nodes) {
+        public void setParent(Map<? extends ASTNode, ? extends ASTNode>... nodes) {
             Arrays.asList(nodes).forEach(map -> map.forEach((name, node) -> node.parent = this));
         }
+
+        public ASTNode parent() { return parent; }
+
+        public abstract JSONObject toJSON();
     }
 
     /** A sequential list of statements */
     public static final class Block extends ASTNode {
-        public List<? extends ASTNode> statements;
+        public List<Statement> statements;
 
-        public Block(List<? extends ASTNode> statements) {
+        public Block(List<Statement> statements) {
             setParent(statements);
 
             this.parent = parent;
             this.statements = statements;
+        }
+
+        @Override
+        public JSONObject toJSON() {
+            return new JSONObject() {{
+                put("type", "Block");
+                put("token", null);
+                put("statements", new JSONArray() {{
+                    for (Statement statement : statements) {
+                        add(statement.toJSON());
+                    }
+                }});
+            }};
         }
     }
 
@@ -1201,13 +1200,23 @@ public class Parser {
             this.value = value;
 
             this.cast = cast;
-            this.token = new Token(Token.TokenType.ASSIGN);
+            this.token = values.get("ASSIGN");
+        }
+
+        @Override
+        public JSONObject toJSON() {
+            return new JSONObject() {{
+                put("type", "Assignment");
+                put("token", token.toString());
+                put("var", var.toJSON());
+                put("value", value.toJSON());
+            }};
         }
     }
 
     /** Declares a variable in the namespace */
     public static final class Declare extends ASTNode {
-        public List<Modifier> modifier;
+        public List<Modifier> modifiers;
         public Var var;
         public List<Type> type;
 
@@ -1215,9 +1224,28 @@ public class Parser {
             setParent(modifier, type);
             setParent(var);
 
-            this.modifier = modifier;
+            this.modifiers = modifier;
             this.var = var;
             this.type = type;
+        }
+
+        @Override
+        public JSONObject toJSON() {
+            return new JSONObject() {{
+                put("type", "Assignment");
+                put("token", null);
+                put("modifiers", new JSONArray() {{
+                    for (Modifier modifier : modifiers) {
+                        add(modifier.toJSON());
+                    }
+                }});
+                put("var", var.toJSON());
+                put("types", new JSONArray() {{
+                    for (Type type : type) {
+                        add(type.toJSON());
+                    }
+                }});
+            }};
         }
     }
 
@@ -1225,7 +1253,15 @@ public class Parser {
     public static abstract class Expression extends Statement {}
 
     /** An empty expression */
-    public static final class NoOp extends Expression {}
+    public static final class NoOp extends Expression {
+        @Override
+        public JSONObject toJSON() {
+            return new JSONObject() {{
+                put("type", "NoOp");
+                put("token", null);
+            }};
+        }
+    }
 
     /** A statement on what to return from a function */
     public static final class Return extends Statement {
@@ -1236,6 +1272,15 @@ public class Parser {
 
             this.expression = expression;
             this.token = values.get("RETURN");
+        }
+
+        @Override
+        public JSONObject toJSON() {
+            return new JSONObject() {{
+                put("type", "Return");
+                put("token", token.toString());
+                put("expression", expression.toJSON());
+            }};
         }
     }
 
@@ -1248,6 +1293,15 @@ public class Parser {
             this.token = token;
             this.value = token.value();
         }
+
+        @Override
+        public JSONObject toJSON() {
+            return new JSONObject() {{
+                put("type", "Var");
+                put("token", token.toString());
+                put("value", value);
+            }};
+        }
     }
 
     /** A (possibly nested) type */
@@ -1258,6 +1312,15 @@ public class Parser {
             assert token.isType() || token.isVar();
             this.token = token;
             this.isPointer = isPointer;
+        }
+
+        @Override
+        public JSONObject toJSON() {
+            return new JSONObject() {{
+                put("type", "Type");
+                put("token", token.toString());
+                put("isPointer", isPointer);
+            }};
         }
     }
 
@@ -1272,6 +1335,20 @@ public class Parser {
             this.types = types;
         }
 
+        @Override
+        public JSONObject toJSON() {
+            return new JSONObject() {{
+                put("type", "ContainerType");
+                put("token", token.toString());
+                put("container", container.toString());
+                put("types", new JSONArray() {{
+                    for (Type type : types) {
+                        add(type.toJSON());
+                    }
+                }});
+            }};
+        }
+
         enum Container { NONE, SET, LIST, MAP, DIR, UNDIR, OTHER }
     }
 
@@ -1280,6 +1357,14 @@ public class Parser {
         Modifier(Token token) {
             assert token.isModifier();
             this.token = token;
+        }
+
+        @Override
+        public JSONObject toJSON() {
+            return new JSONObject() {{
+                put("type", "Modifer");
+                put("token", token.toString());
+            }};
         }
     }
 
@@ -1291,6 +1376,19 @@ public class Parser {
             setParent(parameters);
             this.parameters = parameters;
         }
+
+        @Override
+        public JSONObject toJSON() {
+            return new JSONObject() {{
+                put("type", "ParamDefs");
+                put("token", token.toString());
+                put("parameters", new JSONArray() {{
+                    for (Assignment parameter : parameters) {
+                        add(parameter.toJSON());
+                    }
+                }});
+            }};
+        }
     }
 
     /** A list of passed in parameters, which are syntactically Expressions */
@@ -1299,7 +1397,21 @@ public class Parser {
 
         Params(List<Expression> parameters) {
             setParent(parameters);
+            this.token = values.get("COMMA");
             this.parameters = parameters;
+        }
+
+        @Override
+        public JSONObject toJSON() {
+            return new JSONObject() {{
+                put("type", "Params");
+                put("token", token.toString());
+                put("parameters", new JSONArray() {{
+                    for (Expression parameter : parameters) {
+                        add(parameter.toJSON());
+                    }
+                }});
+            }};
         }
     }
 
@@ -1320,6 +1432,16 @@ public class Parser {
             this.paramDefs = paramDefs;
             this.operations = operations;
         }
+
+        @Override
+        public JSONObject toJSON() {
+            return new JSONObject() {{
+                put("type", "Func");
+                put("token", token.toString());
+                put("paramDefs", paramDefs.toJSON());
+                put("operations", operations.toJSON());
+            }};
+        }
     }
 
     /** A blueprint for objects */
@@ -1337,12 +1459,50 @@ public class Parser {
             this.block = block;
             this.token = values.get("CLASS");
         }
+
+        @Override
+        public JSONObject toJSON() {
+            return new JSONObject() {{
+                put("type", "Class");
+                put("token", token.toString());
+                put("superClasses", new JSONArray() {{
+                    for (Var superClass : superClasses) {
+                        add(superClass.toJSON());
+                    }
+                }});
+                put("interfaces", new JSONArray() {{
+                    for (Var interFace : interfaces) {
+                        add(interFace.toJSON());
+                    }
+                }});
+                put("block", block.toJSON());
+            }};
+        }
     }
 
     /** A class definition that follows the "value object" pattern */
     public static final class Struct extends Class {
         public Struct(List<Var> superClasses, List<Var> interfaces, Block block) {
             super(superClasses, interfaces, block);
+        }
+
+        @Override
+        public JSONObject toJSON() {
+            return new JSONObject() {{
+                put("type", "Struct");
+                put("token", token.toString());
+                put("superClasses", new JSONArray() {{
+                    for (Var superClass : superClasses) {
+                        add(superClass.toJSON());
+                    }
+                }});
+                put("interfaces", new JSONArray() {{
+                    for (Var interFace : interfaces) {
+                        add(interFace.toJSON());
+                    }
+                }});
+                put("block", block.toJSON());
+            }};
         }
     }
 
@@ -1358,6 +1518,20 @@ public class Parser {
             this.interfaces = interfaces;
             this.block = block;
             this.token = values.get("INTERFACE");
+        }
+
+        @Override
+        public JSONObject toJSON() {
+            return new JSONObject() {{
+                put("type", "Interface");
+                put("token", token.toString());
+                put("interfaces", new JSONArray() {{
+                    for (Var interFace : interfaces) {
+                        add(interFace.toJSON());
+                    }
+                }});
+                put("block", block.toJSON());
+            }};
         }
     }
 
@@ -1377,6 +1551,30 @@ public class Parser {
             this.interfaces = interfaces;
             this.block = block;
             this.token = values.get("ENUM");
+        }
+
+        @Override
+        public JSONObject toJSON() {
+            return new JSONObject() {{
+                put("type", "Enum");
+                put("token", token.toString());
+                put("instances", new JSONArray() {{
+                    for (Call instance : instances) {
+                        add(instance.toJSON());
+                    }
+                }});
+                put("superClasses", new JSONArray() {{
+                    for (Var superClass : superClasses) {
+                        add(superClass.toJSON());
+                    }
+                }});
+                put("interfaces", new JSONArray() {{
+                    for (Var interFace : interfaces) {
+                        add(interFace.toJSON());
+                    }
+                }});
+                put("block", block.toJSON());
+            }};
         }
     }
 
@@ -1398,12 +1596,38 @@ public class Parser {
             setParent(initClauses, breakClauses, loopClauses);
             setParent(block, elseBlock);
 
-            this.token = new Token(Token.TokenType.LOOP);
+            this.token = values.get("LOOP");
             this.initClauses = initClauses;
             this.breakClauses = breakClauses;
             this.loopClauses = loopClauses;
             this.block = block;
             this.elseBlock = elseBlock;
+        }
+
+        @Override
+        public JSONObject toJSON() {
+            return new JSONObject() {{
+                put("type", "Loop");
+                put("token", token.toString());
+                put("initClauses", new JSONArray() {{
+                    for (Assignment initClause : initClauses) {
+                        add(initClause.toJSON());
+                    }
+                }});
+                put("breakClauses", new JSONArray() {{
+                    for (Expression breakClause : breakClauses) {
+                        add(breakClause.toJSON());
+                    }
+                }});
+
+                put("loopClauses", new JSONArray() {{
+                    for (Expression loopClause : loopClauses) {
+                        add(loopClause.toJSON());
+                    }
+                }});
+                put("elseBlock", elseBlock.toJSON());
+                put("block", block.toJSON());
+            }};
         }
     }
 
@@ -1415,9 +1639,23 @@ public class Parser {
             setParent(ifblocks);
             setParent(elseBlock);
 
-            this.token = new Token(Token.TokenType.IF);
+            this.token = values.get("IF");
             this.ifblocks = ifblocks;
             this.elseBlock = elseBlock;
+        }
+
+        @Override
+        public JSONObject toJSON() {
+            return new JSONObject() {{
+                put("type", "If");
+                put("token", token.toString());
+                put("ifBlocks", new JSONArray() {{
+                    for (IfBlock ifblock : ifblocks) {
+                        add(ifblock.toJSON());
+                    }
+                }});
+                put("elseBlock", elseBlock.toJSON());
+            }};
         }
     }
 
@@ -1428,8 +1666,19 @@ public class Parser {
 
         IfBlock(Expression condition, Block block) {
             setParent(condition, block);
+            this.token = values.get("IF");
             this.condition = condition;
             this.block = block;
+        }
+
+        @Override
+        public JSONObject toJSON() {
+            return new JSONObject() {{
+                put("type", "IfBlock");
+                put("token", token.toString());
+                put("condition", condition.toJSON());
+                put("block", block.toJSON());
+            }};
         }
     }
 
@@ -1438,36 +1687,31 @@ public class Parser {
     public static final class Switch extends Direct {
         public Expression expression;
         public List<Case> cases;
-        public Block defaultBlocks;
+        public Block defaultBlock;
 
-        Switch(Expression expression, List<Case> cases, Block defaultBlocks, Block elseBlock) {
-            setParent(expression, defaultBlocks, elseBlock);
+        Switch(Expression expression, List<Case> cases, Block defaultBlock, Block elseBlock) {
+            setParent(expression, defaultBlock, elseBlock);
             setParent(cases);
 
-            this.token = new Token(Token.TokenType.SWITCH);
+            this.token = values.get("SWITCH");
             this.expression = expression;
             this.cases = cases;
-            this.defaultBlocks = defaultBlocks;
+            this.defaultBlock = defaultBlock;
             this.elseBlock = elseBlock;
         }
-    }
 
-    /** A set of cases done conditionally on a starting expression; after a
-     * case is found, immediately breaks to end */
-    public static final class Select extends Direct {
-        public Expression expression;
-        public List<Case> cases;
-        public Block defaultBlocks;
-
-        Select(Expression expression, List<Case> cases, Block defaultBlocks, Block elseBlock) {
-            setParent(expression, defaultBlocks, elseBlock);
-            setParent(cases);
-
-            this.token = new Token(Token.TokenType.SWITCH);
-            this.expression = expression;
-            this.cases = cases;
-            this.defaultBlocks = defaultBlocks;
-            this.elseBlock = elseBlock;
+        @Override
+        public JSONObject toJSON() {
+            return new JSONObject() {{
+                put("type", "Switch");
+                put("token", token.toString());
+                put("cases", new JSONArray() {{
+                    for (Case aCase : cases) {
+                        add(aCase.toJSON());
+                    }
+                }});
+                put("defaultBlock", defaultBlock.toJSON());
+            }};
         }
     }
 
@@ -1478,9 +1722,19 @@ public class Parser {
 
         Case(Expression expression, Block block) {
             setParent(expression, block);
-
+            this.token = values.get("CASE");
             this.expression = expression;
             this.block = block;
+        }
+
+        @Override
+        public JSONObject toJSON() {
+            return new JSONObject() {{
+                put("type", "Case");
+                put("token", token.toString());
+                put("expression", expression.toJSON());
+                put("block", block.toJSON());
+            }};
         }
     }
 
@@ -1492,22 +1746,48 @@ public class Parser {
         Try(Block block, List<Catch> catchBlocks, Block elseBlock) {
             setParent(block, elseBlock);
             setParent(catchBlocks);
+            this.token = values.get("TRY");
 
             this.block = block;
             this.catchBlocks = catchBlocks;
             this.elseBlock = elseBlock;
         }
+
+        @Override
+        public JSONObject toJSON() {
+            return new JSONObject() {{
+                put("type", "Try");
+                put("token", token.toString());
+                put("block", block.toJSON());
+                put("catchBlocks", new JSONArray() {{
+                    for (Catch catchBlock : catchBlocks) {
+                        add(catchBlock.toJSON());
+                    }
+                }});
+            }};
+        }
     }
 
     /** A block that deals with caught exceptions in a try block */
     public static final class Catch extends ASTNode {
-        public Declare Exception;
+        public Declare exception;
         public Block block;
 
         Catch(Declare exception, Block block) {
             setParent(exception, block);
-            Exception = exception;
+            this.token = values.get("CATCH");
+            this.exception = exception;
             this.block = block;
+        }
+
+        @Override
+        public JSONObject toJSON() {
+            return new JSONObject() {{
+                put("type", "Catch");
+                put("token", token.toString());
+                put("exception", exception.toJSON());
+                put("block", block.toJSON());
+            }};
         }
     }
 
@@ -1515,13 +1795,23 @@ public class Parser {
     /** Calls to a construct (functions, classes, interfaces, structs, etc. */
     public static final class Call extends Expression {
         public Params params;
-        public Expression val;
+        public Expression value;
 
-        Call(Params params, Expression val) {
-            setParent(params, val);
+        Call(Params params, Expression value) {
+            setParent(params, value);
             this.token = values.get("PAR_OPEN");
             this.params = params;
-            this.val = val;
+            this.value = value;
+        }
+
+        @Override
+        public JSONObject toJSON() {
+            return new JSONObject() {{
+                put("type", "Call");
+                put("token", token.toString());
+                put("params", params.toJSON());
+                put("value", value.toJSON());
+            }};
         }
     }
 
@@ -1533,7 +1823,7 @@ public class Parser {
     public static abstract class Container extends Expression implements ContainerCreation {}
 
     /** A dynamic array of objects */
-    public static class HList extends Container {
+    public abstract static class HList extends Container {
         public List<Expression> items;
     }
 
@@ -1546,6 +1836,19 @@ public class Parser {
             this.items = items;
             this.token = values.get("ARR_TYPE");
         }
+
+        @Override
+        public JSONObject toJSON() {
+            return new JSONObject() {{
+                put("type", "HList");
+                put("token", token.toString());
+                put("items", new JSONArray() {{
+                    for (Expression item : items) {
+                        add(item.toJSON());
+                    }
+                }});
+            }};
+        }
     }
 
     /** A container of objects with a doubly linked list implementation */
@@ -1557,6 +1860,19 @@ public class Parser {
             this.items = items;
             this.token = values.get("L_ARR_TYPE");
         }
+
+        @Override
+        public JSONObject toJSON() {
+            return new JSONObject() {{
+                put("type", "Case");
+                put("token", token.toString());
+                put("items", new JSONArray() {{
+                    for (Expression item : items) {
+                        add(item.toJSON());
+                    }
+                }});
+            }};
+        }
     }
 
     /** A bijective mapping between objects */
@@ -1567,6 +1883,22 @@ public class Parser {
             setParent(items);
             this.items = items;
             this.token = Parser.values.get("MAP_TYPE");
+        }
+
+        @Override
+        public JSONObject toJSON() {
+            return new JSONObject() {{
+                put("type", "HMap");
+                put("token", token.toString());
+                put("items", new JSONArray() {{
+                    for (Expression key : items.keySet()) {
+                        add(new JSONArray() {{
+                            add(key.toJSON());
+                            add(items.get(key).toJSON());
+                        }});
+                    }
+                }});
+            }};
         }
     }
 
@@ -1597,6 +1929,19 @@ public class Parser {
             this.items = items;
             this.token = values.get("SET_TYPE");
         }
+
+        @Override
+        public JSONObject toJSON() {
+            return new JSONObject() {{
+                put("type", "HSet");
+                put("token", token.toString());
+                put("items", new JSONArray() {{
+                    for (Expression item : items) {
+                        add(item.toJSON());
+                    }
+                }});
+            }};
+        }
     }
 
     /** A base class for collection of objects and edges connecting them */
@@ -1619,6 +1964,34 @@ public class Parser {
                 this.first = first;
                 this.second = second;
             }
+
+            @Override
+            public JSONObject toJSON() {
+                return new JSONObject() {{
+                    put("type", "HGraph");
+                    put("token", token.toString());
+                    put("first", first.toJSON());
+                    put("second", second.toJSON());
+                }};
+            }
+        }
+
+        @Override
+        public JSONObject toJSON() {
+            return new JSONObject() {{
+                put("type", "HGraph");
+                put("token", token.toString());
+                put("nodes", new JSONArray() {{
+                    for (Expression node : nodes) {
+                        add(node.toJSON());
+                    }
+                }});
+                put("edges", new JSONArray() {{
+                    for (HEdge edge : edges) {
+                        add(edge.toJSON());
+                    }
+                }});
+            }};
         }
     }
 
@@ -1635,6 +2008,17 @@ public class Parser {
                 setParent(first, second);
                 this.doubleEdge = doubleEdge;
             }
+
+            @Override
+            public JSONObject toJSON() {
+                return new JSONObject() {{
+                    put("type", "HDirectedGraph");
+                    put("token", token.toString());
+                    put("first", first.toJSON());
+                    put("second", second.toJSON());
+                    put("doubleEdge", doubleEdge);
+                }};
+            }
         }
     }
 
@@ -1648,11 +2032,17 @@ public class Parser {
 
     /** Built-in operations between language members */
     public static abstract class Op extends Expression {
+        abstract Expression left();
+        abstract Expression right();
+
+        abstract void setLeft(Expression expression);
+        abstract void setRight(Expression expression);
+
         /**
          * Whether this has a higher operator precedence than op. If op is actually
          * just a literal, return false.
          * */
-        boolean higherPrecedenceThan(Expression op) {
+        public boolean higherPrecedenceThan(Expression op) {
             return op instanceof Op &&
                     Token.operatorPrecedence.get(this.token.type()) <
                     Token.operatorPrecedence.get(op.token.type());
@@ -1662,7 +2052,7 @@ public class Parser {
          * Whether this has equal operator precedence than op. If op is actually
          * just a literal, return false.
          * */
-        boolean equalPrecedenceTo(Expression op) {
+        public boolean equalPrecedenceTo(Expression op) {
             return op instanceof Op &&
                     Token.operatorPrecedence.get(this.token.type())
                             .equals(Token.operatorPrecedence.get(op.token.type()));
@@ -1693,9 +2083,39 @@ public class Parser {
             this.meta = meta;
         }
 
+        @Override
+        Expression right() {
+            return child;
+        }
+
+        @Override
+        Expression left() {
+            return child;
+        }
+
+        @Override
+        void setRight(Expression expression) {
+            setChild(expression);
+        }
+
+        @Override
+        void setLeft(Expression expression) {
+            setChild(expression);
+        }
+
         void setChild(Expression expression) {
             this.child = expression;
             setParent(expression);
+        }
+
+        @Override
+        public JSONObject toJSON() {
+            return new JSONObject() {{
+                put("type", "UnaryOp");
+                put("token", token.toString());
+                put("child", child.toJSON());
+                put("meta", meta == null ? meta : meta.toString());
+            }};
         }
     }
 
@@ -1710,14 +2130,28 @@ public class Parser {
             this.token = token;
         }
 
-        void setLeft(Expression expression) {
+        public void setLeft(Expression expression) {
             this.left = expression;
             setParent(expression);
         }
 
-        void setRight(Expression expression) {
+        public void setRight(Expression expression) {
             this.right = expression;
             setParent(expression);
+        }
+
+        public Expression left() { return left; }
+
+        public Expression right() { return right; }
+
+        @Override
+        public JSONObject toJSON() {
+            return new JSONObject() {{
+                put("type", "BinaryOp");
+                put("token", token.toString());
+                put("right", right.toJSON());
+                put("left", left.toJSON());
+            }};
         }
     }
 
@@ -1725,6 +2159,16 @@ public class Parser {
     public static final class SetOp extends BinaryOp {
         public SetOp(Expression left, Expression right, Token token) {
             super(left, right, token);
+        }
+
+        @Override
+        public JSONObject toJSON() {
+            return new JSONObject() {{
+                put("type", "SetOp");
+                put("token", token.toString());
+                put("var", right.toJSON());
+                put("value", left.toJSON());
+            }};
         }
     }
 
@@ -1741,6 +2185,16 @@ public class Parser {
         public Expression var() { return left; }
 
         public Expression index() { return right; }
+
+        @Override
+        public JSONObject toJSON() {
+            return new JSONObject() {{
+                put("type", "Index");
+                put("token", token.toString());
+                put("var", var().toJSON());
+                put("index", index().toJSON());
+            }};
+        }
     }
 
     /** Gets a property from an object, e.g. person.height */
@@ -1754,6 +2208,16 @@ public class Parser {
         public Expression var() { return left; }
 
         public Expression property() { return right; }
+
+        @Override
+        public JSONObject toJSON() {
+            return new JSONObject() {{
+                put("type", "Get");
+                put("token", token.toString());
+                put("var", var().toJSON());
+                put("property", property().toJSON());
+            }};
+        }
     }
 
 
@@ -1769,20 +2233,39 @@ public class Parser {
             this.token = token;
         }
 
-        void setLeft(Expression expression) {
+        public void setLeft(Expression expression) {
             this.left = expression;
             setParent(expression);
         }
 
-        void setCenter(Expression expression) {
+        public void setCenter(Expression expression) {
             this.center = expression;
             setParent(expression);
         }
 
-        void setRight(Expression expression) {
+        public void setRight(Expression expression) {
             this.right = expression;
             setParent(expression);
         }
+
+        public Expression left() { return left; }
+
+        public Expression center() { return center; }
+
+        public Expression right() { return right; }
+
+
+        @Override
+        public JSONObject toJSON() {
+            return new JSONObject() {{
+                put("type", "TernaryOp");
+                put("token", token.toString());
+                put("left", left.toJSON());
+                put("center", center.toJSON());
+                put("right", left.toJSON());
+            }};
+        }
+
     }
 
     public static abstract class Range extends TernaryOp implements ContainerCreation {
@@ -1813,11 +2296,33 @@ public class Parser {
         ArrayListRange(Expression start, Expression stop, Expression step) {
             super(start, stop, step);
         }
+
+        @Override
+        public JSONObject toJSON() {
+            return new JSONObject() {{
+                put("type", "ArrayListRange");
+                put("token", token.toString());
+                put("start", start().toJSON());
+                put("stop", stop().toJSON());
+                put("step", step().toJSON());
+            }};
+        }
     }
 
     public static final class LinkedListRange extends Range {
         LinkedListRange(Expression start, Expression stop, Expression step) {
             super(start, stop, step);
+        }
+
+        @Override
+        public JSONObject toJSON() {
+            return new JSONObject() {{
+                put("type", "LinkedListRange");
+                put("token", token.toString());
+                put("start", start().toJSON());
+                put("stop", stop().toJSON());
+                put("step", step().toJSON());
+            }};
         }
     }
 
@@ -1853,6 +2358,28 @@ public class Parser {
             this.right = right;
             setParent(right);
         }
+
+        @Override
+        Expression left() {
+            return left;
+        }
+
+        @Override
+        Expression right() {
+            return right;
+        }
+
+        @Override
+        public JSONObject toJSON() {
+            return new JSONObject() {{
+                put("type", "QuaternaryOp");
+                put("token", token.toString());
+                put("left", left.toJSON());
+                put("centerLeft", centerLeft.toJSON());
+                put("centerRight", centerRight.toJSON());
+                put("right", right.toJSON());
+            }};
+        }
     }
 
     public static final class Slice extends QuaternaryOp implements ArrayOp, ContainerCreation {
@@ -1884,6 +2411,18 @@ public class Parser {
         void setStop(Expression stop) { setCenterRight(stop); }
 
         void setStep(Expression step) { setRight(step); }
+
+        @Override
+        public JSONObject toJSON() {
+            return new JSONObject() {{
+                put("type", "Slice");
+                put("token", token.toString());
+                put("var", var().toJSON());
+                put("start", start().toJSON());
+                put("stop", stop().toJSON());
+                put("step", step().toJSON());
+            }};
+        }
     }
 
 
@@ -1895,6 +2434,15 @@ public class Parser {
         IntLiteral(Token token) {
             this.token = token;
         }
+
+        @Override
+        public JSONObject toJSON() {
+            return new JSONObject() {{
+                put("type", "IntLiteral");
+                put("token", token.toString());
+                put("value", token.value());
+            }};
+        }
     }
 
     /** A real number literal */
@@ -1902,12 +2450,30 @@ public class Parser {
         RealLiteral(Token token) {
             this.token = token;
         }
+
+        @Override
+        public JSONObject toJSON() {
+            return new JSONObject() {{
+                put("type", "RealLiteral");
+                put("token", token.toString());
+                put("value", token.value());
+            }};
+        }
     }
 
     /** A String literal */
     public static final class StringLiteral extends Literal {
         StringLiteral(Token token) {
             this.token = token;
+        }
+
+        @Override
+        public JSONObject toJSON() {
+            return new JSONObject() {{
+                put("type", "StringLiteral");
+                put("token", token.toString());
+                put("value", token.value());
+            }};
         }
     }
 
@@ -1917,6 +2483,15 @@ public class Parser {
             assert token.type() == Token.TokenType.TRUE || token.type() == Token.TokenType.FALSE;
             this.token = token;
         }
+
+        @Override
+        public JSONObject toJSON() {
+            return new JSONObject() {{
+                put("type", "BooleanLiteral");
+                put("token", token.toString());
+                put("value", token.value());
+            }};
+        }
     }
 
     /** A null literal */
@@ -1924,6 +2499,14 @@ public class Parser {
         NullLiteral(Token token) {
             assert token.type() == Token.TokenType.NULL;
             this.token = token;
+        }
+
+        @Override
+        public JSONObject toJSON() {
+            return new JSONObject() {{
+                put("type", "NullLiteral");
+                put("token", token.toString());
+            }};
         }
     }
 }

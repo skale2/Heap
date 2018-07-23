@@ -59,4 +59,6 @@ public class Bool extends Atom {
 
     private Scope _scope;
 
+    public static final Type type = new Type("BOOL");
+
 }
