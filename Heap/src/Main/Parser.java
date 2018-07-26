@@ -19,13 +19,25 @@ public class Parser {
      */
 
     public Parser(Lexer lexer) {
-        this._lexer = lexer;
-        this._current = lexer.next();
+        _lexer = lexer;
+        _current = lexer.next();
+        _peekTokens = new ArrayDeque();
     }
 
     /** Entry method into Main.Parser - considers program as Block and parses it */
     public ASTNode parse() {
         return parseBlock();
+    }
+
+    /** Peeks the next token from the Lexer stream */
+    private Token peek() {
+        if (!peekTokens().isEmpty()) {
+            return (Token) peekTokens().peek();
+        } else {
+            Token peekToken = _lexer.next();
+            peekTokens().offer(peekToken);
+            return peekToken;
+        }
     }
 
     /**
@@ -35,7 +47,9 @@ public class Parser {
      *              determine whether to proceed
      */
     private void eat(Token token) {
-        if (token.equals(current())) {
+        if (!peekTokens().isEmpty()) {
+            current((Token) peekTokens().poll());
+        } else if (token.equals(current())) {
             current(_lexer.next());
         } else {
             System.out.println("Unknown token");
@@ -57,6 +71,8 @@ public class Parser {
     private void current(Token current) {
         this._current = current;
     }
+
+    private ArrayDeque peekTokens() { return _peekTokens; }
 
     /**
      * Checks if _current is a token type by the token name
@@ -90,6 +106,7 @@ public class Parser {
 
     private Lexer _lexer;
     private Token _current;
+    private ArrayDeque _peekTokens;
 
 
 
@@ -115,19 +132,18 @@ public class Parser {
     }
 
     private Statement parseStatement() {
+        Statement statement;
         if (current().isDirect()) {
             return parseDirect();
         } else if (currentIs("RETURN")) {
-            return parseReturn();
-        } else if (
-                currentIs("ANNOTATION") || // Is a modifier
-                currentIs("MULTIPLY") ||  // References a pointer variable
-                current().isVar()
-                ) {
-            return parseAssignment(values.get("EOL"));
+            statement = parseReturn();
+        } else if (currentIs("ANNOTATION")) {
+            statement = parseAssignment(values.get("EOL"));
         } else {
-            return parseExpression(values.get("EOL"));
+            statement = parseExpression(true, values.get("EOL"));
         }
+        eat("EOL");
+        return statement;
     }
 
     private Return parseReturn() {
@@ -138,8 +154,10 @@ public class Parser {
     }
 
     private Assignment parseAssignment(Token... endTokens) {
-        Declare declaration = parseDeclare();
+        return parseAssignment(parseDeclare(false), endTokens);
+    }
 
+    private Assignment parseAssignment(ASTNode var, Token... endTokens) {
         boolean cast = false;
         if (currentIs("ASSIGN")) {
             eat("ASSIGN");
@@ -148,8 +166,9 @@ public class Parser {
             cast = true;
         }
 
+        // TODO make sure expression isn't assignment when casting!
         Expression expression = parseExpression(endTokens);
-        return new Assignment(declaration, expression, cast);
+        return new Assignment(var, expression, cast);
     }
 
     private List<Type> parseType(Token endToken) {
@@ -243,24 +262,37 @@ public class Parser {
         return new ParamDefs(paramDefs);
     }
 
-    private Declare parseDeclare() {
+    private Declare parseDeclare(Var var) {
+        eat("LESS_THAN");
+        List<Type> types = parseType(values.get("GREATER_THAN"));
+        eat("GREATER_THAN");
+
+        return new Declare(new ArrayList<>(), var, types);
+    }
+
+    private ASTNode parseDeclare(boolean forceType) {
         List<Modifier> modifiers = new ArrayList<>();
         while (current().isModifier()) {
             modifiers.add(new Modifier(current()));
             eat(current());
         }
 
-        Var var = new Var(current());
+        Expression var = new Var(current());
         eat(current());
 
         List<Type> types = new ArrayList<>();
-        if (currentIs("LESS_THAN")) {
+        if (currentIs("LESS_THAN") || forceType) {
             eat("LESS_THAN");
             types = parseType(values.get("GREATER_THAN"));
             eat("GREATER_THAN");
+        } else {
+            var = postFix(var);
         }
 
-        return new Declare(modifiers, var, types);
+        if (modifiers.isEmpty() && types.isEmpty()){
+            return var;
+        }
+        return new Declare(modifiers, (Var) var, types);
     }
 
 
@@ -275,13 +307,27 @@ public class Parser {
             values.get("PAR_OPEN")
     };
 
+    private Expression parseExpression(Token... endTokens) {
+        // TODO make sure expression isn't assignment when casting!
+        return (Expression) parseExpression(false, endTokens);
+    }
+
     /** Entry point for all expression parsing
      * */
-    private Expression parseExpression(Token... endTokens) {
+    private Statement parseExpression(boolean canBeAssignment, Token... endTokens) {
         Expression expression = new NoOp();
         Token current;
         do {
             expression = parseTerm(endTokens);
+            if (currentIs("ASSIGN", "CAST_ASSIGN")) {
+                assert(canBeAssignment); // TODO raise error
+                return parseAssignment(expression, endTokens);
+            } else if (currentIs("LESS_THAN") && peek().isType() && expression instanceof Var) {
+                //Can only instantiate with a single identifier
+                assert(canBeAssignment); // TODO raise error
+                return parseAssignment(parseDeclare((Var) expression));
+            }
+
             if (current().isOperator()) {
                 if (currentIs("TERNARY")) {
                     eat("TERNARY");
@@ -298,7 +344,6 @@ public class Parser {
         } while (!currentIs(endTokens));
 
         parsePseudoBinary(expression);
-        eat(current());
         return expression;
     }
 
@@ -422,6 +467,7 @@ public class Parser {
         parsePseudoBinary(left);
     }
 
+
     /**
      * Parses terms, which are expressions that denote:
      *  1. variables or literals with property calls, unary operations, or indexes applied,
@@ -446,8 +492,8 @@ public class Parser {
                 return expression;
             }
         } else if (current().isVar()) {
-            eat(current());
             expression = new Var(current());
+            eat(current());
         }
 
         /* Is a nested expression */
@@ -488,7 +534,7 @@ public class Parser {
             return (Container) parseContainer();
         }
 
-        /* Objects.Any term that has not already been returned can have after-effects (property
+        /* Any term that has not already been returned can have after-effects (property
          * calls, after-unary operators, and indexes) */
         return postFix(expression);
     }
@@ -569,7 +615,7 @@ public class Parser {
         eat("PAR_OPEN");
         List<Expression> expressions = new ArrayList<>();
         while(!currentIs("PAR_CLOSE")) {
-            expressions.add(parseExpression(values.get("COMMA")));
+            expressions.add(parseExpression(values.get("COMMA"), values.get("PAR_CLOSE")));
         }
         eat("PAR_CLOSE");
         return new Call(new Params(expressions), var);
@@ -693,7 +739,7 @@ public class Parser {
         if (currentIs("ELSE")) {
             eat("ELSE");
 
-            if (currentIs("SCOPE_OPEN")) {
+            if (currentIs("DIRECT")) {
                 /* If just an else */
                 eat("DIRECT");
 
@@ -769,7 +815,7 @@ public class Parser {
             eat("CATCH");
 
             eat("PAR_OPEN");
-            exception = parseDeclare();
+            exception = (Declare) parseDeclare(true);
             eat("PAR_CLOSE");
 
             eat("SCOPE_OPEN");
@@ -1193,7 +1239,7 @@ public class Parser {
         Assignment(ASTNode var, Expression value, boolean cast) {
             setParent(var, value);
 
-            assert var instanceof Declare || var instanceof Var;
+            assert var instanceof Declare || var instanceof Expression;
             this.var = var;
 
             assert value instanceof Expression;
@@ -1232,7 +1278,7 @@ public class Parser {
         @Override
         public JSONObject toJSON() {
             return new JSONObject() {{
-                put("type", "Assignment");
+                put("type", "Declare");
                 put("token", null);
                 put("modifiers", new JSONArray() {{
                     for (Modifier modifier : modifiers) {
@@ -1840,7 +1886,7 @@ public class Parser {
         @Override
         public JSONObject toJSON() {
             return new JSONObject() {{
-                put("type", "HList");
+                put("type", "HArrayList");
                 put("token", token.toString());
                 put("items", new JSONArray() {{
                     for (Expression item : items) {
@@ -1864,7 +1910,7 @@ public class Parser {
         @Override
         public JSONObject toJSON() {
             return new JSONObject() {{
-                put("type", "Case");
+                put("type", "HLinkedList");
                 put("token", token.toString());
                 put("items", new JSONArray() {{
                     for (Expression item : items) {
@@ -1884,11 +1930,20 @@ public class Parser {
             this.items = items;
             this.token = Parser.values.get("MAP_TYPE");
         }
+    }
+
+    /** A map that maps expressions to expression */
+    public static final class HValueMap extends HMap {
+        public Map<Expression, Expression> items;
+
+        HValueMap(Map<Expression, Expression> items) {
+            super(items);
+        }
 
         @Override
         public JSONObject toJSON() {
             return new JSONObject() {{
-                put("type", "HMap");
+                put("type", "HValueMap");
                 put("token", token.toString());
                 put("items", new JSONArray() {{
                     for (Expression key : items.keySet()) {
@@ -1902,21 +1957,28 @@ public class Parser {
         }
     }
 
-    /** A map that maps expressions to expression */
-    public static final class HValueMap extends HMap {
-        public Map<Expression, Expression> items;
-
-        HValueMap(Map<Expression, Expression> items) {
-            super(items);
-        }
-    }
-
     /** A map that maps variables to expressions */
     public static final class HObjectMap extends HMap {
         public Map<Var, Expression> items;
 
         HObjectMap(Map<Var, Expression> items) {
             super(items);
+        }
+
+        @Override
+        public JSONObject toJSON() {
+            return new JSONObject() {{
+                put("type", "HObjectMap");
+                put("token", token.toString());
+                put("items", new JSONArray() {{
+                    for (Expression key : items.keySet()) {
+                        add(new JSONArray() {{
+                            add(key.toJSON());
+                            add(items.get(key).toJSON());
+                        }});
+                    }
+                }});
+            }};
         }
     }
 
@@ -1963,12 +2025,13 @@ public class Parser {
                 setParent(first, second);
                 this.first = first;
                 this.second = second;
+                this.token = values.get("SUBTRACT");
             }
 
             @Override
             public JSONObject toJSON() {
                 return new JSONObject() {{
-                    put("type", "HGraph");
+                    put("type", "HEdge");
                     put("token", token.toString());
                     put("first", first.toJSON());
                     put("second", second.toJSON());
@@ -2174,8 +2237,6 @@ public class Parser {
 
     /** Indexes a container object, e.g. x[2] */
     public static final class Index extends BinaryOp implements ArrayOp {
-        Expression left, right;
-
         Index(Expression var, Expression index) {
             super(var, index, values.get("ARR_TYPE"));
             this.left = var;
@@ -2199,8 +2260,6 @@ public class Parser {
 
     /** Gets a property from an object, e.g. person.height */
     public static final class Get extends BinaryOp {
-        Expression left, right;
-
         Get(Expression var, Expression property) {
             super(var, property, values.get("PERIOD"));
         }

@@ -362,7 +362,7 @@ public class Lexer {
         } else if (_current == '>') {
             if (peek() == '>') {
                 advance(2);
-                return new Token(Token.TokenType.SHIFT_RIGHT);
+                 return new Token(Token.TokenType.SHIFT_RIGHT);
             } else if (peek() == '=') {
                 advance(2);
                 return new Token(Token.TokenType.GREATER_THAN_EQ);

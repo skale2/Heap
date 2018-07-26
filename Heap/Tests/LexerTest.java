@@ -84,4 +84,7 @@ class LexerTest {
     void testLoops() {
         test("/Users/sohamkale/Documents/Heap/Heap/Tests/scripts/loops.heap");
     }
+
+    @Test
+    void testTypes() { test("/Users/sohamkale/Documents/Heap/Heap/Tests/scripts/types.heap"); }
 }

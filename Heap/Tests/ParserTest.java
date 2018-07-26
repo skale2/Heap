@@ -65,4 +65,14 @@ class ParserTest {
     void testAdd() {
         test("/Users/sohamkale/Documents/Heap/Heap/Tests/scripts/add.heap");
     }
+
+    @Test
+    void testIfStatements() {
+        test("/Users/sohamkale/Documents/Heap/Heap/Tests/scripts/ifstatements.heap");
+    }
+
+    @Test
+    void testcontainers() {
+        test("/Users/sohamkale/Documents/Heap/Heap/Tests/scripts/ifstatements.heap");
+    }
 }

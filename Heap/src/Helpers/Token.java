@@ -74,64 +74,64 @@ public class Token {
         put(TokenType.B_NOT,            2);
 
         /* Rounding */
-        put(TokenType.ROUND,            0);
+        put(TokenType.ROUND,            3);
 
         /* Exponentiative */
-        put(TokenType.EXP,              1);
+        put(TokenType.EXP,              4);
 
         /* Multiplicative */
-        put(TokenType.MULTIPLY,         2);
-        put(TokenType.DIVIDE,           2);
-        put(TokenType.MOD,              2);
-        put(TokenType.FLOOR,            2);
+        put(TokenType.MULTIPLY,         5);
+        put(TokenType.DIVIDE,           5);
+        put(TokenType.MOD,              5);
+        put(TokenType.FLOOR,            5);
 
         /* Additive and concatenative */
-        put(TokenType.ADD,              3);
-        put(TokenType.SUBTRACT,         3);
+        put(TokenType.ADD,              6);
+        put(TokenType.SUBTRACT,         6);
 
         /* Shift */
-        put(TokenType.SHIFT_LEFT,       4);
-        put(TokenType.SHIFT_RIGHT,      4);
+        put(TokenType.SHIFT_LEFT,       7);
+        put(TokenType.SHIFT_RIGHT,      7);
 
         /* Relational */
-        put(TokenType.GREATER_THAN,     5);
-        put(TokenType.LESS_THAN,        5);
-        put(TokenType.GREATER_THAN_EQ,  5);
-        put(TokenType.LESS_THAN_EQ,     5);
+        put(TokenType.GREATER_THAN,     8);
+        put(TokenType.LESS_THAN,        8);
+        put(TokenType.GREATER_THAN_EQ,  8);
+        put(TokenType.LESS_THAN_EQ,     8);
 
         /* Equality */
-        put(TokenType.EQUAL,            6);
-        put(TokenType.NOT_EQUAL,        6);
-        put(TokenType.CAST_EQUAL,       6);
-        put(TokenType.CAST_NOT_EQUAL,   6);
+        put(TokenType.EQUAL,            9);
+        put(TokenType.NOT_EQUAL,        9);
+        put(TokenType.CAST_EQUAL,       9);
+        put(TokenType.CAST_NOT_EQUAL,   9);
 
         /* Bitwise boolean operators */
-        put(TokenType.B_AND,            7);
-        put(TokenType.B_OR,             8);
-        put(TokenType.B_XOR,            9);
+        put(TokenType.B_AND,            10);
+        put(TokenType.B_OR,             11);
+        put(TokenType.B_XOR,            12);
 
         /* Logical boolean operators */
-        put(TokenType.L_AND,            10);
-        put(TokenType.L_OR,             11);
-        put(TokenType.L_XOR,            12);
+        put(TokenType.L_AND,            13);
+        put(TokenType.L_OR,             14);
+        put(TokenType.L_XOR,            15);
 
         /* Ternary operators */
-        put(TokenType.TERNARY,          13);
+        put(TokenType.TERNARY,          16);
         
         /* Assignment */
-        put(TokenType.ADD_EQ,           14);
-        put(TokenType.SUBTRACT_EQ,      14);
-        put(TokenType.MULTIPLY_EQ,      14);
-        put(TokenType.DIVIDE_EQ,        14);
-        put(TokenType.FLOOR_EQ,         14);
-        put(TokenType.ROUND_EQ,         14);
-        put(TokenType.EXP_EQ,           14);
-        put(TokenType.L_AND_EQ,         14);
-        put(TokenType.L_OR_EQ,          14);
-        put(TokenType.L_XOR_EQ,         14);
-        put(TokenType.B_AND_EQ,         14);
-        put(TokenType.B_OR_EQ,          14);
-        put(TokenType.B_XOR_EQ,         14);
+        put(TokenType.ADD_EQ,           17);
+        put(TokenType.SUBTRACT_EQ,      17);
+        put(TokenType.MULTIPLY_EQ,      17);
+        put(TokenType.DIVIDE_EQ,        17);
+        put(TokenType.FLOOR_EQ,         17);
+        put(TokenType.ROUND_EQ,         17);
+        put(TokenType.EXP_EQ,           17);
+        put(TokenType.L_AND_EQ,         17);
+        put(TokenType.L_OR_EQ,          17);
+        put(TokenType.L_XOR_EQ,         17);
+        put(TokenType.B_AND_EQ,         17);
+        put(TokenType.B_OR_EQ,          17);
+        put(TokenType.B_XOR_EQ,         17);
     }};
 
     private TokenType _type;
@@ -155,7 +155,7 @@ public class Token {
     public enum TokenType {
 
         EOL(";"), EOF(""), COMMA(","), COLON(":"), DIRECT("=>"),
-        ANNOTATION("@"), TERNARY("?", OPR), PERIOD("."),
+        ANNOTATION("@"), TERNARY("?"), PERIOD("."),
 
         DEREF("&"), TOTAL_REF("#"),
 
@@ -205,12 +205,12 @@ public class Token {
 
         STR_BOUND("\"|\'"),
 
-        INT("int", RSD, TYP), REAL("real", RSD, TYP), CHAR("char", RSD, TYP), BOOL("bool", RSD, TYP),
+        INT("int", RSD, TYP), REAL(RSD, TYP), CHAR("char", RSD, TYP), BOOL("bool", RSD, TYP),
         STR("str", RSD, TYP), NULL("null", RSD, TYP, LIT), ANY("any", RSD, TYP),
         ATOM("atom", RSD, TYP), CONTAINER("contain", RSD, TYP),
 
         IF("if", RSD, DIR), ELSE("else", RSD, DIR), SWITCH("switch", RSD, DIR),
-        CASE("case", RSD, DIR), DEFAULT("default", RSD, DIR),
+        CASE("case", RSD, DIR), DEFAULT("default", RSD, DIR), SELECT("select", RSD, DIR),
         TRY("try", RSD, DIR), CATCH("catch", RSD, DIR),
 
         PRINT("print", RSD), SIZE("size", RSD), HASH("hash"), LOOP("loop", RSD),
