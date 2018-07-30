@@ -2,31 +2,28 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="4479fbd9-9d25-418e-8eda-480f69b46ed6" name="Default" comment="">
-      <change afterPath="$PROJECT_DIR$/Heap/src/Objects/HValueMap.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/libraries/json_simple_1_1_1.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Heap/Tests/scripts/complexops.heap" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Heap Syntax" beforeDir="false" afterPath="$PROJECT_DIR$/Heap Syntax" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Heap.iml" beforeDir="false" afterPath="$PROJECT_DIR$/Heap.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Heap/src/Helpers/Scope.java" beforeDir="false" afterPath="$PROJECT_DIR$/Heap/src/Helpers/Scope.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Heap/Tests/LexerTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/Heap/Tests/LexerTest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Heap/Tests/scripts/containers.heap" beforeDir="false" afterPath="$PROJECT_DIR$/Heap/Tests/scripts/containers.heap" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Heap/Tests/scripts/loops.heap" beforeDir="false" afterPath="$PROJECT_DIR$/Heap/Tests/scripts/loops.heap" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Heap/out/test/Heap/LexerTest.class" beforeDir="false" afterPath="$PROJECT_DIR$/Heap/out/test/Heap/LexerTest.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Heap/out/test/Heap/ParserTest.class" beforeDir="false" afterPath="$PROJECT_DIR$/Heap/out/test/Heap/ParserTest.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Heap/out/test/Heap/scripts/add.heap" beforeDir="false" afterPath="$PROJECT_DIR$/Heap/out/test/Heap/scripts/add.heap" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Heap/out/test/Heap/scripts/containers.heap" beforeDir="false" afterPath="$PROJECT_DIR$/Heap/out/test/Heap/scripts/containers.heap" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Heap/out/test/Heap/scripts/ifstatements.heap" beforeDir="false" afterPath="$PROJECT_DIR$/Heap/out/test/Heap/scripts/ifstatements.heap" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Heap/src/Helpers/Token.java" beforeDir="false" afterPath="$PROJECT_DIR$/Heap/src/Helpers/Token.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Heap/src/Main/Interpreter.java" beforeDir="false" afterPath="$PROJECT_DIR$/Heap/src/Main/Interpreter.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Heap/src/Main/Lexer.java" beforeDir="false" afterPath="$PROJECT_DIR$/Heap/src/Main/Lexer.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Heap/src/Main/Parser.java" beforeDir="false" afterPath="$PROJECT_DIR$/Heap/src/Main/Parser.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Heap/src/Objects/Any.java" beforeDir="false" afterPath="$PROJECT_DIR$/Heap/src/Objects/Any.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Heap/src/Objects/Bool.java" beforeDir="false" afterPath="$PROJECT_DIR$/Heap/src/Objects/Bool.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Heap/src/Objects/Class.java" beforeDir="false" afterPath="$PROJECT_DIR$/Heap/src/Objects/Class.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Heap/src/Objects/Construct.java" beforeDir="false" afterPath="$PROJECT_DIR$/Heap/src/Objects/Construct.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Heap/src/Objects/Container.java" beforeDir="false" afterPath="$PROJECT_DIR$/Heap/src/Objects/Container.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Heap/src/Objects/Func.java" beforeDir="false" afterPath="$PROJECT_DIR$/Heap/src/Objects/Func.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Heap/src/Objects/HArrayList.java" beforeDir="false" afterPath="$PROJECT_DIR$/Heap/src/Objects/HArrayList.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Heap/src/Objects/HLinkedList.java" beforeDir="false" afterPath="$PROJECT_DIR$/Heap/src/Objects/HLinkedList.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Heap/src/Objects/HList.java" beforeDir="false" afterPath="$PROJECT_DIR$/Heap/src/Objects/HList.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Heap/src/Objects/Int.java" beforeDir="false" afterPath="$PROJECT_DIR$/Heap/src/Objects/Int.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Heap/src/Objects/Interface.java" beforeDir="false" afterPath="$PROJECT_DIR$/Heap/src/Objects/Interface.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Heap/src/Objects/NULL.java" beforeDir="false" afterPath="$PROJECT_DIR$/Heap/src/Objects/NULL.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Heap/src/Objects/Number.java" beforeDir="false" afterPath="$PROJECT_DIR$/Heap/src/Objects/Number.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Heap/src/Objects/Pointed.java" beforeDir="false" afterPath="$PROJECT_DIR$/Heap/src/Objects/Pointed.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Heap/src/Objects/Pointer.java" beforeDir="false" afterPath="$PROJECT_DIR$/Heap/src/Objects/Pointer.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Heap/src/Objects/Str.java" beforeDir="false" afterPath="$PROJECT_DIR$/Heap/src/Objects/Str.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Heap/src/Objects/Type.java" beforeDir="false" afterPath="$PROJECT_DIR$/Heap/src/Objects/Type.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Heap/src/Objects/Var.java" beforeDir="false" afterPath="$PROJECT_DIR$/Heap/src/Objects/Var.java" afterDir="false" />
     </list>
     <ignored path="$PROJECT_DIR$/out/" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -38,55 +35,29 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="Token.java" pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/Heap/src/Helpers/Token.java">
+      <file leaf-file-name="Construct.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/Heap/src/Objects/Construct.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="695">
-              <caret line="70" column="8" selection-start-line="70" selection-start-column="8" selection-end-line="70" selection-end-column="8" />
+            <state relative-caret-position="45">
+              <caret line="3" column="4" selection-start-line="3" selection-start-column="4" selection-end-line="3" selection-end-column="4" />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="Scope.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/Heap/src/Helpers/Scope.java">
+      <file leaf-file-name="Atom.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/Heap/src/Objects/Atom.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="165">
-              <caret line="14" lean-forward="true" selection-start-line="14" selection-end-line="14" />
-              <folding>
-                <element signature="e#321#322#0" expanded="true" />
-                <element signature="e#369#370#0" expanded="true" />
-              </folding>
+            <state relative-caret-position="30">
+              <caret line="2" column="37" selection-start-line="2" selection-start-column="37" selection-end-line="2" selection-end-column="37" />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="HList.java" pinned="false" current-in-tab="false">
+      <file leaf-file-name="HList.java" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/Heap/src/Objects/HList.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="705">
-              <caret line="51" column="45" lean-forward="true" selection-start-line="51" selection-start-column="45" selection-end-line="51" selection-end-column="45" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="Any.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/Heap/src/Objects/Any.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="90">
-              <caret line="6" column="4" selection-start-line="6" selection-start-column="4" selection-end-line="6" selection-end-column="25" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="Var.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/Heap/src/Objects/Var.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1155">
-              <caret line="81" lean-forward="true" selection-start-line="81" selection-end-line="81" />
-              <folding>
-                <element signature="e#739#740#0" expanded="true" />
-                <element signature="e#788#789#0" expanded="true" />
-              </folding>
+            <state relative-caret-position="617">
+              <caret line="114" column="8" lean-forward="true" selection-start-line="114" selection-start-column="8" selection-end-line="114" selection-end-column="8" />
             </state>
           </provider>
         </entry>
@@ -94,8 +65,73 @@
       <file leaf-file-name="Interpreter.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/Heap/src/Main/Interpreter.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="594">
-              <caret line="56" selection-start-line="56" selection-end-line="56" />
+            <state relative-caret-position="1077">
+              <caret line="79" selection-start-line="79" selection-end-line="79" />
+              <folding>
+                <element signature="e#1474#1475#0" expanded="true" />
+                <element signature="e#1501#1502#0" expanded="true" />
+                <element signature="e#1582#1583#0" expanded="true" />
+                <element signature="e#1609#1610#0" expanded="true" />
+                <element signature="e#1673#1674#0" expanded="true" />
+                <element signature="e#1700#1701#0" expanded="true" />
+                <element signature="e#5258#5259#0" expanded="true" />
+                <element signature="e#5285#5286#0" expanded="true" />
+                <element signature="e#5363#5364#0" expanded="true" />
+                <element signature="e#5390#5391#0" expanded="true" />
+                <element signature="e#5885#5886#0" expanded="true" />
+                <element signature="e#5930#5931#0" expanded="true" />
+                <element signature="e#6191#6202#0" expanded="true" />
+                <element signature="e#10459#10460#0" expanded="true" />
+                <element signature="e#10501#10502#0" expanded="true" />
+                <element signature="e#10579#10580#0" expanded="true" />
+                <element signature="e#10624#10625#0" expanded="true" />
+                <element signature="e#10697#10698#0" expanded="true" />
+                <element signature="e#10741#10742#0" expanded="true" />
+                <element signature="e#10976#10977#0" expanded="true" />
+                <element signature="e#11017#11018#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="Pointer.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/Heap/src/Objects/Pointer.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="180">
+              <caret line="12" column="9" selection-start-line="12" selection-start-column="9" selection-end-line="12" selection-end-column="9" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="Int.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/Heap/src/Objects/Int.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="291">
+              <caret line="185" column="10" selection-start-line="185" selection-start-column="10" selection-end-line="185" selection-end-column="10" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="Bool.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/Heap/src/Objects/Bool.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="240">
+              <caret line="21" column="29" selection-start-line="21" selection-start-column="29" selection-end-line="21" selection-end-column="29" />
+              <folding>
+                <element signature="e#903#904#0" expanded="true" />
+                <element signature="e#935#936#0" expanded="true" />
+                <element signature="e#1411#1412#0" expanded="true" />
+                <element signature="e#1453#1454#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="Any.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/Heap/src/Objects/Any.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="60">
+              <caret line="4" column="22" selection-start-line="4" selection-start-column="22" selection-end-line="4" selection-end-column="22" />
             </state>
           </provider>
         </entry>
@@ -103,41 +139,17 @@
       <file leaf-file-name="Parser.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/Heap/src/Main/Parser.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="438">
-              <caret line="1515" column="30" selection-start-line="1515" selection-start-column="30" selection-end-line="1515" selection-end-column="30" />
+            <state relative-caret-position="2545">
+              <caret line="1312" column="76" selection-start-line="1312" selection-start-column="76" selection-end-line="1312" selection-end-column="76" />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="Class.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/Heap/src/Objects/Class.java">
+      <file leaf-file-name="Pointed.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/Heap/src/Objects/Pointed.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="705">
-              <caret line="54" column="54" selection-start-line="54" selection-start-column="54" selection-end-line="54" selection-end-column="54" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="Type.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/Heap/src/Objects/Type.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="330">
-              <caret line="24" column="18" selection-start-line="24" selection-start-column="18" selection-end-line="24" selection-end-column="18" />
-              <folding>
-                <element signature="e#386#387#0" expanded="true" />
-                <element signature="e#428#429#0" expanded="true" />
-                <element signature="e#520#521#0" expanded="true" />
-                <element signature="e#548#549#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="Str.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/Heap/src/Objects/Str.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1243">
-              <caret line="176" column="10" selection-start-line="176" selection-start-column="10" selection-end-line="176" selection-end-column="10" />
+            <state relative-caret-position="645">
+              <caret line="69" column="10" selection-start-line="69" selection-start-column="10" selection-end-line="69" selection-end-column="10" />
             </state>
           </provider>
         </entry>
@@ -154,7 +166,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>UN_DIR</find>
       <find>func</find>
       <find>Func</find>
       <find>Token.TokenType.VAR</find>
@@ -182,6 +193,9 @@
       <find>((Int) s)</find>
       <find>Type</find>
       <find>Call</find>
+      <find>assert block</find>
+      <find>parseLoop</find>
+      <find>NoOp</find>
     </findStrings>
     <replaceStrings>
       <replace>ParamDefs</replace>
@@ -200,9 +214,6 @@
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
-        <option value="$PROJECT_DIR$/src/Interpreter.java" />
-        <option value="$PROJECT_DIR$/src/Token.java" />
-        <option value="$PROJECT_DIR$/src/TokenTypeTrie.java" />
         <option value="$PROJECT_DIR$/src/Helpers/SymbolTable.java" />
         <option value="$PROJECT_DIR$/src/Objects/Boolean.java" />
         <option value="$PROJECT_DIR$/src/Objects/NULL.java" />
@@ -235,22 +246,25 @@
         <option value="$PROJECT_DIR$/Heap/src/Objects/HValueMap.java" />
         <option value="$PROJECT_DIR$/Heap/src/Objects/Var.java" />
         <option value="$PROJECT_DIR$/Heap/src/Objects/Interface.java" />
-        <option value="$PROJECT_DIR$/Heap/src/Objects/Bool.java" />
         <option value="$PROJECT_DIR$/Heap/src/Objects/Construct.java" />
         <option value="$PROJECT_DIR$/Heap/src/Objects/Container.java" />
         <option value="$PROJECT_DIR$/Heap/src/Objects/HArrayList.java" />
         <option value="$PROJECT_DIR$/Heap/src/Objects/HLinkedList.java" />
         <option value="$PROJECT_DIR$/Heap/src/Objects/HMap.java" />
-        <option value="$PROJECT_DIR$/Heap/src/Objects/Int.java" />
-        <option value="$PROJECT_DIR$/Heap/src/Objects/Pointed.java" />
         <option value="$PROJECT_DIR$/Heap/src/Objects/Pointer.java" />
-        <option value="$PROJECT_DIR$/Heap/src/Objects/Str.java" />
         <option value="$PROJECT_DIR$/Heap/src/Objects/HList.java" />
         <option value="$PROJECT_DIR$/Heap/src/Helpers/Scope.java" />
         <option value="$PROJECT_DIR$/Heap/src/Objects/Type.java" />
         <option value="$PROJECT_DIR$/Heap/src/Objects/Class.java" />
-        <option value="$PROJECT_DIR$/Heap/src/Main/Interpreter.java" />
         <option value="$PROJECT_DIR$/Heap/src/Helpers/Token.java" />
+        <option value="$PROJECT_DIR$/Heap/Tests/scripts/complexops.heap" />
+        <option value="$PROJECT_DIR$/Heap/src/Objects/Any.java" />
+        <option value="$PROJECT_DIR$/Heap/src/Objects/Str.java" />
+        <option value="$PROJECT_DIR$/Heap/src/Objects/Pointed.java" />
+        <option value="$PROJECT_DIR$/Heap/src/Objects/Int.java" />
+        <option value="$PROJECT_DIR$/Heap/src/Objects/Bool.java" />
+        <option value="$PROJECT_DIR$/Heap/src/Main/Parser.java" />
+        <option value="$PROJECT_DIR$/Heap/src/Main/Interpreter.java" />
       </list>
     </option>
   </component>
@@ -269,8 +283,8 @@
     </packageJsonPaths>
   </component>
   <component name="ProjectFrameBounds" fullScreen="true">
-    <option name="width" value="2560" />
-    <option name="height" value="1440" />
+    <option name="width" value="1280" />
+    <option name="height" value="800" />
   </component>
   <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
   <component name="ProjectView">
@@ -279,6 +293,7 @@
     </navigator>
     <panes>
       <pane id="Scope" />
+      <pane id="PackagesPane" />
       <pane id="ProjectPane">
         <subPane>
           <expand>
@@ -318,11 +333,23 @@
               <item name="src" type="462c0819:PsiDirectoryNode" />
               <item name="Objects" type="462c0819:PsiDirectoryNode" />
             </path>
+            <path>
+              <item name="Heap" type="b2602c69:ProjectViewProjectNode" />
+              <item name="Heap" type="462c0819:PsiDirectoryNode" />
+              <item name="Heap" type="462c0819:PsiDirectoryNode" />
+              <item name="Tests" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="Heap" type="b2602c69:ProjectViewProjectNode" />
+              <item name="Heap" type="462c0819:PsiDirectoryNode" />
+              <item name="Heap" type="462c0819:PsiDirectoryNode" />
+              <item name="Tests" type="462c0819:PsiDirectoryNode" />
+              <item name="scripts" type="462c0819:PsiDirectoryNode" />
+            </path>
           </expand>
           <select />
         </subPane>
       </pane>
-      <pane id="PackagesPane" />
       <pane id="AndroidView" />
     </panes>
   </component>
@@ -334,7 +361,7 @@
     <property name="aspect.path.notification.shown" value="true" />
     <property name="com.intellij.testIntegration.createTest.CreateTestDialog.defaultLibrary" value="JUnit5" />
     <property name="com.intellij.testIntegration.createTest.CreateTestDialog.defaultLibrarySuperClass.JUnit5" value="" />
-    <property name="project.structure.last.edited" value="Modules" />
+    <property name="project.structure.last.edited" value="Facets" />
     <property name="project.structure.proportion" value="0.0" />
     <property name="project.structure.side.proportion" value="0.2" />
     <property name="settings.editor.selected.configurable" value="configurable.group.tools" />
@@ -533,7 +560,8 @@
       <workItem from="1531781844838" duration="94000" />
       <workItem from="1531782027624" duration="5337000" />
       <workItem from="1532119745019" duration="571000" />
-      <workItem from="1532120417513" duration="5142000" />
+      <workItem from="1532120417513" duration="5967000" />
+      <workItem from="1532642209643" duration="5899000" />
     </task>
     <servers />
   </component>
@@ -570,7 +598,7 @@
     </history-entry>
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="47176000" />
+    <option name="totallyTimeSpent" value="53900000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="0" y="0" width="2560" height="1440" extended-state="0" />
@@ -584,12 +612,12 @@
       <window_info anchor="bottom" id="Event Log" order="0" side_tool="true" />
       <window_info anchor="right" id="Maven Projects" order="1" />
       <window_info anchor="bottom" id="Database Changes" order="12" show_stripe_button="false" />
-      <window_info anchor="bottom" id="Version Control" order="1" />
       <window_info anchor="bottom" id="Run" order="6" weight="0.32648125" />
+      <window_info anchor="bottom" id="Version Control" order="1" />
       <window_info anchor="bottom" id="Terminal" order="3" />
       <window_info id="Capture Tool" order="0" />
       <window_info id="Designer" order="1" />
-      <window_info content_ui="combo" id="Project" order="4" visible="true" weight="0.16289063" />
+      <window_info active="true" content_ui="combo" id="Project" order="4" visible="true" weight="0.10546875" />
       <window_info anchor="right" id="Database" order="6" />
       <window_info anchor="bottom" id="Find" order="5" weight="0.32853025" />
       <window_info id="Learn" order="7" />
@@ -597,8 +625,8 @@
       <window_info anchor="right" id="Ant Build" order="7" weight="0.25" />
       <window_info id="UI Designer" order="2" />
       <window_info anchor="right" id="Theme Preview" order="3" />
-      <window_info id="Favorites" order="3" side_tool="true" />
       <window_info anchor="bottom" id="Debug" order="7" weight="0.36275697" />
+      <window_info id="Favorites" order="3" side_tool="true" />
       <window_info anchor="bottom" id="Inspection" order="9" weight="0.4" />
       <window_info anchor="right" id="Commander" order="5" weight="0.4" />
       <window_info anchor="bottom" id="Cvs" order="8" weight="0.25" />
@@ -620,12 +648,6 @@
     </breakpoint-manager>
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/src/Main/Lexer.java" />
-    <entry file="file://$PROJECT_DIR$/src/Helpers/Scope.java" />
-    <entry file="file://$PROJECT_DIR$/src/Objects/InternalFunc.java" />
-    <entry file="file://$PROJECT_DIR$/src/Objects/Atom.java" />
-    <entry file="file://$PROJECT_DIR$/src/Objects/Class.java" />
-    <entry file="file://$PROJECT_DIR$/src/Objects/_Func.java" />
     <entry file="file://$PROJECT_DIR$/src/Objects/Any.java" />
     <entry file="file://$PROJECT_DIR$/src/Objects/Bool.java" />
     <entry file="file://$PROJECT_DIR$/src/Objects/HList.java" />
@@ -644,34 +666,6 @@
     <entry file="file://$PROJECT_DIR$/src/Objects/Construct.java" />
     <entry file="file://$PROJECT_DIR$/src/Objects/Func.java" />
     <entry file="file://$PROJECT_DIR$/src/Main/Parser.java" />
-    <entry file="file://$PROJECT_DIR$/Heap/src/Objects/Atom.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="45">
-          <caret line="3" column="53" lean-forward="true" selection-start-line="3" selection-start-column="53" selection-end-line="3" selection-end-column="53" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Heap/src/Objects/Real.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="60">
-          <caret line="5" column="13" selection-start-line="5" selection-start-column="13" selection-end-line="5" selection-end-column="13" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Heap/src/Objects/Bool.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="675">
-          <caret line="61" column="10" selection-start-line="61" selection-start-column="10" selection-end-line="61" selection-end-column="10" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Heap/src/Objects/Construct.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="45">
-          <caret line="3" column="4" selection-start-line="3" selection-start-column="4" selection-end-line="3" selection-end-column="4" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/Heap/src/Objects/Container.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="105">
@@ -700,16 +694,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/Heap/src/Objects/HMap.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="645">
-          <caret line="51" column="10" selection-start-line="51" selection-start-column="10" selection-end-line="51" selection-end-column="10" />
-          <folding>
-            <element signature="imports" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/Heap/src/Objects/HValueMap.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="45">
@@ -717,24 +701,10 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/Heap/src/Objects/Int.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="420">
-          <caret line="444" column="10" selection-start-line="444" selection-start-column="10" selection-end-line="444" selection-end-column="10" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/Heap/src/Objects/Interface.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="255">
           <caret line="23" column="10" selection-start-line="23" selection-start-column="4" selection-end-line="23" selection-end-column="10" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Heap/src/Objects/Iterator.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="255">
-          <caret line="19" column="4" selection-start-line="19" selection-start-column="4" selection-end-line="19" selection-end-column="25" />
         </state>
       </provider>
     </entry>
@@ -752,61 +722,13 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/Heap/src/Objects/Pointed.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1035">
-          <caret line="103" column="56" lean-forward="true" selection-start-line="103" selection-start-column="4" selection-end-line="103" selection-end-column="56" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Heap/src/Objects/Pointer.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="585">
-          <caret line="39" column="37" lean-forward="true" selection-start-line="39" selection-start-column="37" selection-end-line="39" selection-end-column="37" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Heap/src/Objects/Str.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1243">
-          <caret line="176" column="10" selection-start-line="176" selection-start-column="10" selection-end-line="176" selection-end-column="10" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Heap/src/Objects/Any.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="90">
-          <caret line="6" column="4" selection-start-line="6" selection-start-column="4" selection-end-line="6" selection-end-column="25" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Heap/src/Objects/HList.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="705">
-          <caret line="51" column="45" lean-forward="true" selection-start-line="51" selection-start-column="45" selection-end-line="51" selection-end-column="45" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/Heap/src/Helpers/Scope.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="165">
-          <caret line="14" lean-forward="true" selection-start-line="14" selection-end-line="14" />
+          <caret line="14" selection-start-line="14" selection-end-line="14" />
           <folding>
             <element signature="e#321#322#0" expanded="true" />
-            <element signature="e#369#370#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Heap/src/Objects/Type.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="330">
-          <caret line="24" column="18" selection-start-line="24" selection-start-column="18" selection-end-line="24" selection-end-column="18" />
-          <folding>
-            <element signature="e#386#387#0" expanded="true" />
-            <element signature="e#428#429#0" expanded="true" />
-            <element signature="e#520#521#0" expanded="true" />
-            <element signature="e#548#549#0" expanded="true" />
+            <element signature="e#394#395#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -818,24 +740,10 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/Heap/src/Main/Parser.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="438">
-          <caret line="1515" column="30" selection-start-line="1515" selection-start-column="30" selection-end-line="1515" selection-end-column="30" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Heap/src/Main/Interpreter.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="594">
-          <caret line="56" selection-start-line="56" selection-end-line="56" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/Heap/src/Objects/Var.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="1155">
-          <caret line="81" lean-forward="true" selection-start-line="81" selection-end-line="81" />
+          <caret line="81" selection-start-line="81" selection-end-line="81" />
           <folding>
             <element signature="e#739#740#0" expanded="true" />
             <element signature="e#788#789#0" expanded="true" />
@@ -843,10 +751,191 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/Heap/Tests/scripts/complexops/heap.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="30">
+          <caret line="2" column="19" lean-forward="true" selection-start-line="2" selection-start-column="19" selection-end-line="2" selection-end-column="19" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Heap/Tests/ParserTest.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state>
+          <caret line="7" column="49" lean-forward="true" selection-start-line="7" selection-start-column="49" selection-end-line="7" selection-end-column="49" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Heap/Tests/scripts/containers.heap">
+      <provider selected="true" editor-type-id="text-editor">
+        <state>
+          <caret column="9" lean-forward="true" selection-start-column="9" selection-end-column="9" />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/Heap/src/Helpers/Token.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="695">
-          <caret line="70" column="8" selection-start-line="70" selection-start-column="8" selection-end-line="70" selection-end-column="8" />
+        <state relative-caret-position="645">
+          <caret line="81" lean-forward="true" selection-start-line="81" selection-end-line="81" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Heap/Tests/scripts/loops.heap">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Heap/Tests/scripts/ifstatements.heap">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-937" />
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Heap/Tests/scripts/complexops.heap">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="855">
+          <caret line="57" column="39" selection-start-line="57" selection-start-column="39" selection-end-line="57" selection-end-column="39" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Heap/src/Objects/HMap.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="645">
+          <caret line="51" column="10" selection-start-line="51" selection-start-column="10" selection-end-line="51" selection-end-column="10" />
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Heap/src/Objects/Iterator.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="255">
+          <caret line="19" column="4" selection-start-line="19" selection-start-column="4" selection-end-line="19" selection-end-column="25" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Heap/src/Objects/Real.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="60">
+          <caret line="5" column="13" selection-start-line="5" selection-start-column="13" selection-end-line="5" selection-end-column="13" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Heap/src/Objects/Type.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="330">
+          <caret line="24" column="18" selection-start-line="24" selection-start-column="18" selection-end-line="24" selection-end-column="18" />
+          <folding>
+            <element signature="e#386#387#0" expanded="true" />
+            <element signature="e#428#429#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Heap/src/Objects/Str.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="447">
+          <caret line="108" column="10" selection-start-line="108" selection-start-column="10" selection-end-line="108" selection-end-column="10" />
+          <folding>
+            <element signature="e#2904#2905#0" expanded="true" />
+            <element signature="e#2931#2932#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Heap/src/Objects/Pointed.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="645">
+          <caret line="69" column="10" selection-start-line="69" selection-start-column="10" selection-end-line="69" selection-end-column="10" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Heap/src/Objects/Int.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="291">
+          <caret line="185" column="10" selection-start-line="185" selection-start-column="10" selection-end-line="185" selection-end-column="10" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Heap/src/Objects/Atom.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="30">
+          <caret line="2" column="37" selection-start-line="2" selection-start-column="37" selection-end-line="2" selection-end-column="37" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Heap/src/Objects/Any.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="60">
+          <caret line="4" column="22" selection-start-line="4" selection-start-column="22" selection-end-line="4" selection-end-column="22" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Heap/src/Objects/Construct.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="45">
+          <caret line="3" column="4" selection-start-line="3" selection-start-column="4" selection-end-line="3" selection-end-column="4" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Heap/src/Objects/Bool.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="240">
+          <caret line="21" column="29" selection-start-line="21" selection-start-column="29" selection-end-line="21" selection-end-column="29" />
+          <folding>
+            <element signature="e#903#904#0" expanded="true" />
+            <element signature="e#935#936#0" expanded="true" />
+            <element signature="e#1411#1412#0" expanded="true" />
+            <element signature="e#1453#1454#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Heap/src/Main/Parser.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="2545">
+          <caret line="1312" column="76" selection-start-line="1312" selection-start-column="76" selection-end-line="1312" selection-end-column="76" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Heap/src/Main/Interpreter.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1077">
+          <caret line="79" selection-start-line="79" selection-end-line="79" />
+          <folding>
+            <element signature="e#1474#1475#0" expanded="true" />
+            <element signature="e#1501#1502#0" expanded="true" />
+            <element signature="e#1582#1583#0" expanded="true" />
+            <element signature="e#1609#1610#0" expanded="true" />
+            <element signature="e#1673#1674#0" expanded="true" />
+            <element signature="e#1700#1701#0" expanded="true" />
+            <element signature="e#5258#5259#0" expanded="true" />
+            <element signature="e#5285#5286#0" expanded="true" />
+            <element signature="e#5363#5364#0" expanded="true" />
+            <element signature="e#5390#5391#0" expanded="true" />
+            <element signature="e#5885#5886#0" expanded="true" />
+            <element signature="e#5930#5931#0" expanded="true" />
+            <element signature="e#6191#6202#0" expanded="true" />
+            <element signature="e#10459#10460#0" expanded="true" />
+            <element signature="e#10501#10502#0" expanded="true" />
+            <element signature="e#10579#10580#0" expanded="true" />
+            <element signature="e#10624#10625#0" expanded="true" />
+            <element signature="e#10697#10698#0" expanded="true" />
+            <element signature="e#10741#10742#0" expanded="true" />
+            <element signature="e#10976#10977#0" expanded="true" />
+            <element signature="e#11017#11018#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Heap/src/Objects/Pointer.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="180">
+          <caret line="12" column="9" selection-start-line="12" selection-start-column="9" selection-end-line="12" selection-end-column="9" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Heap/src/Objects/HList.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="617">
+          <caret line="114" column="8" lean-forward="true" selection-start-line="114" selection-start-column="8" selection-end-line="114" selection-end-column="8" />
         </state>
       </provider>
     </entry>
@@ -928,6 +1017,7 @@
       </state>
       <state key="ProjectLibrariesConfigurable.UI">
         <settings>
+          <last-edited>json-simple-1.1.1</last-edited>
           <splitter-proportions>
             <option name="proportions">
               <list>

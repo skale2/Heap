@@ -27,3 +27,300 @@ VAR(graph), ASSIGN, UNDIR_OPEN,
 VAR(a), COMMA, VAR(b), COMMA, VAR(c), COMMA, VAR(d), COMMA, VAR(e), EOL,
 VAR(a), SUBTRACT, VAR(b), COMMA, VAR(a), SUBTRACT, VAR(e), COMMA, VAR(d), SUBTRACT, VAR(c), COMMA, VAR(b), SUBTRACT, VAR(e), COMMA, VAR(c), SUBTRACT, VAR(a), COMMA, VAR(b), SUBTRACT, VAR(d), EOL,
 UNDIR_CLOSE
+
+// AST
+{
+    "type": "Block",
+    "token": null,
+    "statements": [
+        {
+            "type": "Assignment",
+            "token": "ASSIGN",
+            "var": {
+                "type": "Var",
+                "token": "VAR(arr)",
+                "value": "arr",
+            },
+            "value": {
+                "type": "HArrayList",
+                "token": "ARR_TYPE",
+                "items": [
+                    {
+                        "type": "IntLiteral",
+                        "token": "INT_VAL(2)",
+                        "value": "2",
+                    },
+                    {
+                        "type": "IntLiteral",
+                        "token": "INT_VAL(3)",
+                        "value": "3",
+                    },
+                    {
+                        "type": "IntLiteral",
+                        "token": "INT_VAL(1)",
+                        "value": "1",
+                    },
+                    {
+                        "type": "IntLiteral",
+                        "token": "INT_VAL(10)",
+                        "value": "10",
+                    },
+                    {
+                        "type": "IntLiteral",
+                        "token": "INT_VAL(23)",
+                        "value": "23",
+                    },
+                ],
+            }
+        },
+        {
+            "type": "Assignment",
+            "token": "ASSIGN",
+            "var": {
+                "type": "Var",
+                "token": "VAR(linked)",
+                "value": "linked",
+            },
+            "value": {
+                "type": "HArrayList",
+                "token": "ARR_TYPE",
+                "items": [
+                    {
+                        "type": "IntLiteral",
+                        "token": "INT_VAL(2)",
+                        "value": "2",
+                    },
+                    {
+                        "type": "IntLiteral",
+                        "token": "INT_VAL(18)",
+                        "value": "18",
+                    },
+                    {
+                        "type": "IntLiteral",
+                        "token": "INT_VAL(-10)",
+                        "value": "-10",
+                    },
+                ],
+            }
+        },
+        {
+            "type": "Assignment",
+            "token": "ASSIGN",
+            "var": {
+                "type": "Var",
+                "token": "VAR(set)",
+                "value": "set",
+            },
+            "value": {
+                "type": "HSet",
+                "token": "SET_TYPE",
+                "items": [
+                    {
+                        "type": "StringLiteral",
+                        "token": "STR_VAL(John)",
+                        "value": "John",
+                    },
+                    {
+                        "type": "IntLiteral",
+                        "token": "STR_VAL(Marc)",
+                        "value": "Marc",
+                    },
+                    {
+                        "type": "IntLiteral",
+                        "token": "STR_VAL(Allen)",
+                        "value": "Allen",
+                    },
+                ],
+            }
+        },
+        {
+            "type": "Assignment",
+            "token": "ASSIGN",
+            "var": {
+                "type": "Var",
+                "token": "VAR(map)",
+                "value": "map",
+            },
+            "value": {
+                "type": "HValueMap",
+                "token": "MAP_TYPE",
+                "items": [
+                    [
+                        {
+                            "type": "IntLiteral",
+                            "token": "INT_VAL(3)",
+                            "value": "3",
+                        },
+                        {
+                            "type": "StringLiteral",
+                            "token": "STR_VAL(three)",
+                            "value": "three",
+                        },
+                    ],
+                    [
+                        {
+                            "type": "IntLiteral",
+                            "token": "INT_VAL(2)",
+                            "value": "2",
+                        },
+                        {
+                            "type": "StringLiteral",
+                            "token": "STR_VAL(two)",
+                            "value": "two",
+                        },
+                    ],
+                    [
+                        {
+                            "type": "IntLiteral",
+                            "token": "INT_VAL(10)",
+                            "value": "10",
+                        },
+                        {
+                            "type": "StringLiteral",
+                            "token": "STR_VAL(ten)",
+                            "value": "ten",
+                        },
+                    ],
+                    [
+                        {
+                            "type": "IntLiteral",
+                            "token": "INT_VAL(13)",
+                            "value": "13",
+                        },
+                        {
+                            "type": "StringLiteral",
+                            "token": "STR_VAL(thirteen)",
+                            "value": "thirteen",
+                        },
+                    ],
+                ],
+            }
+        },
+        {
+            "type": "Assignment",
+            "token": "ASSIGN",
+            "var": {
+                "type": "Var",
+                "token": "VAR(graph)",
+                "value": "graph",
+            },
+            "value": {
+                "type": "HUndirectedGraph",
+                "token": "UNDIR_TYPE",
+                "nodes": [
+                    {
+                        "type": "Var",
+                        "token": "VAR(a)",
+                        "value": "a"
+                    },
+                    {
+                        "type": "Var",
+                        "token": "VAR(b)",
+                        "value": "b"
+                    },
+                    {
+                        "type": "Var",
+                        "token": "VAR(c)",
+                        "value": "c"
+                    },
+                    {
+                        "type": "Var",
+                        "token": "VAR(d)",
+                        "value": "d"
+                    },
+                    {
+                        "type": "Var",
+                        "token": "VAR(e)",
+                        "value": "e"
+                    },
+                ],
+                "edges": [
+                    {
+                        "type": "HEdge",
+                        "token": "SUBTRACT",
+                        "first": {
+                            "type": "Var",
+                            "token": "VAR(a)",
+                            "value": "a"
+                        },
+                        "second": {
+                            "type": "Var",
+                            "token": "VAR(b)",
+                            "value": "b"
+                        }
+                    },
+                    {
+                        "type": "HEdge",
+                        "token": "SUBTRACT",
+                        "first": {
+                            "type": "Var",
+                            "token": "VAR(a)",
+                            "value": "a"
+                        },
+                        "second": {
+                            "type": "Var",
+                            "token": "VAR(e)",
+                            "value": "e"
+                        }
+                    },
+                    {
+                        "type": "HEdge",
+                        "token": "SUBTRACT",
+                        "first": {
+                            "type": "Var",
+                            "token": "VAR(d)",
+                            "value": "d"
+                        },
+                        "second": {
+                            "type": "Var",
+                            "token": "VAR(c)",
+                            "value": "c"
+                        }
+                    },
+                    {
+                        "type": "HEdge",
+                        "token": "SUBTRACT",
+                        "first": {
+                            "type": "Var",
+                            "token": "VAR(b)",
+                            "value": "b"
+                        },
+                        "second": {
+                            "type": "Var",
+                            "token": "VAR(e)",
+                            "value": "e"
+                        }
+                    },
+                    {
+                        "type": "HEdge",
+                        "token": "SUBTRACT",
+                        "first": {
+                            "type": "Var",
+                            "token": "VAR(c)",
+                            "value": "c"
+                        },
+                        "second": {
+                            "type": "Var",
+                            "token": "VAR(a)",
+                            "value": "a"
+                        }
+                    },
+                    {
+                        "type": "HEdge",
+                        "token": "SUBTRACT",
+                        "first": {
+                            "type": "Var",
+                            "token": "VAR(b)",
+                            "value": "b"
+                        },
+                        "second": {
+                            "type": "Var",
+                            "token": "VAR(d)",
+                            "value": "d"
+                        }
+                    }
+                ]
+            }
+        }
+    ]
+}

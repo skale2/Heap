@@ -17,3 +17,161 @@ IF, PAR_OPEN, VAR(i), MOD, INT_VAL(2), PAR_CLOSE, DIRECT, VAR(evens), ADD_EQ, ST
 ELSE, DIRECT, VAR(odds), ADD_EQ, STR, PAR_OPEN, VAR(i), PAR_CLOSE, EOL,
 SCOPE_CLOSE,
 PRINT, PAR_OPEN, VAR(evens), COMMA, VAR(odds), PAR_CLOSE, EOL
+
+
+//AST
+{
+    "type": "Block",
+    "token": null,
+    "statements": [
+        {
+            "type": "Assignment",
+            "token": "ASSIGN",
+            "var": {
+
+            },
+            "value": {
+
+            }
+        },
+        {
+            "type": "loop",
+            "token": "LOOP",
+            "initClauses": [
+                {
+                    "type": "Assignment",
+                    "token": "ASSIGN",
+                    "var": {
+                        "type": "Var",
+                        "token": "VAR(i)",
+                        "value": "i"
+                    },
+                    "value": {
+                        "type": "IntLiteral",
+                        "token": "INT_VAL(0)",
+                        "value": "0"
+                    }
+                }
+            ],
+            "breakClauses": [
+                {
+                    "type": "BinaryOp",
+                    "token": "LESS_THAN",
+                    "left": {
+                        "type": "Var",
+                        "token": "VAR(i)",
+                        "value": "i"
+                    },
+                    "right": {
+                        "type": "IntLiteral",
+                        "token": "INT_VAL(12)",
+                        "value": "12"
+                    }
+                }
+            ],
+            "loopClauses": [
+                {
+                    "type": "UnaryOp",
+                    "token": "INCREMENT",
+                    "meta": "POSTFIX",
+                    "child": {
+                        "type": "Var",
+                        "token": "VAR(i)",
+                        "value": "i"
+                    },
+                }
+            ],
+            "block": {
+                "type": "Block",
+                "token": null,
+                "statements": [
+                    "type": "If",
+                    "token": "IF",
+                    "ifBlocks": [
+                       {
+                            "type": "IfBlock",
+                            "token": "IF",
+                            "condition": {
+                                "type": "BinaryOp",
+                                "token": "MOD",
+                                "left": {
+                                    "type": "Var",
+                                    "token": "VAR(i)",
+                                    "value": "i"
+                                },
+                                "right": {
+                                    "type": "IntLiteral",
+                                    "token": "INT_VAL(2)",
+                                    "value": "2"
+                                }
+                            },
+                            "block": {
+                                "type": "BinaryOp",
+                                "token": "ADD_EQ",
+                                "left": {
+                                    "type": "Var",
+                                    "token": "VAR(evens)",
+                                    "value": "evens"
+                                },
+                                "right": {
+                                    "type": "Call",
+                                    "token": "PAR_OPEN",
+                                    "params": {
+                                     "type": "Params",
+                                        "token": "COMMA",
+                                        "parameters": [
+                                            {
+                                                "type": "Var",
+                                                "token": "VAR(i)",
+                                                "value": "i"
+                                            }
+                                        ]
+                                    },
+                                    "value": {
+                                        "type": "Var",
+                                        "token": "VAR(str)",
+                                        "value": "str"
+                                    }
+                                },
+                            }
+                       }
+                    ],
+                    "elseBlock": {
+                        "type": "BinaryOp",
+                        "token": "ADD_EQ",
+                        "left": {
+                            "type": "Var",
+                            "token": "VAR(evens)",
+                            "value": "evens"
+                        },
+                        "right": {
+                            "type": "Call",
+                            "token": "PAR_OPEN",
+                            "params": {
+                                "type": "Params",
+                                "token": "COMMA",
+                                "parameters": [
+                                    {
+                                        "type": "Var",
+                                        "token": "VAR(i)",
+                                        "value": "i"
+                                    }
+                                ]
+                            },
+                            "value": {
+                                "type": "Var",
+                                "token": "VAR(str)",
+                                "value": "str"
+                            }
+                        },
+                    }
+                ]
+            },
+            "elseBlock": {
+                "type": "Block",
+                "token": null,
+                "statements": []
+            }
+        }
+    ]
+}

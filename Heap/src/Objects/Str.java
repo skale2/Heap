@@ -106,7 +106,7 @@ public class Str extends Atom {
 
     private Int size() { return new Int(value().length()); }
 
-    private Str string() {
+    public Str string() {
         return this;
     }
 
@@ -125,7 +125,7 @@ public class Str extends Atom {
         return Bool.valueOf(equals(str));
     }
 
-    private Bool bool() {
+    public Bool bool() {
         return Bool.valueOf(!value().isEmpty());
     }
 

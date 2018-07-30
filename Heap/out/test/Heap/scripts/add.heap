@@ -19,7 +19,7 @@ VAR(x), ASSIGN, INT_VAL(7), ADD, INT_VAL(5), EOL
             },
             "value": {
                 "type": "BinaryOp",
-                "token": "+",
+                "token": "ADD",
                 "left": {
                     "type": "IntLiteral",
                     "token": "INT_VAL(7)",

@@ -106,7 +106,7 @@ SCOPE_CLOSE
                                     "token": "PERIOD",
                                     "var": {
                                         "type": "UnaryOp",
-                                        "token": "MULTIPLY",
+                                        "token": "POINT",
                                         "child": {
                                             "type": "Var",
                                             "token": "VAR(y)",

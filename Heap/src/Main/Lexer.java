@@ -195,6 +195,7 @@ public class Lexer {
                 advance(2);
                 return new Token(Token.TokenType.DIVIDE_EQ);
             }
+            advance();
             return new Token(Token.TokenType.DIVIDE);
         } else if (_current == '=') {
             if (peek() == '=') {

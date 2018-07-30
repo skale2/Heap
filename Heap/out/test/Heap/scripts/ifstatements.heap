@@ -1,17 +1,174 @@
 // Script
 if (x >= 2) => {
     y.run();
-} else if {
+} else if (x % 3) => {
     (*y).stop();
-} else {
+} else => {
     x = lib.copy(y);
 }
 
 // Tokens
 IF, PAR_OPEN, VAR(x), GREATER_THAN_EQ, INT_VAL(2), PAR_CLOSE, DIRECT, SCOPE_OPEN,
 VAR(y), PERIOD, VAR(run), PAR_OPEN, PAR_CLOSE, EOL,
-SCOPE_CLOSE, ELSE, IF, SCOPE_OPEN,
+SCOPE_CLOSE, ELSE, IF, PAR_OPEN, VAR(x), MOD, INT_VAL(3), PAR_CLOSE, DIRECT, SCOPE_OPEN,
 PAR_OPEN, MULTIPLY, VAR(y), PAR_CLOSE, PERIOD, VAR(stop), PAR_OPEN, PAR_CLOSE, EOL,
-SCOPE_CLOSE, ELSE, SCOPE_OPEN,
+SCOPE_CLOSE, ELSE, DIRECT, SCOPE_OPEN,
 VAR(x), ASSIGN, VAR(lib), PERIOD, VAR(copy), PAR_OPEN, VAR(y), PAR_CLOSE, EOL,
 SCOPE_CLOSE
+
+// AST
+{
+    "type": "Block",
+    "token": null,
+    "statements": [
+        {
+            "type": "If",
+            "token": "IF",
+            "ifBlocks": [
+                {
+                    "type": "IfBlock",
+                    "token": "IF",
+                    "condition": {
+                        "type": "BinaryOp",
+                        "token": "GREATER_THAN_EQ",
+                        "left": {
+                            "type": "Var",
+                            "token": "VAR(x)",
+                            "value": "x"
+                        },
+                        "right": {
+                            "type": "IntLiteral",
+                            "token": "INT_VAL(2)",
+                            "value": "2"
+                        }
+                    },
+                    "block": {
+                        "type": "Block",
+                        "token": null,
+                        "statements": [
+                            {
+                                "type": "Call",
+                                "token": "PAR_OPEN",
+                                "params": {
+                                    "type": "Params",
+                                    "token": "COMMA",
+                                    "parameters": []
+                                },
+                                "value": {
+                                    "type": "Get",
+                                    "token": "PERIOD",
+                                    "var": {
+                                        "type": "Var",
+                                        "token": "VAR(y)",
+                                        "value": "y"
+                                    },
+                                    "property": {
+                                        "type": "Var",
+                                        "token": "VAR(run)",
+                                        "value": "run"
+                                    }
+                                }
+                            }
+                        ]
+                    }
+                },
+                {
+                    "type": "IfBlock",
+                    "token": "IF",
+                    "condition": {
+                        "type": "BinaryOp",
+                        "token": "MOD",
+                        "left": {
+                            "type": "Var",
+                            "token": "VAR(x)",
+                            "value": "x"
+                        },
+                        "right": {
+                            "type": "IntLiteral",
+                            "token": "INT_VAL(3)",
+                            "value": "3"
+                        }
+                    },
+                    "block": {
+                        "type": "Block",
+                        "token": null,
+                        "statements": [
+                            {
+                                "type": "Call",
+                                "token": "PAR_OPEN",
+                                "params": {
+                                    "type": "Params",
+                                    "token": "COMMA",
+                                    "parameters": []
+                                },
+                                "value": {
+                                    "type": "Get",
+                                    "token": "PERIOD",
+                                    "var": {
+                                        "type": "UnaryOp",
+                                        "token": "POINT",
+                                        "child": {
+                                            "type": "Var",
+                                            "token": "VAR(y)",
+                                            "value": "y"
+                                        },
+                                        "meta": null
+                                    },
+                                    "property": {
+                                        "type": "Var",
+                                        "token": "VAR(stop)",
+                                        "value": "stop"
+                                    }
+                                }
+                            }
+                        ]
+                    }
+                }
+            ],
+            "elseBlock": {
+                "type": "Block",
+                "token": null,
+                "statements": [
+                    {
+                        "type": "Assignment",
+                        "token": "ASSIGN",
+                        "var": {
+                            "type": "Var",
+                            "token": "VAR(x)",
+                            "value": "x"
+                        },
+                        "value": {
+                            "type": "Call",
+                            "token": "PAR_OPEN",
+                            "params": {
+                                "type": "Params",
+                                "token": "COMMA",
+                                "parameters": [
+                                    {
+                                        "type": "Var",
+                                        "token": "VAR(y)",
+                                        "value": "y"
+                                    }
+                                ]
+                            },
+                            "value": {
+                                "type": "Get",
+                                "token": "PERIOD",
+                                "var": {
+                                    "type": "Var",
+                                    "token": "VAR(lib)",
+                                    "value": "lib"
+                                },
+                                "property": {
+                                    "type": "Var",
+                                    "token": "VAR(copy)",
+                                    "value": "copy"
+                                }
+                            }
+                        }
+                    }
+                ]
+            }
+        }
+    ]
+}

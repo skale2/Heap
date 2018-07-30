@@ -87,4 +87,7 @@ class LexerTest {
 
     @Test
     void testTypes() { test("/Users/sohamkale/Documents/Heap/Heap/Tests/scripts/types.heap"); }
+
+    @Test
+    void testComplexOps() { test("/Users/sohamkale/Documents/Heap/Heap/Tests/scripts/complexops.heap"); }
 }

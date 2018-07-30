@@ -1,0 +1,152 @@
+// Script
+x = 5 * 3 + 2 - 4 / 7;
+y = a -/ 2 % 3 + b.get() + c * `*a;
+
+// Tokens
+VAR(x), ASSIGN, INT_VAL(5), MULTIPLY, INT_VAL(3), ADD, INT_VAL(2), SUBTRACT, INT_VAL(4), DIVIDE, INT_VAL(7), EOL,
+VAR(y), ASSIGN, VAR(a), FLOOR, INT_VAL(2), MOD, INT_VAL(3), ADD, VAR(b), PERIOD, VAR(get), PAR_OPEN, PAR_CLOSE, ADD, VAR(c), MULTIPLY, ROUND, MULTIPLY, VAR(a), EOL
+
+// AST
+{
+    "type": "Block",
+    "token": null,
+    "statements": [
+        {
+            "type": "Assignment",
+            "token": "ASSIGN",
+            "var": {
+                "type": "Var",
+                "token": "VAR(x)",
+                "value": "x"
+            },
+            "value": {
+                "type": "BinaryOp",
+                "token": "ADD",
+                "left": {
+                    "type": "BinaryOp",
+                    "token": "MULTIPLY",
+                    "left": {
+                        "type": "IntLiteral",
+                        "token": "INT_VAL(5)",
+                        "value": "5"
+                    },
+                    "right": {
+                        "type": "IntLiteral",
+                        "token": "INT_VAL(2)",
+                        "value": "2"
+                    }
+                },
+                "right": {
+                    "type": "BinaryOp",
+                    "token": "SUBTRACT",
+                    "left": {
+                        "type": "IntLiteral",
+                        "token": "INT_VAL(2)",
+                        "value": "2"
+                    },
+                    "right": {
+                        "type": "BinaryOp",
+                        "token": "DIVIDE",
+                        "left": {
+                            "type": "IntLiteral",
+                            "token": "INT_VAL(4)",
+                            "value": "4"
+                        },
+                        "right": {
+                            "type": "IntLiteral",
+                            "token": "INT_VAL(7)",
+                            "value": "7"
+                        }
+                    }
+                }
+            }
+        },
+        {
+            "type": "Assignment",
+            "token": "ASSIGN",
+            "var": {
+                "type": "Var",
+                "token": "VAR(y)",
+                "value": "y"
+            },
+            "value": {
+                "type": "BinaryOp",
+                "token": "ADD",
+                "left": {
+                    "type": "BinaryOp",
+                    "token": "MOD",
+                    "left": {
+                        "type": "BinaryOp",
+                        "token": "FLOOR",
+                        "left": {
+                            "type": "Var",
+                            "token": "VAR(a)",
+                            "value": "a"
+                        },
+                        "right": {
+                            "type": "IntLiteral",
+                            "token": "INT_VAL(2)",
+                            "value": "2"
+                        }
+                    },
+                    "right": {
+                        "type": "IntLiteral",
+                        "token": "INT_VAL(3)",
+                        "value": "3"
+                    }
+                },
+                "right": {
+                    "type": "BinaryOp",
+                    "token": "ADD",
+                    "left": {
+                        "type": "Call",
+                        "token": "PAR_OPEN",
+                        "value": {
+                            "type": "Get",
+                            "token": "PERIOD",
+                            "var": {
+                                "type": "Var",
+                                "token": "VAR(b)",
+                                "value": "b"
+                            },
+                            "property": {
+                                "type": "Var",
+                                "token": "VAR(get)",
+                                "value": "get"
+                            }
+                        },
+                        "params": {
+                            "type": "Params",
+                            "token": "COMMA",
+                            "parameters": []
+                        }
+                    },
+                    "right": {
+                        "type": "BinaryOp",
+                        "token": "MULTIPLY",
+                        "left": {
+                            "type": "Var",
+                            "token": "VAR(c)",
+                            "value": "c"
+                        },
+                        "right": {
+                            "type": "UnaryOp",
+                            "token": "ROUND",
+                            "meta": null,
+                            "child": {
+                                "type": "UnaryOp",
+                                "token": "POINT",
+                                "meta": null,
+                                "child": {
+                                    "type": "Var",
+                                    "token": "VAR(a)",
+                                    "value": "a"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    ]
+}

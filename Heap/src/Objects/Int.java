@@ -183,7 +183,7 @@ public class Int extends Number {
         return doBooleanBinaryOp("<=", this, value);
     }
 
-    private Str string() {
+    public Str string() {
         if (isBig()) {
             return new Str(bigValue().toString());
         } else if (isLong()) {
@@ -202,7 +202,7 @@ public class Int extends Number {
         return Bool.valueOf(equals(value));
     }
 
-    private Bool bool() {
+    public Bool bool() {
         if (isBig())
             return Bool.valueOf(!bigValue().equals(BigInteger.ZERO));
         return Bool.valueOf(value().value == 0);

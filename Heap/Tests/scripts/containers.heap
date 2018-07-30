@@ -205,59 +205,122 @@ UNDIR_CLOSE
                 "value": "graph",
             },
             "value": {
-                "type": "HValueMap",
-                "token": "MAP_TYPE",
-                "items": [
-                    [
-                        {
-                            "type": "IntLiteral",
-                            "token": "INT_VAL(3)",
-                            "value": "3",
-                        },
-                        {
-                            "type": "StringLiteral",
-                            "token": "STR_VAL(three)",
-                            "value": "three",
-                        },
-                    ],
-                    [
-                        {
-                            "type": "IntLiteral",
-                            "token": "INT_VAL(2)",
-                            "value": "2",
-                        },
-                        {
-                            "type": "StringLiteral",
-                            "token": "STR_VAL(two)",
-                            "value": "two",
-                        },
-                    ],
-                    [
-                        {
-                            "type": "IntLiteral",
-                            "token": "INT_VAL(10)",
-                            "value": "10",
-                        },
-                        {
-                            "type": "StringLiteral",
-                            "token": "STR_VAL(ten)",
-                            "value": "ten",
-                        },
-                    ],
-                    [
-                        {
-                            "type": "IntLiteral",
-                            "token": "INT_VAL(13)",
-                            "value": "13",
-                        },
-                        {
-                            "type": "StringLiteral",
-                            "token": "STR_VAL(thirteen)",
-                            "value": "thirteen",
-                        },
-                    ],
+                "type": "HUndirectedGraph",
+                "token": "UNDIR_TYPE",
+                "nodes": [
+                    {
+                        "type": "Var",
+                        "token": "VAR(a)",
+                        "value": "a"
+                    },
+                    {
+                        "type": "Var",
+                        "token": "VAR(b)",
+                        "value": "b"
+                    },
+                    {
+                        "type": "Var",
+                        "token": "VAR(c)",
+                        "value": "c"
+                    },
+                    {
+                        "type": "Var",
+                        "token": "VAR(d)",
+                        "value": "d"
+                    },
+                    {
+                        "type": "Var",
+                        "token": "VAR(e)",
+                        "value": "e"
+                    },
                 ],
+                "edges": [
+                    {
+                        "type": "HEdge",
+                        "token": "SUBTRACT",
+                        "first": {
+                            "type": "Var",
+                            "token": "VAR(a)",
+                            "value": "a"
+                        },
+                        "second": {
+                            "type": "Var",
+                            "token": "VAR(b)",
+                            "value": "b"
+                        }
+                    },
+                    {
+                        "type": "HEdge",
+                        "token": "SUBTRACT",
+                        "first": {
+                            "type": "Var",
+                            "token": "VAR(a)",
+                            "value": "a"
+                        },
+                        "second": {
+                            "type": "Var",
+                            "token": "VAR(e)",
+                            "value": "e"
+                        }
+                    },
+                    {
+                        "type": "HEdge",
+                        "token": "SUBTRACT",
+                        "first": {
+                            "type": "Var",
+                            "token": "VAR(d)",
+                            "value": "d"
+                        },
+                        "second": {
+                            "type": "Var",
+                            "token": "VAR(c)",
+                            "value": "c"
+                        }
+                    },
+                    {
+                        "type": "HEdge",
+                        "token": "SUBTRACT",
+                        "first": {
+                            "type": "Var",
+                            "token": "VAR(b)",
+                            "value": "b"
+                        },
+                        "second": {
+                            "type": "Var",
+                            "token": "VAR(e)",
+                            "value": "e"
+                        }
+                    },
+                    {
+                        "type": "HEdge",
+                        "token": "SUBTRACT",
+                        "first": {
+                            "type": "Var",
+                            "token": "VAR(c)",
+                            "value": "c"
+                        },
+                        "second": {
+                            "type": "Var",
+                            "token": "VAR(a)",
+                            "value": "a"
+                        }
+                    },
+                    {
+                        "type": "HEdge",
+                        "token": "SUBTRACT",
+                        "first": {
+                            "type": "Var",
+                            "token": "VAR(b)",
+                            "value": "b"
+                        },
+                        "second": {
+                            "type": "Var",
+                            "token": "VAR(d)",
+                            "value": "d"
+                        }
+                    }
+                ]
             }
         }
-    ],
+    ]
 }

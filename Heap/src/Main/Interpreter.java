@@ -26,6 +26,13 @@ public class Interpreter {
         return null;
     }
 
+    public static void doDirectBody(Parser.DirectBody directBody, Scope scope) {
+        if (directBody instanceof Parser.Block)
+            doBlock((Parser.Block) directBody, scope);
+        else
+            doStatement((Parser.Statement) directBody, scope);
+    }
+
     private static void doStatement(Parser.Statement statement, Scope scope) {
         if (statement instanceof Parser.Assignment) {
             doAssignment((Parser.Assignment) statement, scope);
@@ -54,8 +61,24 @@ public class Interpreter {
 
     /** **************************** Directs **************************** **/
 
-    private static void doLoop(Parser.Loop loop) {
+    private static void doLoop(Parser.Loop loop, Scope scope) {
+        Scope loopScope = new Scope(scope);
+        for (Parser.Assignment clause : loop.initClauses) {
+            doAssignment(clause, loopScope);
+        }
 
+        while (true) {
+            for (Parser.Expression clause : loop.breakClauses) {
+                if (!Bool.isTrue(doExpression(clause, loopScope)))
+                    break;
+            }
+            doDirectBody(loop.block, loopScope);
+            for (Parser.Expression clause : loop.loopClauses) {
+                doExpression(clause, loopScope);
+            }
+        }
+
+//        doDirectBody(loop.elseBlock, loopScope);
     }
 
 

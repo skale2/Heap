@@ -38,8 +38,12 @@ public abstract class Any {
         }
     }
 
-    private Str string() {
+    public Str string() {
         return new Str("Any");
+    }
+
+    public Bool bool() {
+        return Bool.TRUE;
     }
 
     public boolean isNull() { return equals(NULL.getInstance()); }

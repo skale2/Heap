@@ -67,7 +67,7 @@ public class Pointed extends Any {
         return new Bool(pointer().index() < value.pointer().index());
     }
 
-    private Str string() {
+    public Str string() {
         return new Str(String.format("<%s Pointer |> %s>", containerName(), pointer().value().toString()));
     }
 
@@ -83,7 +83,7 @@ public class Pointed extends Any {
         );
     }
 
-    private Bool bool() {
+    public Bool bool() {
         return Bool.TRUE;
     }
 

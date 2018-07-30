@@ -117,7 +117,7 @@ public abstract class HList extends Container {
                 .allMatch(i -> Bool.compare(get(i), list.get(i)) == 0));
     }
 
-    private Bool bool() {
+    public Bool bool() {
         return Bool.valueOf(size() > 0);
     }
 

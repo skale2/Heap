@@ -59,24 +59,25 @@ public class Token {
      * Precedence of different operators by their token type (lower number means
      * higher precedence)
      * */
-    public static Map<TokenType, Integer> operatorPrecedence = new HashMap<TokenType, Integer>() {{
+    public static Map<TokenType, Integer> operatorPrecedence = new HashMap<>() {{
         /* Accesses */
         put(TokenType.ARR_TYPE,         0);
         put(TokenType.PAR_OPEN,         0);
         put(TokenType.PERIOD,           0);
 
-        /* Steps */
-        put(TokenType.INCREMENT,        1);
-        put(TokenType.DECREMENT,        1);
+        /* Referencing */
+        put(TokenType.POINT,            1);
 
+        /* Stepwise */
+        put(TokenType.INCREMENT,        2);
+        put(TokenType.DECREMENT,        2);
 
-        put(TokenType.L_NOT,            2);
-        put(TokenType.B_NOT,            2);
+        /* Inverting */
+        put(TokenType.L_NOT,            3);
+        put(TokenType.B_NOT,            3);
 
-        /* Rounding */
-        put(TokenType.ROUND,            3);
-
-        /* Exponentiative */
+        /* Rounding and Exponentiative */
+        put(TokenType.ROUND,            4);
         put(TokenType.EXP,              4);
 
         /* Multiplicative */
@@ -171,7 +172,7 @@ public class Token {
 
         ADD("+", OPR), SUBTRACT("-", OPR), MULTIPLY("*", OPR), DIVIDE("/", OPR),
         MOD("%", OPR), FLOOR("-/", OPR), EXP("**", OPR), ROUND("`", OPR),
-        INCREMENT("++", OPR), DECREMENT("--", OPR),
+        INCREMENT("++", OPR), DECREMENT("--", OPR), POINT("*"), // <- not actually returned by lexer, only used in operator precedence
 
         L_AND("&&", OPR), L_OR("||", OPR), L_NOT("!", OPR), L_XOR("^^", OPR),
         B_AND("&", OPR), B_OR("|", OPR), B_NOT("~", OPR), B_XOR("^", OPR),

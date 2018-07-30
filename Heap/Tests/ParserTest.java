@@ -75,4 +75,9 @@ class ParserTest {
     void testcontainers() {
         test("/Users/sohamkale/Documents/Heap/Heap/Tests/scripts/ifstatements.heap");
     }
+
+    @Test
+    void testcomplexops() {
+        test("/Users/sohamkale/Documents/Heap/Heap/Tests/scripts/complexops.heap");
+    }
 }

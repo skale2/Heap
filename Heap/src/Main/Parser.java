@@ -6,6 +6,8 @@ import Helpers.*;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
+import javax.swing.plaf.nimbus.State;
+
 /**
  * A class that takes in a stream of tokens from the Main.Lexer and parses them
  * into an Abstract Syntax Tree (AST), which is easier to run through
@@ -115,7 +117,7 @@ public class Parser {
         List<Statement> statements = new ArrayList<>();
         List tokens = Arrays.asList(endTokens);
         while (!_lexer.isEmpty() && !tokens.contains(current())) {
-            statements.add(parseStatement());
+            statements.add(parseStatement(values.get("EOL")));
         }
         return new Block(statements);
     }
@@ -124,32 +126,35 @@ public class Parser {
         List<Statement> statements = new ArrayList<>();
         List tokens = Arrays.asList(endTokens);
         while (!tokens.contains(current())) {
-            Statement statement = parseStatement();
+            Statement statement = parseStatement(values.get("EOL"));
             assert statement instanceof Assignment;
             statements.add(statement);
         }
         return new Block(statements);
     }
 
-    private Statement parseStatement() {
+    private Statement parseStatement(Token... endTokens) {
         Statement statement;
         if (current().isDirect()) {
-            return parseDirect();
+            return parseDirect(endTokens);
         } else if (currentIs("RETURN")) {
             statement = parseReturn();
         } else if (currentIs("ANNOTATION")) {
-            statement = parseAssignment(values.get("EOL"));
+            statement = parseAssignment(endTokens);
         } else {
-            statement = parseExpression(true, values.get("EOL"));
+            statement = parseExpression(true, endTokens);
         }
-        eat("EOL");
+
+        if (endTokens.length > 0)
+            eat(current());
         return statement;
     }
 
-    private Return parseReturn() {
+    private Return parseReturn(Token... endTokens) {
         eat("RETURN");
-        Expression expression = parseExpression(values.get("EOL"));
-        eat("EOL");
+        Expression expression = parseExpression(endTokens);
+        if (endTokens.length > 0)
+            eat(current());
         return new Return(expression);
     }
 
@@ -315,10 +320,9 @@ public class Parser {
     /** Entry point for all expression parsing
      * */
     private Statement parseExpression(boolean canBeAssignment, Token... endTokens) {
-        Expression expression = new NoOp();
+        Expression expression = parseTerm(endTokens);
         Token current;
         do {
-            expression = parseTerm(endTokens);
             if (currentIs("ASSIGN", "CAST_ASSIGN")) {
                 assert(canBeAssignment); // TODO raise error
                 return parseAssignment(expression, endTokens);
@@ -412,55 +416,58 @@ public class Parser {
         }
 
         Op op = (Op) node;
-        Expression left = op.left();
+        Expression left = node;
 
         /* Run down left side of tree (which here in the tree is only non-trivial side)
          * until you hit a node with an equal to or lower precedence than the head node
          */
-        while (left instanceof Op && !op.higherPrecedenceThan(left)) {
+        do {
             left = ((Op) left).left();
+        } while (left instanceof Op && !op.higherPrecedenceThan(left));
+
+        Op opLeft;
+        if (!(left instanceof Op)) {
+            return;
+        } else {
+            opLeft = (Op) left;
         }
 
-        /* Make sure that left isn't just the left of op */
-        if (op.left() != left) {
-            Op opLeft = (Op) left;
 
-            /* If left has the same precedence as the root op,
-             * then op can stay at its relative position
-             *
-             * Point op's left child to left, point left's right child
-             * to op's left child, point op's parent's left child
-             * to left's right child, and recurse onto left's new right
-             * child
-             */
-            if (op.equalPrecedenceTo(left)) {
-                ((Op) opLeft.parent()).setLeft(opLeft.right());
+        /* If left has the same precedence as the root op,
+         * then op can stay at its relative position
+         *
+         * Point op's left child to left, point left's right child
+         * to op's left child, point op's parent's left child
+         * to left's right child, and recurse onto left's new right
+         * child
+         */
+        if (op.equalPrecedenceTo(left)) {
+            ((Op) opLeft.parent()).setLeft(opLeft.right());
 
-                if (!(opLeft instanceof UnaryOp))
-                    parsePseudoBinary(op.left());
+            if (!(opLeft instanceof UnaryOp))
+                parsePseudoBinary(op.left());
 
-                opLeft.setRight(op.left());
-                op.setLeft(opLeft);
-            }
+            opLeft.setRight(op.left());
+            op.setLeft(opLeft);
+        }
 
-            /* If left has a lower precedence than root op,
-             * then left and op needs to switch
-             *
-             * Point op's parent's child (left or right) to left,
-             *
-             */
-            else {
-                if (op.parent() != null) {
-                    if (((Op) op.parent()).left() == op) {
-                        ((Op) op.parent()).setLeft(opLeft);
-                    } else {
-                        ((Op) op.parent()).setRight(opLeft);
-                    }
+        /* If left has a lower precedence than root op,
+         * then left and op needs to switch
+         *
+         * Point op's parent's child (left or right) to left,
+         *
+         */
+        else {
+            if (op.parent() != null) {
+                if (((Op) op.parent()).left() == op) {
+                    ((Op) op.parent()).setLeft(opLeft);
+                } else {
+                    ((Op) op.parent()).setRight(opLeft);
                 }
-                ((Op) opLeft.parent()).setLeft(opLeft.right());
-                parsePseudoBinary(op);
-                opLeft.setRight(op);
             }
+            ((Op) opLeft.parent()).setLeft(opLeft.right());
+            parsePseudoBinary(op);
+            opLeft.setRight(op);
         }
 
         /* Recurse down the left side */
@@ -481,10 +488,10 @@ public class Parser {
     private Expression parseTerm(Token... endTokens) {
         /* Expression is over */
         if (currentIs(endTokens)) {
-            return new NoOp();
+            return noop;
         }
 
-        Expression expression = new NoOp();
+        Expression expression = noop;
 
         if (current().isLiteral()) {
             expression = parseLiteral();
@@ -506,7 +513,7 @@ public class Parser {
         /* Prefix unary operators */
         else if (currentIs(values.get("MULTIPLY"))) {
             eat("MULTIPLY");
-            expression = new UnaryOp(parseTerm(afterTokens), values.get("MULTIPLY"));
+            expression = new UnaryOp(parseTerm(afterTokens), values.get("POINT"));
         } else if (currentIs("SUBTRACT")) {
             eat("SUBTRACT");
             expression = new UnaryOp(parseTerm(afterTokens), values.get("SUBTRACT"));
@@ -591,7 +598,7 @@ public class Parser {
             }
 
             eat("ARR_CLOSE");
-            return new Slice(var, index, stop, new NoOp());
+            return new Slice(var, index, stop, noop);
         }
 
         eat("ARR_CLOSE");
@@ -646,9 +653,9 @@ public class Parser {
      */
 
 
-    private Direct parseDirect() {
+    private Direct parseDirect(Token... endTokens) {
         if (current().type() == Token.TokenType.IF) {
-            return parseIf();
+            return parseIf(endTokens);
         } else if (currentIs("LOOP")) {
             return parseLoop();
         } else if (current().type() == Token.TokenType.SWITCH) {
@@ -705,7 +712,7 @@ public class Parser {
         Block loopBlock = parseBlock(values.get("SCOPE_CLOSE"));
         eat("SCOPE_CLOSE");
 
-        Block elseBlock = null;
+        DirectBody elseBlock = noop;
         if (currentIs("ELSE")) {
             eat("SCOPE_OPEN");
             elseBlock = parseBlock(values.get("SCOPE_CLOSE"));
@@ -715,7 +722,7 @@ public class Parser {
         return new Loop(initClauses, breakClauses, loopClauses, loopBlock, elseBlock);
     }
 
-    private If parseIf() {
+    private If parseIf(Token... endTokens) {
         eat("IF");
 
         eat("PAR_OPEN");
@@ -724,16 +731,22 @@ public class Parser {
 
         eat("DIRECT");
 
-        eat("SCOPE_OPEN");
-        Block block = parseBlock(values.get("SCOPE_CLOSE"));
-        eat("SCOPE_CLOSE");
+        DirectBody block;
+
+        if (currentIs("SCOPE_OPEN")) {
+            eat("SCOPE_OPEN");
+            block = parseBlock(values.get("SCOPE_CLOSE"));
+            eat("SCOPE_CLOSE");
+        } else {
+            block = parseStatement(endTokens);
+        }
 
         List<IfBlock> ifblocks = new ArrayList<IfBlock>() {{
             add(new IfBlock(expression, block));
         }};
 
         /* Create an else block to be populated */
-        Block elseBlock = null;
+        DirectBody elseBlock = null;
 
         /* Check if (an) else if(s), or just an else, exist */
         if (currentIs("ELSE")) {
@@ -748,7 +761,7 @@ public class Parser {
                 eat("SCOPE_CLOSE");
             } else {
                 /* If an else if */
-                If nextIf = parseIf();
+                If nextIf = parseIf(endTokens);
                 ifblocks.addAll(nextIf.ifblocks);
                 elseBlock = nextIf.elseBlock;
             }
@@ -1005,7 +1018,7 @@ public class Parser {
             Expression step = parseExpression(values.get("ARR_CLOSE"));
             return new Expression[] {start, stop, step};
         }
-        return new Expression[] {start, stop, new NoOp()};
+        return new Expression[] {start, stop, noop};
     }
 
     private ContainerCreation parseArrayList() {
@@ -1202,8 +1215,10 @@ public class Parser {
         public abstract JSONObject toJSON();
     }
 
+    public interface DirectBody {}
+
     /** A sequential list of statements */
-    public static final class Block extends ASTNode {
+    public static final class Block extends ASTNode implements DirectBody {
         public List<Statement> statements;
 
         public Block(List<Statement> statements) {
@@ -1228,7 +1243,7 @@ public class Parser {
     }
 
     /** A complete line of instruction */
-    public static abstract class Statement extends ASTNode {}
+    public static abstract class Statement extends ASTNode implements DirectBody {}
 
     /** Assigns a variable a value */
     public static final class Assignment extends Statement {
@@ -1241,8 +1256,6 @@ public class Parser {
 
             assert var instanceof Declare || var instanceof Expression;
             this.var = var;
-
-            assert value instanceof Expression;
             this.value = value;
 
             this.cast = cast;
@@ -1299,7 +1312,7 @@ public class Parser {
     public static abstract class Expression extends Statement {}
 
     /** An empty expression */
-    public static final class NoOp extends Expression {
+    public static final class NoOp extends Expression implements DirectBody {
         @Override
         public JSONObject toJSON() {
             return new JSONObject() {{
@@ -1308,6 +1321,8 @@ public class Parser {
             }};
         }
     }
+
+    public static final NoOp noop = new NoOp();
 
     /** A statement on what to return from a function */
     public static final class Return extends Statement {
@@ -1627,20 +1642,26 @@ public class Parser {
 
     /** Control-flow blocks */
     public static abstract class Direct extends Statement {
-        public Block elseBlock;
+        public DirectBody elseBlock;
+
+        protected Direct(DirectBody elseBlock) {
+            assert elseBlock instanceof Block || elseBlock instanceof Statement;
+            this.elseBlock = elseBlock;
+        }
     }
 
     /** A repeated set of statements */
     public static final class Loop extends Direct {
         public List<Assignment> initClauses;
         public List<Expression> breakClauses, loopClauses;
-        public Block block;
+        public DirectBody block;
 
         Loop(List<Assignment> initClauses, List<Expression> breakClauses,
-                    List<Expression> loopClauses, Block block, Block elseBlock) {
+                    List<Expression> loopClauses, DirectBody block, DirectBody elseBlock) {
+            super(elseBlock);
 
             setParent(initClauses, breakClauses, loopClauses);
-            setParent(block, elseBlock);
+            setParent((ASTNode) block, (ASTNode) elseBlock);
 
             this.token = values.get("LOOP");
             this.initClauses = initClauses;
@@ -1671,8 +1692,8 @@ public class Parser {
                         add(loopClause.toJSON());
                     }
                 }});
-                put("elseBlock", elseBlock.toJSON());
-                put("block", block.toJSON());
+                put("block", ((ASTNode) block).toJSON());
+                put("elseBlock", ((ASTNode) elseBlock).toJSON());
             }};
         }
     }
@@ -1681,9 +1702,10 @@ public class Parser {
     public static final class If extends Direct {
         public List<IfBlock> ifblocks;
 
-        If(List<IfBlock> ifblocks, Block elseBlock) {
+        If(List<IfBlock> ifblocks, DirectBody elseBlock) {
+            super(elseBlock);
             setParent(ifblocks);
-            setParent(elseBlock);
+            setParent((ASTNode) elseBlock);
 
             this.token = values.get("IF");
             this.ifblocks = ifblocks;
@@ -1700,18 +1722,18 @@ public class Parser {
                         add(ifblock.toJSON());
                     }
                 }});
-                put("elseBlock", elseBlock.toJSON());
+                put("elseBlock", ((ASTNode) elseBlock).toJSON());
             }};
         }
     }
 
     /** A single condition and resulting block */
-    public static final class IfBlock extends Direct {
+    public static final class IfBlock extends ASTNode {
         public Expression condition;
-        public Block block;
+        public DirectBody block;
 
-        IfBlock(Expression condition, Block block) {
-            setParent(condition, block);
+        IfBlock(Expression condition, DirectBody block) {
+            setParent(condition, (ASTNode) block);
             this.token = values.get("IF");
             this.condition = condition;
             this.block = block;
@@ -1723,7 +1745,7 @@ public class Parser {
                 put("type", "IfBlock");
                 put("token", token.toString());
                 put("condition", condition.toJSON());
-                put("block", block.toJSON());
+                put("block", ((ASTNode) block).toJSON());
             }};
         }
     }
@@ -1733,10 +1755,11 @@ public class Parser {
     public static final class Switch extends Direct {
         public Expression expression;
         public List<Case> cases;
-        public Block defaultBlock;
+        public DirectBody defaultBlock;
 
-        Switch(Expression expression, List<Case> cases, Block defaultBlock, Block elseBlock) {
-            setParent(expression, defaultBlock, elseBlock);
+        Switch(Expression expression, List<Case> cases, DirectBody defaultBlock, DirectBody elseBlock) {
+            super(elseBlock);
+            setParent(expression, (ASTNode) defaultBlock, (ASTNode) elseBlock);
             setParent(cases);
 
             this.token = values.get("SWITCH");
@@ -1756,7 +1779,7 @@ public class Parser {
                         add(aCase.toJSON());
                     }
                 }});
-                put("defaultBlock", defaultBlock.toJSON());
+                put("defaultBlock", ((ASTNode)defaultBlock).toJSON());
             }};
         }
     }
@@ -1764,10 +1787,11 @@ public class Parser {
     /** A single case and the resulting block */
     public static final class Case extends Direct {
         public Expression expression;
-        public Block block;
+        public DirectBody block;
 
-        Case(Expression expression, Block block) {
-            setParent(expression, block);
+        Case(Expression expression, DirectBody block) {
+            super(null);
+            setParent(expression, (ASTNode) block);
             this.token = values.get("CASE");
             this.expression = expression;
             this.block = block;
@@ -1779,18 +1803,19 @@ public class Parser {
                 put("type", "Case");
                 put("token", token.toString());
                 put("expression", expression.toJSON());
-                put("block", block.toJSON());
+                put("block", ((ASTNode) block).toJSON());
             }};
         }
     }
 
     /** A block that may throw an Exception */
     public static final class Try extends Direct {
-        public Block block;
+        public DirectBody block;
         public List<Catch> catchBlocks;
 
-        Try(Block block, List<Catch> catchBlocks, Block elseBlock) {
-            setParent(block, elseBlock);
+        Try(DirectBody block, List<Catch> catchBlocks, DirectBody elseBlock) {
+            super(elseBlock);
+            setParent((ASTNode) block, (ASTNode) elseBlock);
             setParent(catchBlocks);
             this.token = values.get("TRY");
 
@@ -1804,7 +1829,7 @@ public class Parser {
             return new JSONObject() {{
                 put("type", "Try");
                 put("token", token.toString());
-                put("block", block.toJSON());
+                put("block", ((ASTNode) block).toJSON());
                 put("catchBlocks", new JSONArray() {{
                     for (Catch catchBlock : catchBlocks) {
                         add(catchBlock.toJSON());
@@ -1817,10 +1842,10 @@ public class Parser {
     /** A block that deals with caught exceptions in a try block */
     public static final class Catch extends ASTNode {
         public Declare exception;
-        public Block block;
+        public DirectBody block;
 
-        Catch(Declare exception, Block block) {
-            setParent(exception, block);
+        Catch(Declare exception, DirectBody block) {
+            setParent(exception, (ASTNode) block);
             this.token = values.get("CATCH");
             this.exception = exception;
             this.block = block;
@@ -1832,7 +1857,7 @@ public class Parser {
                 put("type", "Catch");
                 put("token", token.toString());
                 put("exception", exception.toJSON());
-                put("block", block.toJSON());
+                put("block", ((ASTNode) block).toJSON());
             }};
         }
     }
@@ -2038,24 +2063,6 @@ public class Parser {
                 }};
             }
         }
-
-        @Override
-        public JSONObject toJSON() {
-            return new JSONObject() {{
-                put("type", "HGraph");
-                put("token", token.toString());
-                put("nodes", new JSONArray() {{
-                    for (Expression node : nodes) {
-                        add(node.toJSON());
-                    }
-                }});
-                put("edges", new JSONArray() {{
-                    for (HEdge edge : edges) {
-                        add(edge.toJSON());
-                    }
-                }});
-            }};
-        }
     }
 
     /** A graph where each edge is directed from one node to another */
@@ -2083,12 +2090,48 @@ public class Parser {
                 }};
             }
         }
+
+        @Override
+        public JSONObject toJSON() {
+            return new JSONObject() {{
+                put("type", "HDirectedGraph");
+                put("token", token.toString());
+                put("nodes", new JSONArray() {{
+                    for (Expression node : nodes) {
+                        add(node.toJSON());
+                    }
+                }});
+                put("edges", new JSONArray() {{
+                    for (HEdge edge : edges) {
+                        add(edge.toJSON());
+                    }
+                }});
+            }};
+        }
     }
 
     /** A graph where nodes are parity-constant */
     public static final class HUndirectedGraph extends HGraph {
         HUndirectedGraph(List<Expression> nodes, List<HEdge> edges) {
             super(nodes, edges, values.get("UNDIR_TYPE"));
+        }
+
+        @Override
+        public JSONObject toJSON() {
+            return new JSONObject() {{
+                put("type", "HUndirectedGraph");
+                put("token", token.toString());
+                put("nodes", new JSONArray() {{
+                    for (Expression node : nodes) {
+                        add(node.toJSON());
+                    }
+                }});
+                put("edges", new JSONArray() {{
+                    for (HEdge edge : edges) {
+                        add(edge.toJSON());
+                    }
+                }});
+            }};
         }
     }
 
