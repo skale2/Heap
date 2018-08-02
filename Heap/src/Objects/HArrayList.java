@@ -14,7 +14,7 @@ public class HArrayList extends HList {
         super(list);
     }
 
-    static List<Any> getList() { return new ArrayList<>(); }
+    public static List<Any> getList() { return new ArrayList<>(); }
 
     static HList createHList(ArrayList<Any> list) { return new HArrayList(list); }
 

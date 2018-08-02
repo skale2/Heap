@@ -14,7 +14,7 @@ public class HLinkedList extends HList {
         super(list);
     }
 
-    static List<Any> getList() { return new LinkedList<>(); }
+    public static List<Any> getList() { return new LinkedList<>(); }
 
     static HList createHList(LinkedList<Any> list) { return new HLinkedList(list); }
 

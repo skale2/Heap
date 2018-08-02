@@ -246,6 +246,9 @@ public class Lexer {
             } else if (peek() == '=') {
                 advance(2);
                 return new Token(Token.TokenType.B_OR_EQ);
+            } else if (peek() == '>') {
+                advance(2);
+                return new Token(Token.TokenType.PIPELINE);
             }
             advance();
             return new Token(Token.TokenType.B_OR);
@@ -383,6 +386,16 @@ public class Lexer {
             }
             advance();
             return new Token(Token.TokenType.PERIOD);
+        } else if (_current == '?') {
+            if (peek() == '?') {
+                advance(2);
+                return new Token(Token.TokenType.NULL_COALESCE);
+            } else if (peek() == '.') {
+                advance(2);
+                return new Token(Token.TokenType.OPT_CHAIN);
+            }
+            advance();
+            return new Token(Token.TokenType.TERNARY);
         }
 
 
@@ -396,7 +409,6 @@ public class Lexer {
             case ')': advance(); return new Token(Token.TokenType.PAR_CLOSE);
             case '~': advance(); return new Token(Token.TokenType.B_NOT);
             case '@': advance(); return new Token(Token.TokenType.ANNOTATION);
-            case '?': advance(); return new Token(Token.TokenType.TERNARY);
             case '#': advance(); return new Token(Token.TokenType.TOTAL_REF);
             case '&': advance(); return new Token(Token.TokenType.DEREF);
             default:

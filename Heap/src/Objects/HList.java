@@ -17,32 +17,32 @@ public abstract class HList extends Container {
         _list = list;
     }
 
-    private HList add(HList list) {
+    protected HList add(HList list) {
         List<Any> retlist = getList();
         retlist.addAll(list());
         retlist.addAll(list.list());
         return createHList(retlist);
     }
 
-    private NULL add(Any value) {
+    protected NULL add(Any value) {
         assert value.type().isType(containerTypes());
         list().add(value);
         return NULL.getInstance();
     }
 
-    private HList multiply(Int amount) {
+    protected HList multiply(Int amount) {
         List<Any> retList = getList();
         IntStream.range(0, amount.forceInt())
                 .forEach(i -> retList.addAll(list()));
         return createHList(retList);
     }
 
-    private HList divide(Int amount) {
+    protected HList divide(Int amount) {
         assert size() % amount.forceInt() == 0;
         return createHList(list().subList(0, size() / amount.forceInt()));
     }
 
-    private HList shiftRight(Int amount) {
+    protected HList shiftRight(Int amount) {
         List<Any> retList = getList();
         if (size() < amount.forceInt()) {
             IntStream.range(0, size())
@@ -57,7 +57,7 @@ public abstract class HList extends Container {
         return createHList(retList);
     }
 
-    private HList shiftLeft(Int amount) {
+    protected HList shiftLeft(Int amount) {
         List<Any> retList = getList();
         if (size() < amount.forceInt()) {
             IntStream.range(0, size())
@@ -72,7 +72,7 @@ public abstract class HList extends Container {
         return createHList(retList);
     }
 
-    private Bool lessThan(HList list) {
+    protected Bool lessThan(HList list) {
         for (int i = 0; size() > i && list.size() > i; i++) {
             if (Bool.compare(get(i), list.get(i)) == -1)
                 return Bool.TRUE;
@@ -80,7 +80,7 @@ public abstract class HList extends Container {
         return Bool.FALSE;
     }
 
-    private Bool lessThanOrEqualTo(HList list) {
+    protected Bool lessThanOrEqualTo(HList list) {
         for (int i = 0; size() > i && list.size() > i; i++) {
             if (Bool.compare(get(i), list.get(i)) < 1)
                 return Bool.TRUE;
@@ -88,7 +88,7 @@ public abstract class HList extends Container {
         return Bool.FALSE;
     }
 
-    private Bool greaterThan(HList list) {
+    protected Bool greaterThan(HList list) {
         for (int i = 0; size() > i && list.size() > i; i++) {
             if (Bool.compare(get(i), list.get(i)) == 1)
                 return Bool.TRUE;
@@ -96,7 +96,7 @@ public abstract class HList extends Container {
         return Bool.FALSE;
     }
 
-    private Bool greaterThanOrEqualTo(HList list) {
+    protected Bool greaterThanOrEqualTo(HList list) {
         for (int i = 0; size() > i && list.size() > i; i++) {
             if (Bool.compare(get(i), list.get(i)) > -1)
                 return Bool.TRUE;
@@ -104,12 +104,12 @@ public abstract class HList extends Container {
         return Bool.FALSE;
     }
 
-    private Str hash() {
+    protected Str hash() {
         // TODO
         return new Str("");
     }
 
-    private Bool equal(HList list) {
+    protected Bool equal(HList list) {
         if (size() != list.size())
             return Bool.FALSE;
         
@@ -121,7 +121,7 @@ public abstract class HList extends Container {
         return Bool.valueOf(size() > 0);
     }
 
-    private Any index(Int index) {
+    protected Any index(Int index) {
         return get(index.forceInt());
     }
 
@@ -143,9 +143,9 @@ public abstract class HList extends Container {
         set(Var.add, new Func(f -> ((HList) f[0]).add(f[1])));
     }};
 
-    static List<Any> getList() { return new ArrayList<>(); }
+    public static List<Any> getList() { return new ArrayList<>(); }
 
-    static HList createHList(List<Any> list) { return null; }
+    public static HList createHList(List<Any> list) { return null; }
 
 
     public static final Type type = new Type("LIST");

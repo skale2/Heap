@@ -347,7 +347,7 @@ public class Parser {
             }
         } while (!currentIs(endTokens));
 
-        parsePseudoBinary(expression);
+        expression = parsePseudoBinary(expression);
         return expression;
     }
 
@@ -410,9 +410,9 @@ public class Parser {
      *
      * @param node Head of expression tree
      */
-    private void parsePseudoBinary(Expression node) {
+    private Expression parsePseudoBinary(Expression node) {
         if (!(node instanceof Op)) {
-            return;
+            return node;
         }
 
         Op op = (Op) node;
@@ -427,7 +427,7 @@ public class Parser {
 
         Op opLeft;
         if (!(left instanceof Op)) {
-            return;
+            return node;
         } else {
             opLeft = (Op) left;
         }
@@ -441,7 +441,7 @@ public class Parser {
          * to left's right child, and recurse onto left's new right
          * child
          */
-        if (op.equalPrecedenceTo(left)) {
+        if (op.equalPrecedenceTo(opLeft)) {
             ((Op) opLeft.parent()).setLeft(opLeft.right());
 
             if (!(opLeft instanceof UnaryOp))
@@ -468,10 +468,12 @@ public class Parser {
             ((Op) opLeft.parent()).setLeft(opLeft.right());
             parsePseudoBinary(op);
             opLeft.setRight(op);
+            op = opLeft;
         }
 
         /* Recurse down the left side */
         parsePseudoBinary(left);
+        return op;
     }
 
 
@@ -555,7 +557,9 @@ public class Parser {
         if (currentIs("ARR_OPEN")) {
             return postFix((Expression) parseIndex(expression));
         } else if (currentIs("PERIOD")) {
-            return postFix(parseProperty(expression));
+            return postFix(parseProperty(expression, false));
+        } else if (currentIs("OPT_CHAIN")) {
+            return postFix(parseProperty(expression, true));
         } else if (currentIs("PAR_OPEN")) {
             return parseCall(expression);
         } else if (currentIs("INCREMENT")) {
@@ -605,15 +609,15 @@ public class Parser {
         return new Index(var, index);
     }
 
-    private Get parseProperty(Expression var) {
+    private Get parseProperty(Expression var, boolean optChain) {
         eat("PERIOD");
         if (current().isVar()) {
             Var getVar = new Var(current());
             eat(current());
-            return new Get(var, getVar);
+            return new Get(var, getVar, optChain);
         }
         eat("PAR_OPEN");
-        Get get = new Get(var, parseExpression(values.get("PAR_CLOSE")));
+        Get get = new Get(var, parseExpression(values.get("PAR_CLOSE")), optChain);
         eat("PAR_CLOSE");
         return get;
     }
@@ -2303,8 +2307,11 @@ public class Parser {
 
     /** Gets a property from an object, e.g. person.height */
     public static final class Get extends BinaryOp {
-        Get(Expression var, Expression property) {
+        boolean optChain;
+
+        Get(Expression var, Expression property, boolean optChain) {
             super(var, property, values.get("PERIOD"));
+            this.optChain = optChain;
         }
 
         public Expression var() { return left; }

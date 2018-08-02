@@ -64,6 +64,7 @@ public class Token {
         put(TokenType.ARR_TYPE,         0);
         put(TokenType.PAR_OPEN,         0);
         put(TokenType.PERIOD,           0);
+        put(TokenType.OPT_CHAIN,        0);
 
         /* Referencing */
         put(TokenType.POINT,            1);
@@ -118,21 +119,27 @@ public class Token {
 
         /* Ternary operators */
         put(TokenType.TERNARY,          16);
+
+        /* Null Coalescence */
+        put(TokenType.NULL_COALESCE,    17);
+
+        /* Pipeline */
+        put(TokenType.PIPELINE,         18);
         
         /* Assignment */
-        put(TokenType.ADD_EQ,           17);
-        put(TokenType.SUBTRACT_EQ,      17);
-        put(TokenType.MULTIPLY_EQ,      17);
-        put(TokenType.DIVIDE_EQ,        17);
-        put(TokenType.FLOOR_EQ,         17);
-        put(TokenType.ROUND_EQ,         17);
-        put(TokenType.EXP_EQ,           17);
-        put(TokenType.L_AND_EQ,         17);
-        put(TokenType.L_OR_EQ,          17);
-        put(TokenType.L_XOR_EQ,         17);
-        put(TokenType.B_AND_EQ,         17);
-        put(TokenType.B_OR_EQ,          17);
-        put(TokenType.B_XOR_EQ,         17);
+        put(TokenType.ADD_EQ,           19);
+        put(TokenType.SUBTRACT_EQ,      19);
+        put(TokenType.MULTIPLY_EQ,      19);
+        put(TokenType.DIVIDE_EQ,        19);
+        put(TokenType.FLOOR_EQ,         19);
+        put(TokenType.ROUND_EQ,         19);
+        put(TokenType.EXP_EQ,           19);
+        put(TokenType.L_AND_EQ,         19);
+        put(TokenType.L_OR_EQ,          19);
+        put(TokenType.L_XOR_EQ,         19);
+        put(TokenType.B_AND_EQ,         19);
+        put(TokenType.B_OR_EQ,          19);
+        put(TokenType.B_XOR_EQ,         19);
     }};
 
     private TokenType _type;
@@ -189,6 +196,8 @@ public class Token {
         B_AND_EQ("&=", OPR, ASN), B_OR_EQ("|=", OPR, ASN), B_XOR_EQ("^=", OPR, ASN),
 
         SHIFT_RIGHT_EQ(">>=", OPR, ASN), SHIFT_LEFT_EQ("<<=", OPR, ASN),
+
+        NULL_COALESCE("??", OPR), PIPELINE("|>", OPR), OPT_CHAIN("?."),
 
         PAR_OPEN("("), PAR_CLOSE(")"),
 

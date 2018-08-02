@@ -2,28 +2,18 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="4479fbd9-9d25-418e-8eda-480f69b46ed6" name="Default" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/libraries/json_simple_1_1_1.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Heap/Tests/scripts/complexops.heap" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/libraries/json_simple_1_1_1_2.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Heap/.idea/uiDesigner.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Heap/src/Objects/Slice.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Heap.iml" beforeDir="false" afterPath="$PROJECT_DIR$/Heap.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Heap/Tests/LexerTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/Heap/Tests/LexerTest.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Heap/Tests/scripts/containers.heap" beforeDir="false" afterPath="$PROJECT_DIR$/Heap/Tests/scripts/containers.heap" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Heap/Tests/scripts/loops.heap" beforeDir="false" afterPath="$PROJECT_DIR$/Heap/Tests/scripts/loops.heap" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Heap/out/test/Heap/LexerTest.class" beforeDir="false" afterPath="$PROJECT_DIR$/Heap/out/test/Heap/LexerTest.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Heap/out/test/Heap/ParserTest.class" beforeDir="false" afterPath="$PROJECT_DIR$/Heap/out/test/Heap/ParserTest.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Heap/out/test/Heap/scripts/add.heap" beforeDir="false" afterPath="$PROJECT_DIR$/Heap/out/test/Heap/scripts/add.heap" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Heap/out/test/Heap/scripts/containers.heap" beforeDir="false" afterPath="$PROJECT_DIR$/Heap/out/test/Heap/scripts/containers.heap" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Heap/out/test/Heap/scripts/ifstatements.heap" beforeDir="false" afterPath="$PROJECT_DIR$/Heap/out/test/Heap/scripts/ifstatements.heap" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Heap/Tests/scripts/complexops.heap" beforeDir="false" afterPath="$PROJECT_DIR$/Heap/Tests/scripts/complexops.heap" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Heap/src/Helpers/Token.java" beforeDir="false" afterPath="$PROJECT_DIR$/Heap/src/Helpers/Token.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Heap/src/Main/Interpreter.java" beforeDir="false" afterPath="$PROJECT_DIR$/Heap/src/Main/Interpreter.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Heap/src/Main/Lexer.java" beforeDir="false" afterPath="$PROJECT_DIR$/Heap/src/Main/Lexer.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Heap/src/Main/Parser.java" beforeDir="false" afterPath="$PROJECT_DIR$/Heap/src/Main/Parser.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Heap/src/Objects/Any.java" beforeDir="false" afterPath="$PROJECT_DIR$/Heap/src/Objects/Any.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Heap/src/Objects/Bool.java" beforeDir="false" afterPath="$PROJECT_DIR$/Heap/src/Objects/Bool.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Heap/src/Objects/HArrayList.java" beforeDir="false" afterPath="$PROJECT_DIR$/Heap/src/Objects/HArrayList.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Heap/src/Objects/HLinkedList.java" beforeDir="false" afterPath="$PROJECT_DIR$/Heap/src/Objects/HLinkedList.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Heap/src/Objects/HList.java" beforeDir="false" afterPath="$PROJECT_DIR$/Heap/src/Objects/HList.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Heap/src/Objects/Int.java" beforeDir="false" afterPath="$PROJECT_DIR$/Heap/src/Objects/Int.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Heap/src/Objects/Pointed.java" beforeDir="false" afterPath="$PROJECT_DIR$/Heap/src/Objects/Pointed.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Heap/src/Objects/Str.java" beforeDir="false" afterPath="$PROJECT_DIR$/Heap/src/Objects/Str.java" afterDir="false" />
     </list>
     <ignored path="$PROJECT_DIR$/out/" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -35,6 +25,15 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
+      <file leaf-file-name="Token.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/Heap/src/Helpers/Token.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="-1480">
+              <caret line="75" column="23" lean-forward="true" selection-start-line="75" selection-start-column="23" selection-end-line="75" selection-end-column="23" />
+            </state>
+          </provider>
+        </entry>
+      </file>
       <file leaf-file-name="Construct.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/Heap/src/Objects/Construct.java">
           <provider selected="true" editor-type-id="text-editor">
@@ -44,20 +43,11 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="Atom.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/Heap/src/Objects/Atom.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="30">
-              <caret line="2" column="37" selection-start-line="2" selection-start-column="37" selection-end-line="2" selection-end-column="37" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="HList.java" pinned="false" current-in-tab="true">
+      <file leaf-file-name="HList.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/Heap/src/Objects/HList.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="617">
-              <caret line="114" column="8" lean-forward="true" selection-start-line="114" selection-start-column="8" selection-end-line="114" selection-end-column="8" />
+            <state relative-caret-position="540">
+              <caret line="40" column="47" selection-start-line="40" selection-start-column="47" selection-end-line="40" selection-end-column="47" />
             </state>
           </provider>
         </entry>
@@ -65,7 +55,7 @@
       <file leaf-file-name="Interpreter.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/Heap/src/Main/Interpreter.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1077">
+            <state relative-caret-position="-920">
               <caret line="79" selection-start-line="79" selection-end-line="79" />
               <folding>
                 <element signature="e#1474#1475#0" expanded="true" />
@@ -103,15 +93,6 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="Int.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/Heap/src/Objects/Int.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="291">
-              <caret line="185" column="10" selection-start-line="185" selection-start-column="10" selection-end-line="185" selection-end-column="10" />
-            </state>
-          </provider>
-        </entry>
-      </file>
       <file leaf-file-name="Bool.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/Heap/src/Objects/Bool.java">
           <provider selected="true" editor-type-id="text-editor">
@@ -136,20 +117,71 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="Parser.java" pinned="false" current-in-tab="false">
+      <file leaf-file-name="Parser.java" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/Heap/src/Main/Parser.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="2545">
-              <caret line="1312" column="76" selection-start-line="1312" selection-start-column="76" selection-end-line="1312" selection-end-column="76" />
+            <state relative-caret-position="466">
+              <caret line="561" column="57" selection-start-line="561" selection-start-column="57" selection-end-line="561" selection-end-column="57" />
+              <folding>
+                <element signature="e#40429#40430#0" expanded="true" />
+                <element signature="e#40509#40510#0" expanded="true" />
+                <element signature="e#64935#64936#0" expanded="true" />
+                <element signature="e#64971#64972#0" expanded="true" />
+                <element signature="e#65722#65723#0" expanded="true" />
+                <element signature="e#65758#65759#0" expanded="true" />
+                <element signature="e#69897#69898#0" expanded="true" />
+                <element signature="e#69966#69967#0" expanded="true" />
+                <element signature="e#72354#72355#0" expanded="true" />
+                <element signature="e#72390#72391#0" expanded="true" />
+                <element signature="e#72437#72438#0" expanded="true" />
+                <element signature="e#72473#72474#0" expanded="true" />
+                <element signature="e#72539#72540#0" expanded="true" />
+                <element signature="e#72583#72584#0" expanded="true" />
+                <element signature="e#72648#72649#0" expanded="true" />
+                <element signature="e#72692#72693#0" expanded="true" />
+                <element signature="e#74383#74384#0" expanded="true" />
+                <element signature="e#74432#74433#0" expanded="true" />
+                <element signature="e#77708#77709#0" expanded="true" />
+                <element signature="e#77743#77744#0" expanded="true" />
+                <element signature="e#77779#77780#0" expanded="true" />
+                <element signature="e#77816#77817#0" expanded="true" />
+                <element signature="e#77852#77853#0" expanded="true" />
+                <element signature="e#77888#77889#0" expanded="true" />
+                <element signature="e#78213#78214#0" expanded="true" />
+                <element signature="e#78261#78262#0" expanded="true" />
+                <element signature="e#78764#78765#0" expanded="true" />
+                <element signature="e#78812#78813#0" expanded="true" />
+                <element signature="e#80267#80268#0" expanded="true" />
+                <element signature="e#80302#80303#0" expanded="true" />
+                <element signature="e#80350#80351#0" expanded="true" />
+                <element signature="e#80386#80387#0" expanded="true" />
+                <element signature="e#81109#81110#0" expanded="true" />
+                <element signature="e#81144#81145#0" expanded="true" />
+                <element signature="e#81181#81182#0" expanded="true" />
+                <element signature="e#81222#81223#0" expanded="true" />
+                <element signature="e#81258#81259#0" expanded="true" />
+                <element signature="e#81300#81301#0" expanded="true" />
+                <element signature="e#81336#81337#0" expanded="true" />
+                <element signature="e#81372#81373#0" expanded="true" />
+              </folding>
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="Pointed.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/Heap/src/Objects/Pointed.java">
+      <file leaf-file-name="HValueMap.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/Heap/src/Objects/HValueMap.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="645">
-              <caret line="69" column="10" selection-start-line="69" selection-start-column="10" selection-end-line="69" selection-end-column="10" />
+            <state relative-caret-position="45">
+              <caret line="3" selection-start-line="3" selection-end-line="3" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="Lexer.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/Heap/src/Main/Lexer.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="955">
+              <caret line="396" column="22" lean-forward="true" selection-start-line="396" selection-start-column="22" selection-end-line="396" selection-end-column="22" />
             </state>
           </provider>
         </entry>
@@ -194,8 +226,8 @@
       <find>Type</find>
       <find>Call</find>
       <find>assert block</find>
-      <find>parseLoop</find>
       <find>NoOp</find>
+      <find>parseLoop</find>
     </findStrings>
     <replaceStrings>
       <replace>ParamDefs</replace>
@@ -214,9 +246,6 @@
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
-        <option value="$PROJECT_DIR$/src/Helpers/SymbolTable.java" />
-        <option value="$PROJECT_DIR$/src/Objects/Boolean.java" />
-        <option value="$PROJECT_DIR$/src/Objects/NULL.java" />
         <option value="$PROJECT_DIR$/src/Main/Main.java" />
         <option value="$PROJECT_DIR$/src/Objects/Construct.java" />
         <option value="$PROJECT_DIR$/src/Objects/Interface.java" />
@@ -256,15 +285,18 @@
         <option value="$PROJECT_DIR$/Heap/src/Helpers/Scope.java" />
         <option value="$PROJECT_DIR$/Heap/src/Objects/Type.java" />
         <option value="$PROJECT_DIR$/Heap/src/Objects/Class.java" />
-        <option value="$PROJECT_DIR$/Heap/src/Helpers/Token.java" />
         <option value="$PROJECT_DIR$/Heap/Tests/scripts/complexops.heap" />
         <option value="$PROJECT_DIR$/Heap/src/Objects/Any.java" />
         <option value="$PROJECT_DIR$/Heap/src/Objects/Str.java" />
         <option value="$PROJECT_DIR$/Heap/src/Objects/Pointed.java" />
         <option value="$PROJECT_DIR$/Heap/src/Objects/Int.java" />
         <option value="$PROJECT_DIR$/Heap/src/Objects/Bool.java" />
-        <option value="$PROJECT_DIR$/Heap/src/Main/Parser.java" />
         <option value="$PROJECT_DIR$/Heap/src/Main/Interpreter.java" />
+        <option value="$PROJECT_DIR$/Heap/src/Objects/Slice.java" />
+        <option value="$PROJECT_DIR$/Heap/src/Objects/SlicePointer.java" />
+        <option value="$PROJECT_DIR$/Heap/src/Helpers/Token.java" />
+        <option value="$PROJECT_DIR$/Heap/src/Main/Lexer.java" />
+        <option value="$PROJECT_DIR$/Heap/src/Main/Parser.java" />
       </list>
     </option>
   </component>
@@ -361,8 +393,8 @@
     <property name="aspect.path.notification.shown" value="true" />
     <property name="com.intellij.testIntegration.createTest.CreateTestDialog.defaultLibrary" value="JUnit5" />
     <property name="com.intellij.testIntegration.createTest.CreateTestDialog.defaultLibrarySuperClass.JUnit5" value="" />
-    <property name="project.structure.last.edited" value="Facets" />
-    <property name="project.structure.proportion" value="0.0" />
+    <property name="project.structure.last.edited" value="Libraries" />
+    <property name="project.structure.proportion" value="0.15" />
     <property name="project.structure.side.proportion" value="0.2" />
     <property name="settings.editor.selected.configurable" value="configurable.group.tools" />
   </component>
@@ -598,7 +630,7 @@
     </history-entry>
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="53900000" />
+    <option name="totallyTimeSpent" value="56111000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="0" y="0" width="2560" height="1440" extended-state="0" />
@@ -627,13 +659,36 @@
       <window_info anchor="right" id="Theme Preview" order="3" />
       <window_info anchor="bottom" id="Debug" order="7" weight="0.36275697" />
       <window_info id="Favorites" order="3" side_tool="true" />
-      <window_info anchor="bottom" id="Inspection" order="9" weight="0.4" />
-      <window_info anchor="right" id="Commander" order="5" weight="0.4" />
-      <window_info anchor="bottom" id="Cvs" order="8" weight="0.25" />
-      <window_info anchor="bottom" id="Messages" order="11" weight="0.3287858" />
       <window_info anchor="bottom" id="Message" order="4" />
-      <window_info anchor="bottom" id="Style Checker" order="2" />
+      <window_info id="Learn" order="7" />
+      <window_info anchor="bottom" id="Event Log" order="0" side_tool="true" />
+      <window_info active="true" content_ui="combo" id="Project" order="4" visible="true" weight="0.10546875" />
+      <window_info id="Favorites" order="3" side_tool="true" />
+      <window_info anchor="right" id="Ant Build" order="7" weight="0.25" />
+      <window_info anchor="bottom" id="Messages" order="11" weight="0.3287858" />
+      <window_info id="Structure" order="5" side_tool="true" weight="0.25" />
+      <window_info anchor="right" id="Palette" order="4" />
+      <window_info anchor="right" id="Palette&#9;" order="0" />
+      <window_info anchor="right" id="Maven Projects" order="1" />
+      <window_info anchor="bottom" id="Database Changes" order="12" show_stripe_button="false" />
+      <window_info anchor="bottom" id="Debug" order="7" weight="0.36275697" />
       <window_info anchor="right" content_ui="combo" id="Hierarchy" order="8" weight="0.25" />
+      <window_info id="Image Layers" order="6" />
+      <window_info anchor="right" id="Theme Preview" order="3" />
+      <window_info anchor="right" id="Database" order="6" />
+      <window_info id="Capture Tool" order="0" />
+      <window_info anchor="bottom" id="Version Control" order="1" />
+      <window_info anchor="right" id="Capture Analysis" order="2" />
+      <window_info anchor="bottom" id="TODO" order="10" />
+      <window_info anchor="bottom" id="Inspection" order="9" weight="0.4" />
+      <window_info anchor="bottom" id="Cvs" order="8" weight="0.25" />
+      <window_info id="UI Designer" order="2" />
+      <window_info anchor="bottom" id="Find" order="5" weight="0.32853025" />
+      <window_info anchor="bottom" id="Run" order="6" weight="0.32648125" />
+      <window_info anchor="bottom" id="Style Checker" order="2" />
+      <window_info anchor="bottom" id="Terminal" order="3" />
+      <window_info anchor="right" id="Commander" order="5" weight="0.4" />
+      <window_info id="Designer" order="1" />
     </layout>
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -648,8 +703,6 @@
     </breakpoint-manager>
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/src/Objects/Any.java" />
-    <entry file="file://$PROJECT_DIR$/src/Objects/Bool.java" />
     <entry file="file://$PROJECT_DIR$/src/Objects/HList.java" />
     <entry file="file://$PROJECT_DIR$/src/Objects/HArrayList.java" />
     <entry file="file://$PROJECT_DIR$/src/Objects/HLinkedList.java" />
@@ -691,13 +744,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="210">
           <caret line="20" column="10" selection-start-line="20" selection-start-column="10" selection-end-line="20" selection-end-column="10" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Heap/src/Objects/HValueMap.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="45">
-          <caret line="3" selection-start-line="3" selection-end-line="3" />
         </state>
       </provider>
     </entry>
@@ -751,17 +797,11 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/Heap/Tests/scripts/complexops/heap.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="30">
-          <caret line="2" column="19" lean-forward="true" selection-start-line="2" selection-start-column="19" selection-end-line="2" selection-end-column="19" />
-        </state>
-      </provider>
-    </entry>
+    <entry file="file://$PROJECT_DIR$/Heap/Tests/scripts/complexops/heap.java" />
     <entry file="file://$PROJECT_DIR$/Heap/Tests/ParserTest.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state>
-          <caret line="7" column="49" lean-forward="true" selection-start-line="7" selection-start-column="49" selection-end-line="7" selection-end-column="49" />
+        <state relative-caret-position="30">
+          <caret line="9" column="6" selection-start-line="9" selection-start-column="6" selection-end-line="9" selection-end-column="6" />
         </state>
       </provider>
     </entry>
@@ -769,13 +809,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state>
           <caret column="9" lean-forward="true" selection-start-column="9" selection-end-column="9" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Heap/src/Helpers/Token.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="645">
-          <caret line="81" lean-forward="true" selection-start-line="81" selection-end-line="81" />
         </state>
       </provider>
     </entry>
@@ -789,8 +822,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/Heap/Tests/scripts/complexops.heap">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="855">
-          <caret line="57" column="39" selection-start-line="57" selection-start-column="39" selection-end-line="57" selection-end-column="39" />
+        <state relative-caret-position="545">
+          <caret line="59" column="21" selection-start-line="59" selection-start-column="21" selection-end-line="59" selection-end-column="21" />
         </state>
       </provider>
     </entry>
@@ -888,16 +921,41 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/Heap/src/Main/Parser.java">
+    <entry file="file://$PROJECT_DIR$/Heap/src/Objects/HList.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="2545">
-          <caret line="1312" column="76" selection-start-line="1312" selection-start-column="76" selection-end-line="1312" selection-end-column="76" />
+        <state relative-caret-position="540">
+          <caret line="40" column="47" selection-start-line="40" selection-start-column="47" selection-end-line="40" selection-end-column="47" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Heap/src/Objects/SlicePointer.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="180">
+          <caret line="12" column="24" selection-start-line="12" selection-start-column="24" selection-end-line="12" selection-end-column="24" />
+          <folding>
+            <element signature="e#159#160#0" expanded="true" />
+            <element signature="e#186#187#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Heap/src/Objects/HValueMap.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="45">
+          <caret line="3" selection-start-line="3" selection-end-line="3" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Heap/src/Objects/Pointer.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="180">
+          <caret line="12" column="9" selection-start-line="12" selection-start-column="9" selection-end-line="12" selection-end-column="9" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/Heap/src/Main/Interpreter.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1077">
+        <state relative-caret-position="-920">
           <caret line="79" selection-start-line="79" selection-end-line="79" />
           <folding>
             <element signature="e#1474#1475#0" expanded="true" />
@@ -925,17 +983,66 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/Heap/src/Objects/Pointer.java">
+    <entry file="file://$PROJECT_DIR$/Heap/src/Helpers/Token.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="180">
-          <caret line="12" column="9" selection-start-line="12" selection-start-column="9" selection-end-line="12" selection-end-column="9" />
+        <state relative-caret-position="-1480">
+          <caret line="75" column="23" lean-forward="true" selection-start-line="75" selection-start-column="23" selection-end-line="75" selection-end-column="23" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/Heap/src/Objects/HList.java">
+    <entry file="file://$PROJECT_DIR$/Heap/src/Main/Lexer.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="617">
-          <caret line="114" column="8" lean-forward="true" selection-start-line="114" selection-start-column="8" selection-end-line="114" selection-end-column="8" />
+        <state relative-caret-position="955">
+          <caret line="396" column="22" lean-forward="true" selection-start-line="396" selection-start-column="22" selection-end-line="396" selection-end-column="22" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Heap/src/Main/Parser.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="466">
+          <caret line="561" column="57" selection-start-line="561" selection-start-column="57" selection-end-line="561" selection-end-column="57" />
+          <folding>
+            <element signature="e#40429#40430#0" expanded="true" />
+            <element signature="e#40509#40510#0" expanded="true" />
+            <element signature="e#64935#64936#0" expanded="true" />
+            <element signature="e#64971#64972#0" expanded="true" />
+            <element signature="e#65722#65723#0" expanded="true" />
+            <element signature="e#65758#65759#0" expanded="true" />
+            <element signature="e#69897#69898#0" expanded="true" />
+            <element signature="e#69966#69967#0" expanded="true" />
+            <element signature="e#72354#72355#0" expanded="true" />
+            <element signature="e#72390#72391#0" expanded="true" />
+            <element signature="e#72437#72438#0" expanded="true" />
+            <element signature="e#72473#72474#0" expanded="true" />
+            <element signature="e#72539#72540#0" expanded="true" />
+            <element signature="e#72583#72584#0" expanded="true" />
+            <element signature="e#72648#72649#0" expanded="true" />
+            <element signature="e#72692#72693#0" expanded="true" />
+            <element signature="e#74383#74384#0" expanded="true" />
+            <element signature="e#74432#74433#0" expanded="true" />
+            <element signature="e#77708#77709#0" expanded="true" />
+            <element signature="e#77743#77744#0" expanded="true" />
+            <element signature="e#77779#77780#0" expanded="true" />
+            <element signature="e#77816#77817#0" expanded="true" />
+            <element signature="e#77852#77853#0" expanded="true" />
+            <element signature="e#77888#77889#0" expanded="true" />
+            <element signature="e#78213#78214#0" expanded="true" />
+            <element signature="e#78261#78262#0" expanded="true" />
+            <element signature="e#78764#78765#0" expanded="true" />
+            <element signature="e#78812#78813#0" expanded="true" />
+            <element signature="e#80267#80268#0" expanded="true" />
+            <element signature="e#80302#80303#0" expanded="true" />
+            <element signature="e#80350#80351#0" expanded="true" />
+            <element signature="e#80386#80387#0" expanded="true" />
+            <element signature="e#81109#81110#0" expanded="true" />
+            <element signature="e#81144#81145#0" expanded="true" />
+            <element signature="e#81181#81182#0" expanded="true" />
+            <element signature="e#81222#81223#0" expanded="true" />
+            <element signature="e#81258#81259#0" expanded="true" />
+            <element signature="e#81300#81301#0" expanded="true" />
+            <element signature="e#81336#81337#0" expanded="true" />
+            <element signature="e#81372#81373#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
@@ -1017,7 +1124,7 @@
       </state>
       <state key="ProjectLibrariesConfigurable.UI">
         <settings>
-          <last-edited>json-simple-1.1.1</last-edited>
+          <last-edited>json-simple-1.1.1 2</last-edited>
           <splitter-proportions>
             <option name="proportions">
               <list>

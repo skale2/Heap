@@ -21,14 +21,23 @@ VAR(y), ASSIGN, VAR(a), FLOOR, INT_VAL(2), MOD, INT_VAL(3), ADD, VAR(b), PERIOD,
             },
             "value": {
                 "type": "BinaryOp",
-                "token": "ADD",
+                "token": "SUBTRACT",
                 "left": {
                     "type": "BinaryOp",
-                    "token": "MULTIPLY",
+                    "token": "ADD",
                     "left": {
-                        "type": "IntLiteral",
-                        "token": "INT_VAL(5)",
-                        "value": "5"
+                        "type": "BinaryOp",
+                        "value": "MULTIPLY",
+                        "left": {
+                            "type": "IntLiteral",
+                            "token": "INT_VAL(5)",
+                            "value": "5"
+                        },
+                        "left": {
+                            "type": "IntLiteral",
+                            "token": "INT_VAL(3)",
+                            "value": "3"
+                        }
                     },
                     "right": {
                         "type": "IntLiteral",
@@ -38,25 +47,16 @@ VAR(y), ASSIGN, VAR(a), FLOOR, INT_VAL(2), MOD, INT_VAL(3), ADD, VAR(b), PERIOD,
                 },
                 "right": {
                     "type": "BinaryOp",
-                    "token": "SUBTRACT",
+                    "token": "DIVIDE",
                     "left": {
                         "type": "IntLiteral",
-                        "token": "INT_VAL(2)",
-                        "value": "2"
+                        "token": "INT_VAL(4)",
+                        "value": "4"
                     },
                     "right": {
-                        "type": "BinaryOp",
-                        "token": "DIVIDE",
-                        "left": {
-                            "type": "IntLiteral",
-                            "token": "INT_VAL(4)",
-                            "value": "4"
-                        },
-                        "right": {
-                            "type": "IntLiteral",
-                            "token": "INT_VAL(7)",
-                            "value": "7"
-                        }
+                        "type": "IntLiteral",
+                        "token": "INT_VAL(7)",
+                        "value": "7"
                     }
                 }
             }
