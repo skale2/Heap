@@ -131,6 +131,7 @@ public class Token {
         put(TokenType.SUBTRACT_EQ,      19);
         put(TokenType.MULTIPLY_EQ,      19);
         put(TokenType.DIVIDE_EQ,        19);
+        put(TokenType.MOD_EQ,           19);
         put(TokenType.FLOOR_EQ,         19);
         put(TokenType.ROUND_EQ,         19);
         put(TokenType.EXP_EQ,           19);
@@ -165,9 +166,9 @@ public class Token {
         EOL(";"), EOF(""), COMMA(","), COLON(":"), DIRECT("=>"),
         ANNOTATION("@"), TERNARY("?"), PERIOD("."),
 
-        DEREF("&"), TOTAL_REF("#"),
+        DEREF("&", OPR), TOTAL_REF("#", OPR),
 
-        ASSIGN("="), CAST_ASSIGN(":="), EQUAL("==", OPR), CAST_EQUAL(":=="), NOT_EQUAL("!="), CAST_NOT_EQUAL(":!="),
+        ASSIGN("="), CAST_ASSIGN(":="), EQUAL("==", OPR), CAST_EQUAL(":==", OPR), NOT_EQUAL("!=", OPR), CAST_NOT_EQUAL(":!=", OPR),
 
         VAR("[a-zA-Z\\_]+[a-zA-Z0-9\\_]*"),
 
@@ -238,7 +239,7 @@ public class Token {
 
         BREAK("break", RSD), CONTINUE("continue", RSD), PASS("pass"),
         
-        RETURN("return", RSD);
+        DEFER("defer", RSD), RETURN("return", RSD);
 
 
         TokenType(String value) {

@@ -84,7 +84,7 @@ third = arr[3];             // 'sdfd', third is a string
  * then adding 
  */
 
-*zeroP = arr;              
+zeroP = &arr;              
 print(*zeroP);              // <Array Pointer Object |> 23>
 print(zeroP);               // 23
 
@@ -114,7 +114,7 @@ print(arr == arr2);         // True
 /* Get pointer reference from indexing total reference
  */
 
-*firstP = arr[1]; 
+firstP = &arr[1]; 
 print(*firstP);             // <Array Pointer Object |> 49>
 print(firstP);              // 49
 
@@ -253,17 +253,15 @@ doubleStat<--[]>;           // Declares a doubly-linked list of any object
 /* Basic if statements 
  */
 
-if (bool) => {
+if bool => {
     // if block
-} else if (bool) => {
+} else if bool => {
     // else if block
 } else {
     // else block;
-} finally {
-    // Do this no matter what case ends up happening, or if no case happens
 }
 
-switch (var) => {
+switch var => {
     case option1:
         // Do something
         break;
@@ -274,15 +272,20 @@ switch (var) => {
         // Do something
 }
 
-select (var) => {           // Same as switch, but the break after each case is implied
-    case option1:
-        // Do something
-    case option2:
-        // Do something
-    default:
-        // Do something
+
+/* Set a variable conditionally 
+ */
+
+name = if person.age > 45 => {
+    "Johnson";
+} else {
+    "Mary";
 }
 
+isEmpty = switch len(arr) => {
+    case 0: true;
+    default: false;
+}
 
 /* Ternary operator
  */
@@ -297,23 +300,23 @@ x = 10 > 5 ? 'yes' : 'no';
  */
 
 /* for loop */
-loop(x = 5 : x < 112 : x++) => { 
+loop x = 5 : x < 112 : x++ => { 
     x += 12;
 } 
 
 /* for each loop */
-*arr1 = [2, 3, 34, -23, 23]
-loop(:: *arr1++) => {
+arr1 = &[2, 3, 34, -23, 23]
+loop :: *arr1++ => {
     print(arr1);
 }
 
 arr2 = [2, 3, 34, -23, 23]
-loop(*elem = arr2 ::) => {
+loop elem = &arr2 :: => {
     print(elem);            // elem has no ties to arr
 }
 
 
-loop(*elem = arr2 ::) => {
+loop elem = &arr2 :: => {
     print(*elem);           // <Array Pointer Object |> whatever>
 }
 
@@ -324,7 +327,7 @@ loop(: count > -12 :) => {
 }
 
 /* Short hand for while loop; ignore the other two expression */
-loop(datetime() < datetime.date(23, 7, 2018)) => {
+loop datetime() < datetime.date(23, 7, 2018) => {
     print(datetime());
 }
 
@@ -616,7 +619,7 @@ Direction = enum() => {
 /* Structs: class-like dictionary.
  */
 
-circle = struct() => {
+circle = struct => {
     radius<int>;
     center<[double, double]>;
 }
@@ -630,7 +633,7 @@ print(str(c1));                         // "Circle(2, [2, 9.9])"; __str__ is imp
 
 
 /* Extensions: A way to add extra functionality to a class or type, that applies to all 
- instances of that class or type. Useful to add functionality to built-in types
+ * instances of that class or type. Useful to add functionality to built-in types
  */
 
 x = {2 : 5, 6 : 10}
@@ -658,6 +661,16 @@ extend({}) => {                         // Extends the Map container; isn't usua
 x.addOneToValue();                      // Call new method on an existing map object
 print(x);                               // {3:::5 ? 7:::10 ? }
 
+
+/* Mixins: A collection of methods that a class can inherit from, allowing for extended
+ * functionality 
+ */
+
+Pubsub = mixin => {
+    publish = func(message<string>) => {
+
+    }
+}
 
 
 /* ****************************************** Maps ***************************************** */

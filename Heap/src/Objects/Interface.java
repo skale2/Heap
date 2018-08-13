@@ -7,7 +7,7 @@ import java.util.List;
 public class Interface extends Type implements Construct {
     public Interface(String name, Scope parentScope) {
         super(name);
-        _scope = new Scope(parentScope);
+        _scope = new Scope(parentScope, Scope.Enclosing.INTERFACE);
     }
 
     public List<Interface> interfaces() {

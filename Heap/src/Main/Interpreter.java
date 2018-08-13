@@ -22,8 +22,24 @@ public class Interpreter {
 
     public static Any doBlock(Parser.Block block, Scope scope) {
         var newScope = new Scope(scope);
-        block.statements.forEach(statement -> doStatement((Parser.Statement) statement, newScope));
-        return null;
+        var deferExpressions = new LinkedList<Parser.Expression>();
+
+        for (Parser.Statement statement : block.statements) {
+            if (statement instanceof Parser.Defer) {
+                deferExpressions.add(((Parser.Defer) statement).expression);
+            } else {
+                doStatement(statement, newScope);
+                if (statement instanceof Parser.Return) {
+                    break;
+                }
+            }
+        }
+
+        for (Parser.Expression expression : deferExpressions) {
+            doExpression(expression, newScope);
+        }
+
+        return NULL.getInstance();
     }
 
     public static void doDirectBody(Parser.DirectBody directBody, Scope scope) {
@@ -33,10 +49,11 @@ public class Interpreter {
             doStatement((Parser.Statement) directBody, scope);
     }
 
-    private static void doStatement(Parser.Statement statement, Scope scope) {
+    private static Any doStatement(Parser.Statement statement, Scope scope) {
         if (statement instanceof Parser.Assignment) {
             doAssignment((Parser.Assignment) statement, scope);
         }
+        return NULL.getInstance();
     }
 
     private static void doAssignment(Parser.Assignment assignment, Scope scope) {
@@ -236,16 +253,36 @@ public class Interpreter {
         }
     }
 
-    private static void doSetOp(Parser.SetOp op, Scope scope) {
+    private static Any doSetOp(Parser.SetOp op, Scope scope) {
+        Var left;
+        try {
+            left = (Var) doExpression(op.left, scope);
+            Any right = doExpression(op.right, scope);
+            Any result = left.callMethod(_operations.get(op.token), false, scope, left, right);
 
+            scope.set(left, result);
+            return result;
+        } catch(ClassCastException cce) {
+            // TODO throw error
+            return NULL.getInstance();
+        }
     }
 
-    private static void doIndex(Parser.Index op, Scope scope) {
+    private static Any doIndex(Parser.Index op, Scope scope) {
+        Any var = doExpression(op.var(), scope);
+        assert var instanceof Var || var instanceof Str || var instanceof Container;
+        assert var.get(Var.__index__) != null;
 
+        Any index = doExpression(op.index(), scope);
+        return ((Func) var.get(Var.__index__)).call(index);
     }
 
-    private static void doGet(Parser.Get op, Scope scope) {
-
+    private static Any doGet(Parser.Get op, Scope scope) {
+        Any var = doExpression(op.var(), scope);
+        assert var instanceof Var || var instanceof Str;
+        Any property = doExpression(op.property(), scope);
+        assert property instanceof Var;
+        return var.get((Var) property);
     }
 
     private static void doRange(Parser.Range op, Scope scope) {
@@ -259,23 +296,37 @@ public class Interpreter {
 
     private static final Map<Token, Var> _operations = new HashMap<>() {{
         put(Parser.values.get("ADD"), Var.__add__);
+        put(Parser.values.get("ADD_EQ"), Var.__add__);
         put(Parser.values.get("SUBTRACT"), Var.__sub__);
+        put(Parser.values.get("SUBTRACT_EQ"), Var.__sub__);
         put(Parser.values.get("MULTIPLY"), Var.__mul__);
+        put(Parser.values.get("MULTIPLY_EQ"), Var.__mul__);
         put(Parser.values.get("DIVIDE"), Var.__div__);
+        put(Parser.values.get("DIVIDE_EQ"), Var.__div__);
         put(Parser.values.get("MOD"), Var.__mod__);
+        put(Parser.values.get("MOD_EQ"), Var.__mod__);
         put(Parser.values.get("FLOOR"), Var.__floordiv__);
+        put(Parser.values.get("FLOOR_EQ"), Var.__floordiv__);
         put(Parser.values.get("EXP"), Var.__add__);
+        put(Parser.values.get("EXP_EQ"), Var.__add__);
         put(Parser.values.get("ROUND"), Var.__round__);
+        put(Parser.values.get("ROUND_EQ"), Var.__round__);
         put(Parser.values.get("INCREMENT"), Var.__incr__);
         put(Parser.values.get("DECREMENT"), Var.__decr__);
         put(Parser.values.get("L_AND"), Var.__and__);
+        put(Parser.values.get("L_AND_EQ"), Var.__and__);
         put(Parser.values.get("L_OR"), Var.__or__);
+        put(Parser.values.get("L_OR_EQ"), Var.__or__);
         put(Parser.values.get("L_NOT"), Var.__not__);
         put(Parser.values.get("L_XOR"), Var.__xor__);
+        put(Parser.values.get("L_XOR_EQ"), Var.__xor__);
         put(Parser.values.get("B_AND"), Var.__bitand__);
+        put(Parser.values.get("B_AND_EQ"), Var.__bitand__);
         put(Parser.values.get("B_OR"), Var.__bitor__);
+        put(Parser.values.get("B_OR_EQ"), Var.__bitor__);
         put(Parser.values.get("B_NOT"), Var.__bitnot__);
         put(Parser.values.get("B_XOR"), Var.__bitxor__);
+        put(Parser.values.get("B_XOR_EQ"), Var.__bitxor__);
         put(Parser.values.get("LESS_THAN"), Var.__less__);
         put(Parser.values.get("GREATER_THAN"), Var.__greater);
         put(Parser.values.get("LESS_THAN_EQ"), Var.__lesseq__);

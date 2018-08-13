@@ -58,12 +58,35 @@ public class Parser {
         }
     }
 
+    private void eat(Token[] tokens) {
+        for (Token token : tokens) {
+            if (!peekTokens().isEmpty()) {
+                current((Token) peekTokens().poll());
+                return;
+            } else if (token.equals(current())) {
+                current(_lexer.next());
+                return;
+            }
+        }
+        System.out.println("Unknown token");
+    }
+
     private void eat(String name) {
         if (values.get(name).equals(current())) {
             current(_lexer.next());
         } else {
             System.out.println("Unknown token");
         }
+    }
+
+    private void eat(String[] names) {
+        for (String name : names) {
+            if (values.get(name).equals(current())) {
+                current(_lexer.next());
+                return;
+            }
+        }
+        System.out.println("Unknown token");
     }
 
     private Token current() {
@@ -139,6 +162,17 @@ public class Parser {
             return parseDirect(endTokens);
         } else if (currentIs("RETURN")) {
             statement = parseReturn();
+        } else if (currentIs("DEFER")) {
+            statement = parseDefer(endTokens);
+        } else if (currentIs("PASS")) {
+            eat("PASS");
+            statement = new Pass();
+        } else if (currentIs("CONTINUE")) {
+            eat("CONTINUE");
+            statement = new Continue();
+        } else if (currentIs("BREAK")) {
+            eat("BREAK");
+            statement = new Break();
         } else if (currentIs("ANNOTATION")) {
             statement = parseAssignment(endTokens);
         } else {
@@ -146,16 +180,20 @@ public class Parser {
         }
 
         if (endTokens.length > 0)
-            eat(current());
+            eat(endTokens);
         return statement;
     }
 
     private Return parseReturn(Token... endTokens) {
         eat("RETURN");
         Expression expression = parseExpression(endTokens);
-        if (endTokens.length > 0)
-            eat(current());
         return new Return(expression);
+    }
+
+    private Defer parseDefer(Token... endTokens) {
+        eat("DEFER");
+        Expression expression = parseExpression(endTokens);
+        return new Defer(expression);
     }
 
     private Assignment parseAssignment(Token... endTokens) {
@@ -177,7 +215,7 @@ public class Parser {
     }
 
     private List<Type> parseType(Token endToken) {
-        List<Type> types = new ArrayList<>();
+        List<Type> types = new ArrayList<Type>();
 
         while(!currentIs(endToken)) {
 
@@ -667,12 +705,12 @@ public class Parser {
         } else if (current().type() == Token.TokenType.TRY) {
             return parseTry();
         }
+        // oops
         return null;
     }
 
     private Loop parseLoop() {
         eat("LOOP");
-        eat("PAR_OPEN");
 
         //TODO
 
@@ -708,13 +746,18 @@ public class Parser {
     }
 
     private Loop parseLoopFinish(List<Assignment> initClauses, List<Expression> breakClauses, List<Expression> loopClauses) {
-        eat("PAR_CLOSE");
 
         eat("DIRECT");
 
-        eat("SCOPE_OPEN");
-        Block loopBlock = parseBlock(values.get("SCOPE_CLOSE"));
-        eat("SCOPE_CLOSE");
+        DirectBody loopBlock;
+        if (currentIs("SCOPE_OPEN")) {
+            eat("SCOPE_OPEN");
+            loopBlock = parseBlock(values.get("SCOPE_CLOSE"));
+            eat("SCOPE_CLOSE");
+        } else {
+            loopBlock = parseStatement(values.get("EOL"));
+        }
+
 
         DirectBody elseBlock = noop;
         if (currentIs("ELSE")) {
@@ -729,9 +772,7 @@ public class Parser {
     private If parseIf(Token... endTokens) {
         eat("IF");
 
-        eat("PAR_OPEN");
         Expression expression = parseExpression(values.get("PAR_CLOSE"));
-        eat("PAR_CLOSE");
 
         eat("DIRECT");
 
@@ -745,7 +786,7 @@ public class Parser {
             block = parseStatement(endTokens);
         }
 
-        List<IfBlock> ifblocks = new ArrayList<IfBlock>() {{
+        List<IfBlock> ifblocks = new ArrayList<>() {{
             add(new IfBlock(expression, block));
         }};
 
@@ -777,9 +818,7 @@ public class Parser {
     private Direct parseSwitch() {
         eat(values.get("SWITCH"));
 
-        eat("PAR_OPEN");
         Expression switchExpression = parseExpression(values.get("PAR_CLOSE"));
-        eat("PAR_CLOSE");
 
         eat("DIRECT");
 
@@ -831,9 +870,7 @@ public class Parser {
         while (currentIs("CATCH")) {
             eat("CATCH");
 
-            eat("PAR_OPEN");
             exception = (Declare) parseDeclare(true);
-            eat("PAR_CLOSE");
 
             eat("SCOPE_OPEN");
             catchBlock = parseBlock(values.get("SCOPE_CLOSE"));
@@ -1329,6 +1366,51 @@ public class Parser {
     public static final NoOp noop = new NoOp();
 
     /** A statement on what to return from a function */
+    public static final class Continue extends Statement {
+        public Continue() {
+            this.token = values.get("CONTINUE");
+        }
+
+        @Override
+        public JSONObject toJSON() {
+            return new JSONObject() {{
+                put("type", "Continue");
+                put("token", token.toString());
+            }};
+        }
+    }
+
+    /** A statement on what to return from a function */
+    public static final class Break extends Statement {
+        public Break() {
+            this.token = values.get("BREAK");
+        }
+
+        @Override
+        public JSONObject toJSON() {
+            return new JSONObject() {{
+                put("type", "Break");
+                put("token", token.toString());
+            }};
+        }
+    }
+
+    /** A statement on what to return from a function */
+    public static final class Pass extends Statement {
+        public Pass() {
+            this.token = values.get("PASS");
+        }
+
+        @Override
+        public JSONObject toJSON() {
+            return new JSONObject() {{
+                put("type", "Pass");
+                put("token", token.toString());
+            }};
+        }
+    }
+
+    /** A statement on what to return from a function */
     public static final class Return extends Statement {
         public Expression expression;
 
@@ -1343,6 +1425,27 @@ public class Parser {
         public JSONObject toJSON() {
             return new JSONObject() {{
                 put("type", "Return");
+                put("token", token.toString());
+                put("expression", expression.toJSON());
+            }};
+        }
+    }
+
+    /** A statement to only be executed upon a block's end */
+    public static final class Defer extends Statement {
+        public Expression expression;
+
+        public Defer(Expression expression) {
+            setParent(expression);
+
+            this.expression = expression;
+            this.token = values.get("DEFER");
+        }
+
+        @Override
+        public JSONObject toJSON() {
+            return new JSONObject() {{
+                put("type", "Defer");
                 put("token", token.toString());
                 put("expression", expression.toJSON());
             }};

@@ -413,7 +413,7 @@ public class Int extends Number {
     /** ************************************ STATIC DECLARATIONS ************************************ **/
 
 
-    private static final Scope _classScope = new Scope(null) {{
+    private static final Scope _classScope = new Scope(null, Scope.Enclosing.CLASS) {{
         set(Var.__add__, new Func(f -> ((Int) f[0]).add((Int) f[1])));
         set(Var.__sub__, new Func(f -> ((Int) f[0]).subtract((Int) f[1])));
         set(Var.__mul__, new Func(f -> ((Int) f[0]).multiply((Int) f[1])));

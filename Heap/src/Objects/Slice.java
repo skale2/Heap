@@ -20,7 +20,7 @@ public class Slice extends HList {
         }
     }
 
-    private static final Scope _classScope = new Scope(null) {{
+    private static final Scope _classScope = new Scope(null, Scope.Enclosing.CLASS) {{
         set(Var.__less__, new Func(f -> ((HList) f[0]).lessThan((HList) f[1])));
         set(Var.__greater, new Func(f -> ((HList) f[0]).greaterThan((HList) f[1])));
         set(Var.__lesseq__, new Func(f -> ((HList) f[0]).lessThanOrEqualTo((HList) f[1])));

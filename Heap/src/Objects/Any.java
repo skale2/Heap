@@ -19,22 +19,23 @@ public abstract class Any {
     public Type type() { return _type; }
 
     public Any get(Var var) {
-        return _scope.get(var, true);
+        return _scope.get(var, false);
     }
 
     public void set(Var var, Any value) {
         _scope.set(var, value);
     }
 
-    public void callMethod(Var methodName, boolean thisScope, Scope scope, Any... args) {
+    public Any callMethod(Var methodName, boolean thisScope, Scope scope, Any... args) {
         try {
             var func = ((Func) scope().get(methodName, thisScope));
             if (scope != null) {
                 func.setScope(scope);
             }
-            func.call(args);
+            return func.call(args);
         } catch (ClassCastException cce) {
             // TODO: Throw property is not a method error or something
+            return NULL.getInstance();
         }
     }
 

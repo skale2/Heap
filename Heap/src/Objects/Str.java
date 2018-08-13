@@ -130,31 +130,7 @@ public class Str extends Atom {
     }
 
 
-    static class Iter extends Iterator {
-        public Iter(Str string) {
-            super();
-
-            _index = -1;
-            _string = string;
-        }
-
-        @Override
-        public Str next() {
-            _index++;
-            return new Str(String.valueOf(_string.value().charAt(_index)));
-        }
-
-        @Override
-        public Bool hasNext() {
-            return Bool.valueOf(_index >= _string.value().length());
-        }
-
-        private int _index;
-        private Str _string;
-    }
-
-
-    private static final Scope _classScope = new Scope(null) {{
+    private static final Scope _classScope = new Scope(null, Scope.Enclosing.CLASS) {{
         set(Var.__add__, new Func(f -> ((Str) f[0]).add((Str) f[1])));
         set(Var.__mul__, new Func(f -> ((Str) f[0]).multiply((Int) f[1])));
         set(Var.__div__, new Func(f -> ((Str) f[0]).divide((Int) f[1])));
@@ -166,12 +142,11 @@ public class Str extends Atom {
         set(Var.__greater, new Func(f -> ((Str) f[0]).greaterThan((Str) f[1])));
         set(Var.__lesseq__, new Func(f -> ((Str) f[0]).lessThanOrEqualTo((Str) f[1])));
         set(Var.__greatereq__, new Func(f -> ((Str) f[0]).greaterThanOrEqualTo((Str) f[1])));
-        set(Var.__str__, new Func(f -> ((Str) f[0]).string()));
+        set(Var.__str__, new Func(f -> f[0].string()));
         set(Var.__hash__, new Func(f -> ((Str) f[0]).hash()));
         set(Var.__eq__, new Func(f -> ((Str) f[0]).equal((Str) f[1])));
-        set(Var.__bool__, new Func(f -> ((Str) f[0]).bool()));
+        set(Var.__bool__, new Func(f -> f[0].bool()));
         set(Var.__size__, new Func(f -> ((Str) f[0]).size()));
-        set(Var.__iter__, new Func(f -> new Iter((Str) f[0])));
     }};
 
     public static final Type type = new Type("STR");

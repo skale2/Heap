@@ -14,6 +14,8 @@ public class Func extends Any implements Construct {
 
     public Func(Parser.Func funcDef, Scope parentScope) {
         super();
+        _params = new ArrayList<>();
+        _defaults = new ArrayList<>();
 
         for (var assignment : funcDef.paramDefs.parameters) {
             if (assignment.var instanceof Parser.Declare) {
@@ -48,7 +50,7 @@ public class Func extends Any implements Construct {
             return functional().run(arguments);
         }
 
-        var blockScope = new Scope(parentScope());
+        var blockScope = new Scope(parentScope(), Scope.Enclosing.FUNC);
 
         for (var i = 0; i < params().size(); i++) {
             if (arguments.length > i)

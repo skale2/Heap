@@ -51,7 +51,7 @@ public class HMap extends Container {
 
     public static final Type type = new Type("MAP");
 
-    private static final Scope _classScope = new Scope(null) {{
+    private static final Scope _classScope = new Scope(null, Scope.Enclosing.CLASS) {{
         set(Var.__add__, new Func(f -> ((HMap) f[0]).add((HMap) f[1])));
         set(Var.__index__, new Func(f -> ((HMap) f[0]).index((Any) f[1])));
         set(Var.add, new Func(f -> ((HMap) f[0]).set(f[1], f[2])));

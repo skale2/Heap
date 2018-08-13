@@ -9,9 +9,9 @@ public class Bool extends Atom {
         return _value;
     }
 
-    public Bool(boolean _value) {
+    public Bool(boolean value) {
         super();
-        this._value = _value;
+        _value = value;
     }
 
     private Bool equal(Bool bool) {
@@ -45,7 +45,7 @@ public class Bool extends Atom {
     }
 
 
-    private static final Scope _classScope = new Scope(null) {{
+    private static final Scope _classScope = new Scope(null, Scope.Enclosing.CLASS) {{
         set(Var.__eq__, new Func(f -> ((Bool) f[0]).equal((Bool) f[1])));
         set(Var.__and__, new Func(f -> ((Bool) f[0]).and((Bool) f[1])));
         set(Var.__or__, new Func(f -> ((Bool) f[0]).or((Bool) f[1])));

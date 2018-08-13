@@ -126,7 +126,7 @@ public abstract class HList extends Container {
     }
 
 
-    private static final Scope _classScope = new Scope(null) {{
+    private static final Scope _classScope = new Scope(null, Scope.Enclosing.CLASS) {{
         set(Var.__add__, new Func(f -> ((HList) f[0]).add((HList) f[1])));
         set(Var.__mul__, new Func(f -> ((HList) f[0]).multiply((Int) f[1])));
         set(Var.__div__, new Func(f -> ((HList) f[0]).divide((Int) f[1])));

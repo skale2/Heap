@@ -20,22 +20,4 @@ public class HArrayList extends HList {
 
     public static final Type type = new Type("ARRAYLIST");
 
-    static class Iter extends Iterator {
-        public Iter(HArrayList list) {
-            super();
-            _listIterator = list.list().listIterator();
-        }
-
-        @Override
-        public Any next() {
-            return _listIterator.next();
-        }
-
-        @Override
-        public Bool hasNext() {
-            return Bool.valueOf(_listIterator.hasNext());
-        }
-
-        private ListIterator<Any> _listIterator;
-    }
 }
